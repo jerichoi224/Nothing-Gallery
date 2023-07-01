@@ -2,8 +2,12 @@ import 'dart:async';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
+import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/widgets/homeWidget.dart';
+import 'package:nothing_gallery/widgets/permissionCheckWidget.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 late SharedPref sharedPref;
 
@@ -35,7 +39,9 @@ class _MyAppState extends State<MyApp> {
         theme: FlexThemeData.light(
             useMaterial3: true,
             scheme: FlexScheme.hippieBlue,
-            fontFamily: GoogleFonts.robotoMono().fontFamily),
+            fontFamily: GoogleFonts
+                .robotoMono()
+                .fontFamily),
         darkTheme: FlexThemeData.dark(
           useMaterial3: true,
           scheme: FlexScheme.hippieBlue,
@@ -46,6 +52,8 @@ class _MyAppState extends State<MyApp> {
         routes: <String, WidgetBuilder>{
           '/home': (BuildContext context) =>
               HomeWidget(parentCtx: context, sharedPref: sharedPref),
+          '/permission': (BuildContext context) =>
+              PermissionCheckWidget(parentCtx: context, sharedPref: sharedPref),
         });
   }
 }
@@ -61,17 +69,59 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainState extends State<MainApp> {
+  bool permissionChecked = false;
+
   @override
   void initState() {
     super.initState();
   }
 
+  Future<void> checkPermission(bool currentState) async {
+    final ps = await PhotoManager.requestPermissionExtend();
+    if (ps.isAuth) {
+      sharedPref.set(SharedPrefKeys.hasPermission, true);
+    } else {
+      sharedPref.set(SharedPrefKeys.hasPermission, false);
+    }
+    setState(() {
+      permissionChecked = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Timer(const Duration(milliseconds: 10), () {
-      Navigator.of(context)
-          .pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
+      bool currentPermission = sharedPref.get(SharedPrefKeys.hasPermission);
+
+      if (permissionChecked) {
+        if (currentPermission) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              '/home', (Route<dynamic> route) => false);
+        } else {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              '/permission', (Route<dynamic> route) => false);
+        }
+      } else {
+        checkPermission(currentPermission);
+      }
     });
-    return Scaffold(body: Container());
+
+    // App Logo screen or sth
+    return Scaffold(
+        body: Column(children: [
+          SizedBox(
+            height: MediaQuery
+                .of(context)
+                .viewPadding
+                .top,
+          ),
+          Padding(
+              padding: const EdgeInsets.all(10),
+              child: Center(
+                  child: Text(
+                    'Loading Screen (Icon)',
+                    style: PageTitleTextStyle(),
+                  )))
+        ]));
   }
 }

@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
+import 'package:photo_manager/photo_manager.dart';
 
-class AlbumsWidget extends StatefulWidget {
-  AlbumsWidget({Key? key}) : super(key: key);
+class PermissionCheckWidget extends StatefulWidget {
+  final BuildContext parentCtx;
+  late SharedPref sharedPref;
+
+  PermissionCheckWidget(
+      {super.key, required this.parentCtx, required this.sharedPref});
 
   @override
-  State createState() => _AlbumsState();
+  State createState() => _PermissionCheckState();
 }
 
-class _AlbumsState extends State<AlbumsWidget> {
+class _PermissionCheckState extends State<PermissionCheckWidget> {
   @override
   void initState() {
     super.initState();
   }
 
-  void getImages() {}
+  Future<void> openSetting() async {
+    await PhotoManager.openSetting(); // 권한 설정 페이지 이동
+    PermissionState permission = await PhotoManager.requestPermissionExtend();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +38,7 @@ class _AlbumsState extends State<AlbumsWidget> {
               padding: const EdgeInsets.all(10),
               child: Center(
                   child: Text(
-                'ALBUMS',
+                'Permission Check Screen',
                 style: PageTitleTextStyle(),
               )))
         ])));

@@ -1,3 +1,4 @@
+import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPref {
@@ -13,7 +14,8 @@ class SharedPref {
     }
   }
 
-  void set(String key, dynamic value) {
+  void set(SharedPrefKeys spKey, dynamic value) {
+    String key = spKey.text;
     if (value.runtimeType == String) {
       prefs.setString(key, value);
     } else if (value.runtimeType == double) {
@@ -28,7 +30,11 @@ class SharedPref {
     prefMap[key] = value;
   }
 
-  dynamic get(String key) {
+  dynamic get(SharedPrefKeys spKey) {
+    String key = spKey.text;
+    if(!prefMap.keys.contains(key)) {
+      return false;
+    }
     return prefMap[key];
   }
 

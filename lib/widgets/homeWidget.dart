@@ -63,7 +63,7 @@ class _HomeState extends State<HomeWidget> {
                             child: InkWell(
                                 child: const Icon(
                                   Icons.list,
-                                  size: 28,
+                                  size: 26,
                                 ),
                                 onTap: () {
 
