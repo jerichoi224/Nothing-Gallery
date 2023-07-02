@@ -6,8 +6,12 @@ TextStyle bottomNavTextStyle() {
       fontSize: 16.0, fontFamily: GoogleFonts.roboto().fontFamily);
 }
 
+TextStyle albumTitleStyle() {
+  return TextStyle(
+      fontSize: 12.0, fontFamily: GoogleFonts.roboto().fontFamily);
+}
 
-TextStyle PageTitleTextStyle() {
+TextStyle pageTitleTextStyle() {
   return TextStyle(
       fontSize: 20.0, fontFamily: GoogleFonts.roboto().fontFamily);
 }

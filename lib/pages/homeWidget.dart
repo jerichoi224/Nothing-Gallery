@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/widgets/albumsWidget.dart';
-import 'package:nothing_gallery/widgets/picturesWidget.dart';
+import 'package:nothing_gallery/pages/albumsWidget.dart';
+import 'package:nothing_gallery/pages/picturesWidget.dart';
 
 //ignore: must_be_immutable
 class HomeWidget extends StatefulWidget {
@@ -50,6 +50,14 @@ class _HomeState extends State<HomeWidget> {
                       flex: 4,
                       child: TabBar(
                         indicatorColor: Colors.transparent,
+                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed)) {
+                              return Colors.white12;
+                            }
+                            return Colors.transparent;
+                          },
+                        ),
                         labelStyle: bottomNavTextStyle(),
                         unselectedLabelStyle: bottomNavTextStyle(),
                         tabs: _tabs,
@@ -65,9 +73,7 @@ class _HomeState extends State<HomeWidget> {
                                   Icons.list,
                                   size: 26,
                                 ),
-                                onTap: () {
-
-                                }))),
+                                onTap: () {}))),
                   ],
                 )),
             body: TabBarView(children: _children()),

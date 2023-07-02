@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/widgets/homeWidget.dart';
-import 'package:nothing_gallery/widgets/permissionCheckWidget.dart';
+import 'package:nothing_gallery/pages/homeWidget.dart';
+import 'package:nothing_gallery/pages/permissionCheckWidget.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 late SharedPref sharedPref;
@@ -120,7 +120,7 @@ class _MainState extends State<MainApp> {
               child: Center(
                   child: Text(
                     'Loading Screen (Icon)',
-                    style: PageTitleTextStyle(),
+                    style: pageTitleTextStyle(),
                   )))
         ]));
   }
