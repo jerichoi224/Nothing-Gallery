@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/pages/albumsWidget.dart';
-import 'package:nothing_gallery/pages/picturesWidget.dart';
+import 'package:nothing_gallery/pages/albumsPage.dart';
+import 'package:nothing_gallery/pages/picturesPage.dart';
 
 //ignore: must_be_immutable
 class HomeWidget extends StatefulWidget {

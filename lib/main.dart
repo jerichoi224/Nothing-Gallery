@@ -5,9 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/pages/homeWidget.dart';
-import 'package:nothing_gallery/pages/permissionCheckWidget.dart';
-import 'package:photo_manager/photo_manager.dart';
+import 'package:nothing_gallery/pages/homePage.dart';
+import 'package:nothing_gallery/pages/permissionCheckPage.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 late SharedPref sharedPref;
 
@@ -77,8 +77,10 @@ class _MainState extends State<MainApp> {
   }
 
   Future<void> checkPermission(bool currentState) async {
-    final ps = await PhotoManager.requestPermissionExtend();
-    if (ps.isAuth) {
+    final permitted = await Permission.mediaLibrary.request().isGranted &&
+        await Permission.photos.request().isGranted;
+
+    if (permitted){
       sharedPref.set(SharedPrefKeys.hasPermission, true);
     } else {
       sharedPref.set(SharedPrefKeys.hasPermission, false);

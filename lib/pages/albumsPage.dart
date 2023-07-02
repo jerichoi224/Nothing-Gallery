@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/album_info.dart';
 import 'package:nothing_gallery/components/album.dart';
+import 'package:nothing_gallery/pages/imageGridPage.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -46,6 +47,16 @@ class _AlbumsState extends State<AlbumsWidget> {
     setState(() {});
   }
 
+  void _openAlbum(AssetPathEntity album) async {
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageGridWidget(
+            albumPath: album,
+          ),
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -76,7 +87,9 @@ class _AlbumsState extends State<AlbumsWidget> {
                     crossAxisCount: 2,
                     childAspectRatio: 0.85,
                     children: albums.entries
-                        .map((entry) => albumWidget(() => {}, entry.key.name,
+                        .map((entry) => albumWidget(
+                            () => {_openAlbum(entry.key)},
+                            entry.key.name,
                             entry.value.thumbnailImage))
                         .toList()),
               ),
