@@ -8,6 +8,7 @@ import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/pages/homePage.dart';
 import 'package:nothing_gallery/pages/permissionCheckPage.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 late SharedPref sharedPref;
 
@@ -39,9 +40,7 @@ class _MyAppState extends State<MyApp> {
         theme: FlexThemeData.light(
             useMaterial3: true,
             scheme: FlexScheme.hippieBlue,
-            fontFamily: GoogleFonts
-                .robotoMono()
-                .fontFamily),
+            fontFamily: GoogleFonts.robotoMono().fontFamily),
         darkTheme: FlexThemeData.dark(
           useMaterial3: true,
           scheme: FlexScheme.hippieBlue,
@@ -79,8 +78,10 @@ class _MainState extends State<MainApp> {
   Future<void> checkPermission(bool currentState) async {
     final permitted = await Permission.mediaLibrary.request().isGranted &&
         await Permission.photos.request().isGranted;
+    
+    final PermissionState _ps = await PhotoManager.requestPermissionExtend();
 
-    if (permitted){
+    if (permitted || _ps.isAuth) {
       sharedPref.set(SharedPrefKeys.hasPermission, true);
     } else {
       sharedPref.set(SharedPrefKeys.hasPermission, false);
@@ -111,19 +112,16 @@ class _MainState extends State<MainApp> {
     // App Logo screen or sth
     return Scaffold(
         body: Column(children: [
-          SizedBox(
-            height: MediaQuery
-                .of(context)
-                .viewPadding
-                .top,
-          ),
-          Padding(
-              padding: const EdgeInsets.all(10),
-              child: Center(
-                  child: Text(
-                    'Loading Screen (Icon)',
-                    style: pageTitleTextStyle(),
-                  )))
-        ]));
+      SizedBox(
+        height: MediaQuery.of(context).viewPadding.top,
+      ),
+      Padding(
+          padding: const EdgeInsets.all(10),
+          child: Center(
+              child: Text(
+            'Loading Screen (Icon)',
+            style: pageTitleTextStyle(),
+          )))
+    ]));
   }
 }

@@ -13,25 +13,9 @@ class ImagePageWidget extends StatefulWidget {
 }
 
 class _ImagePageWidgetState extends State<ImagePageWidget> {
-  File? imageFile;
   @override
   void initState() {
     super.initState();
-    getImage();
-  }
-
-  Future<void> getImage() async {
-    File? file = await widget.image.file;
-    if (file != null) {
-      setState(() {
-        imageFile = file;
-      });
-    }
-  }
-
-  Widget imageView() {
-    if (imageFile == null) return Container();
-    return Expanded(child: Image.file(imageFile!));
   }
 
   @override
@@ -39,8 +23,16 @@ class _ImagePageWidgetState extends State<ImagePageWidget> {
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
-            body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [imageView()])));
+            body: Stack(children: <Widget>[
+          InteractiveViewer(
+            maxScale: 5,
+            child: Center(
+                child: Image(
+                    image: AssetEntityImageProvider(
+              widget.image,
+              isOriginal: true,
+            ))),
+          )
+        ])));
   }
 }

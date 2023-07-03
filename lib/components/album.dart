@@ -1,16 +1,18 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/classes/album_info.dart';
 import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/style.dart';
+import 'package:photo_manager/photo_manager.dart';
 
-Widget albumWidget(Function onClick, String title, Uint8List thumbnailImage) {
+Widget albumWidget(Function onClick, AlbumInfo albumInfo) {
   double radius = 8.0;
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
       Stack(
         children: <Widget>[
-          imageThumbnailWidget(thumbnailImage, radius),
+          imageThumbnailWidget(albumInfo.thumbnailImage, radius),
           Positioned.fill(
             child: Material(
               color: Colors.transparent,
@@ -20,9 +22,7 @@ Widget albumWidget(Function onClick, String title, Uint8List thumbnailImage) {
                 onTap: () {
                   onClick();
                 },
-                onLongPress: (){
-                  
-                },
+                onLongPress: () {},
               ),
             ),
           ),
@@ -31,7 +31,7 @@ Widget albumWidget(Function onClick, String title, Uint8List thumbnailImage) {
       Padding(
         padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
         child: Text(
-          title.toUpperCase(),
+          "${albumInfo.album.name.toUpperCase()} (${albumInfo.assetCount})",
           style: albumTitleStyle(),
         ),
       ),

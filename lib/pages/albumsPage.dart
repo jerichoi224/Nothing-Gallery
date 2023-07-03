@@ -15,7 +15,7 @@ class AlbumsWidget extends StatefulWidget {
 }
 
 class _AlbumsState extends State<AlbumsWidget> {
-  Map<AssetPathEntity, AlbumInfo> albums = {};
+  List<AlbumInfo> albums = [];
 
   @override
   void initState() {
@@ -27,22 +27,12 @@ class _AlbumsState extends State<AlbumsWidget> {
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
     paths.removeWhere((element) => element.id == 'isAll'); // remove recent
     for (AssetPathEntity path in paths) {
-      int begin = 0;
       List<AssetEntity> thumbnailList =
-          await path.getAssetListRange(start: begin, end: begin + 5);
+          await path.getAssetListRange(start: 0, end: 1);
       if (thumbnailList.isEmpty) continue;
-
-      for (AssetEntity img in thumbnailList) {
-        Uint8List? thumbnailData = await img.thumbnailDataWithSize(
-          const ThumbnailSize.square(256),
-        );
-
-        if (thumbnailData != null) {
-          AlbumInfo info = AlbumInfo(path.id, thumbnailData);
-          albums[path] = info;
-          break;
-        }
-      }
+      int assetCount = await path.assetCountAsync;
+      AlbumInfo info = AlbumInfo(path, thumbnailList[0], assetCount);
+      albums.add(info);
     }
     setState(() {});
   }
@@ -86,11 +76,9 @@ class _AlbumsState extends State<AlbumsWidget> {
                     mainAxisSpacing: 15,
                     crossAxisCount: 2,
                     childAspectRatio: 0.85,
-                    children: albums.entries
-                        .map((entry) => albumWidget(
-                            () => {_openAlbum(entry.key)},
-                            entry.key.name,
-                            entry.value.thumbnailImage))
+                    children: albums
+                        .map((entry) =>
+                            albumWidget(() => {_openAlbum(entry.album)}, entry))
                         .toList()),
               ),
             ],

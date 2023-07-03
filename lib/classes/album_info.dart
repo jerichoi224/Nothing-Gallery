@@ -1,7 +1,11 @@
 import 'dart:typed_data';
 
+import 'package:photo_manager/photo_manager.dart';
+
 class AlbumInfo {
-  String albumId;
-  Uint8List thumbnailImage;
-  AlbumInfo(this.albumId, this.thumbnailImage);
+  AssetPathEntity album;
+  AssetEntity thumbnailImage;
+  int assetCount;
+
+  AlbumInfo(this.album, this.thumbnailImage, this.assetCount);
 }
