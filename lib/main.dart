@@ -78,7 +78,7 @@ class _MainState extends State<MainApp> {
   Future<void> checkPermission(bool currentState) async {
     final permitted = await Permission.mediaLibrary.request().isGranted &&
         await Permission.photos.request().isGranted;
-    
+
     final PermissionState _ps = await PhotoManager.requestPermissionExtend();
 
     if (permitted || _ps.isAuth) {
@@ -111,17 +111,16 @@ class _MainState extends State<MainApp> {
 
     // App Logo screen or sth
     return Scaffold(
-        body: Column(children: [
-      SizedBox(
-        height: MediaQuery.of(context).viewPadding.top,
-      ),
-      Padding(
-          padding: const EdgeInsets.all(10),
-          child: Center(
-              child: Text(
-            'Loading Screen (Icon)',
-            style: pageTitleTextStyle(),
-          )))
-    ]));
+        body: SafeArea(
+      child: Column(children: [
+        Padding(
+            padding: const EdgeInsets.all(10),
+            child: Center(
+                child: Text(
+              'Loading Screen (Icon)',
+              style: pageTitleTextStyle(),
+            )))
+      ]),
+    ));
   }
 }

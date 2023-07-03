@@ -17,12 +17,6 @@ class _PicturesState extends State<PicturesWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Scaffold(
-            body: Column(children: [
-          SizedBox(
-            height: MediaQuery.of(context).viewPadding.top,
-          ),
-
-        ])));
+        child: Scaffold(body: SafeArea(child: Column(children: []))));
   }
 }

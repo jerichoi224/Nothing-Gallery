@@ -30,10 +30,8 @@ class _PermissionCheckState extends State<PermissionCheckWidget> {
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
-            body: Column(children: [
-          SizedBox(
-            height: MediaQuery.of(context).viewPadding.top,
-          ),
+            body: SafeArea(
+                child: Column(children: [
           Padding(
               padding: const EdgeInsets.all(10),
               child: Center(
@@ -41,6 +39,6 @@ class _PermissionCheckState extends State<PermissionCheckWidget> {
                 'Permission Check Screen',
                 style: pageTitleTextStyle(),
               )))
-        ])));
+        ]))));
   }
 }

@@ -52,10 +52,8 @@ class _AlbumsState extends State<AlbumsWidget> {
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
-            body: Column(children: [
-          SizedBox(
-            height: MediaQuery.of(context).viewPadding.top,
-          ),
+            body: SafeArea(
+                child: Column(children: [
           Padding(
               padding: const EdgeInsets.all(10),
               child: Center(
@@ -83,6 +81,6 @@ class _AlbumsState extends State<AlbumsWidget> {
               ),
             ],
           ))
-        ])));
+        ]))));
   }
 }

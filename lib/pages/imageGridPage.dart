@@ -27,10 +27,9 @@ class _ImageGridState extends State<ImageGridWidget> {
   }
 
   Future<void> getImages() async {
-    List<AssetEntity> images = await loadImages(widget.albumPath, currentPage++);
+    List<AssetEntity> images = await loadImages(widget.albumPath, currentPage++, size: 80);
     setState(() {
       loadedImages = List.from(loadedImages)..addAll(images);
-      print(loadedImages.length);
     });
   }
 

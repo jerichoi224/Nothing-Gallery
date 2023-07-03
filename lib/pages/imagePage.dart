@@ -27,11 +27,21 @@ class _ImagePageWidgetState extends State<ImagePageWidget> {
           InteractiveViewer(
             maxScale: 5,
             child: Center(
-                child: Image(
-                    image: AssetEntityImageProvider(
+                child: AssetEntityImage(
               widget.image,
               isOriginal: true,
-            ))),
+              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                if (frame == null) {
+                  // fallback to placeholder
+                  return Container(
+                    color: Colors.white12,
+                    height: widget.image.height.toDouble(),
+                    width: widget.image.width.toDouble(),
+                  );
+                }
+                return child;
+              },
+            )),
           )
         ])));
   }

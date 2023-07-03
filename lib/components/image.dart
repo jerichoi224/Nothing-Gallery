@@ -33,8 +33,15 @@ Widget imageThumbnailWidget(AssetEntity image, double radius) {
           child: AssetEntityImage(
             image,
             isOriginal: false,
-            thumbnailSize: const ThumbnailSize.square(200),
-            thumbnailFormat: ThumbnailFormat.jpeg,
             fit: BoxFit.cover,
+            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+              if (frame == null) {
+                // fallback to placeholder
+                return Container(
+                  color: Colors.white12,
+                );
+              }
+              return child;
+            },
           )));
 }
