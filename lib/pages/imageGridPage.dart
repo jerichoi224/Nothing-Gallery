@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
@@ -18,6 +17,7 @@ class ImageGridWidget extends StatefulWidget {
 class _ImageGridState extends State<ImageGridWidget> {
   // Map<AssetEntity, Uint8List> images = {};
   List<AssetEntity> loadedImages = [];
+  int totalCount = 0;
   int currentPage = 0;
 
   @override
@@ -27,18 +27,22 @@ class _ImageGridState extends State<ImageGridWidget> {
   }
 
   Future<void> getImages() async {
-    List<AssetEntity> images = await loadImages(widget.albumPath, currentPage++, size: 80);
+    totalCount = await widget.albumPath.assetCountAsync;
+    List<AssetEntity> images =
+        await loadImages(widget.albumPath, currentPage++, size: 80);
     setState(() {
       loadedImages = List.from(loadedImages)..addAll(images);
     });
   }
 
-  void _openImage(AssetEntity image) async {
+  void _openImage(AssetEntity image, int index) async {
     await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ImagePageWidget(
-            image: image,
+            images: loadedImages,
+            imageTotal: totalCount,
+            index: index,
           ),
         ));
   }
@@ -82,8 +86,13 @@ class _ImageGridState extends State<ImageGridWidget> {
                                 crossAxisCount: 4,
                                 childAspectRatio: 1,
                                 children: loadedImages
+                                    .asMap()
+                                    .entries
                                     .map((entry) => imageWidget(
-                                        () => {_openImage(entry)}, entry))
+                                        () => {
+                                              _openImage(entry.value, entry.key)
+                                            },
+                                        entry.value))
                                     .toList()),
                           ),
                         ],
