@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+// ignore_for_file: file_names
 
 import 'package:photo_manager/photo_manager.dart';
 

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/album_info.dart';
+import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';

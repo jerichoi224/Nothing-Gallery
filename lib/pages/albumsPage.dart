@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/album_info.dart';
+import 'package:flutter/services.dart';
+import 'package:nothing_gallery/classes/AlbumInfo.dart';
+import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
 import 'package:nothing_gallery/components/album.dart';
 import 'package:nothing_gallery/pages/imageGridPage.dart';
 import 'package:nothing_gallery/style.dart';
@@ -14,7 +16,7 @@ class AlbumsWidget extends StatefulWidget {
   State createState() => _AlbumsState();
 }
 
-class _AlbumsState extends State<AlbumsWidget> {
+class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
   List<AlbumInfo> albums = [];
 
   @override
@@ -45,6 +47,7 @@ class _AlbumsState extends State<AlbumsWidget> {
             albumPath: album,
           ),
         ));
+    getAlbums();
   }
 
   @override
@@ -82,5 +85,25 @@ class _AlbumsState extends State<AlbumsWidget> {
             ],
           ))
         ]))));
+  }
+
+  @override
+  void onDetached() {
+    // TODO: implement onDetached
+  }
+
+  @override
+  void onInactive() {
+    // TODO: implement onInactive
+  }
+
+  @override
+  void onPaused() {
+    // TODO: implement onPaused
+  }
+
+  @override
+  void onResumed() {
+    getAlbums();
   }
 }
