@@ -1,4 +1,6 @@
 // ignore: file_names
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -27,7 +29,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     with SingleTickerProviderStateMixin {
   int index = 0;
   List<AssetEntity> images = [];
-  bool decorationVisible = false;
+  bool decorationVisible = true;
 
   late AnimationController animationController;
   late Animation fadeAnimation;
@@ -50,6 +52,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
 
   @override
   Widget build(BuildContext context) {
+    Size orientatedSize = images[index].orientatedSize;
     return Scaffold(
         body: SafeArea(
             child: GestureDetector(
@@ -60,7 +63,8 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                   PhotoViewGallery.builder(
                     loadingBuilder: (context, event) => Center(
                       child: AspectRatio(
-                        aspectRatio: images[index].height / images[index].width,
+                        aspectRatio:
+                            orientatedSize.width / orientatedSize.height,
                         child: Container(
                           color: Colors.white12,
                         ),
@@ -71,6 +75,11 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                     itemCount: widget.imageTotal,
                     builder: (context, index) {
                       return PhotoViewGalleryPageOptions(
+                        minScale: min(
+                            MediaQuery.of(context).size.width /
+                                orientatedSize.width,
+                            MediaQuery.of(context).size.height /
+                                orientatedSize.height),
                         imageProvider: AssetEntityImageProvider(images[index],
                             isOriginal: true),
                         heroAttributes:
