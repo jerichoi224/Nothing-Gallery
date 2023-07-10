@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -47,19 +48,6 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     super.dispose();
   }
 
-  PhotoViewScaleState myScaleStateCycle(PhotoViewScaleState actual) {
-    switch (actual) {
-      case PhotoViewScaleState.zoomedIn:
-      case PhotoViewScaleState.zoomedOut:
-      case PhotoViewScaleState.covering:
-        return PhotoViewScaleState.initial;
-      case PhotoViewScaleState.initial:
-      case PhotoViewScaleState.originalSize:
-      default:
-        return PhotoViewScaleState.covering;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,14 +58,24 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                     }),
                 child: Stack(children: <Widget>[
                   PhotoViewGallery.builder(
-                    // loadingBuilder:
-                    allowImplicitScrolling: true,
+                    loadingBuilder: (context, event) => Center(
+                      child: AspectRatio(
+                        aspectRatio: images[index].height / images[index].width,
+                        child: Container(
+                          color: Colors.white12,
+                        ),
+                      ),
+                    ),
+                    // allowImplicitScrolling: true,
                     pageController: widget.pageController,
                     itemCount: widget.imageTotal,
                     builder: (context, index) {
                       return PhotoViewGalleryPageOptions(
-                          imageProvider: AssetEntityImageProvider(images[index],
-                              isOriginal: true));
+                        imageProvider: AssetEntityImageProvider(images[index],
+                            isOriginal: true),
+                        heroAttributes:
+                            PhotoViewHeroAttributes(tag: images[index].id),
+                      );
                     },
                     onPageChanged: (index) => setState(() {
                       this.index = index;
@@ -93,12 +91,30 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                           padding: const EdgeInsets.all(20),
                           child: Column(
                             children: [
-                              Text(
-                                "${index + 1}/${widget.imageTotal}",
-                                style: bottomNavTextStyle(),
+                              Row(
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      icon: const Icon(Icons.arrow_back)),
+                                  Text(
+                                    "${index + 1}/${widget.imageTotal}",
+                                    style: imageIndexTextStyle(),
+                                  ),
+                                ],
                               ),
                               const Spacer(),
-                              Text("HELLO", style: bottomNavTextStyle())
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      icon: const Icon(Icons.delete)),
+                                ],
+                              )
                             ],
                           )))
                 ]))));

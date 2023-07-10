@@ -29,7 +29,7 @@ class _ImageGridState extends State<ImageGridWidget> {
   Future<void> getImages() async {
     totalCount = await widget.albumPath.assetCountAsync;
     List<AssetEntity> images =
-        await loadImages(widget.albumPath, currentPage++, size: 80);
+        await loadImages(widget.albumPath, currentPage++, size: 100);
     setState(() {
       loadedImages = List.from(loadedImages)..addAll(images);
     });
@@ -59,7 +59,7 @@ class _ImageGridState extends State<ImageGridWidget> {
                   final scrollPixels =
                       scroll.metrics.pixels / scroll.metrics.maxScrollExtent;
 
-                  if (scrollPixels > 0.7) getImages();
+                  if (scrollPixels > 0.6) getImages();
                   return false;
                 },
                 child: SafeArea(
