@@ -1,10 +1,10 @@
 // ignore: file_names
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 // ignore: must_be_immutable
@@ -50,9 +50,22 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     super.dispose();
   }
 
+  PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
+    Size orientatedSize = images[index].orientatedSize;
+
+    return PhotoViewGalleryPageOptions(
+      minScale: min(MediaQuery.of(context).size.width / orientatedSize.width,
+          MediaQuery.of(context).size.height / orientatedSize.height),
+      imageProvider: AssetEntityImageProvider(images[index], isOriginal: true),
+      // heroAttributes:
+      //     PhotoViewHeroAttributes(tag: images[index].id),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Size orientatedSize = images[index].orientatedSize;
+
     return Scaffold(
         body: SafeArea(
             child: GestureDetector(
@@ -60,35 +73,26 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                       decorationVisible = !decorationVisible;
                     }),
                 child: Stack(children: <Widget>[
-                  PhotoViewGallery.builder(
-                    loadingBuilder: (context, event) => Center(
-                      child: AspectRatio(
-                        aspectRatio:
-                            orientatedSize.width / orientatedSize.height,
-                        child: Container(
-                          color: Colors.white12,
+                  Hero(
+                    tag: images[index].id,
+                    child: PhotoViewGallery.builder(
+                      pageController: widget.pageController,
+                      loadingBuilder: (context, event) => Center(
+                        child: AspectRatio(
+                          aspectRatio:
+                              orientatedSize.width / orientatedSize.height,
+                          child: Container(
+                            color: Colors.white12,
+                          ),
                         ),
                       ),
+                      allowImplicitScrolling: true,
+                      itemCount: widget.imageTotal,
+                      builder: _buildItem,
+                      onPageChanged: (index) => setState(() {
+                        this.index = index;
+                      }),
                     ),
-                    // allowImplicitScrolling: true,
-                    pageController: widget.pageController,
-                    itemCount: widget.imageTotal,
-                    builder: (context, index) {
-                      return PhotoViewGalleryPageOptions(
-                        minScale: min(
-                            MediaQuery.of(context).size.width /
-                                orientatedSize.width,
-                            MediaQuery.of(context).size.height /
-                                orientatedSize.height),
-                        imageProvider: AssetEntityImageProvider(images[index],
-                            isOriginal: true),
-                        heroAttributes:
-                            PhotoViewHeroAttributes(tag: images[index].id),
-                      );
-                    },
-                    onPageChanged: (index) => setState(() {
-                      this.index = index;
-                    }),
                   ),
                   AnimatedOpacity(
                       // If the widget is visible, animate to 0.0 (invisible).
