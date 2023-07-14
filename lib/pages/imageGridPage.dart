@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
@@ -17,6 +19,7 @@ class ImageGridWidget extends StatefulWidget {
 class _ImageGridState extends State<ImageGridWidget> {
   // Map<AssetEntity, Uint8List> images = {};
   List<AssetEntity> loadedImages = [];
+  List<Uint8List> thumbnails = [];
   int totalCount = 0;
   int currentPage = 0;
 
@@ -30,18 +33,41 @@ class _ImageGridState extends State<ImageGridWidget> {
     totalCount = await widget.albumPath.assetCountAsync;
     List<AssetEntity> images =
         await loadImages(widget.albumPath, currentPage++, size: 100);
+    // getThumbnails(images);
+
     setState(() {
       loadedImages = List.from(loadedImages)..addAll(images);
     });
   }
 
+  Future<void> getThumbnails(List<AssetEntity> images) async {
+    List<Uint8List> loadedThumb = [];
+    for (AssetEntity image in images) {
+      Uint8List? thumbnail = await image.thumbnailDataWithSize(
+          ThumbnailSize(image.orientatedWidth, image.orientatedHeight));
+
+      if (thumbnail == null) {
+        loadedThumb.add(Uint8List(0));
+      } else {
+        loadedThumb.add(thumbnail);
+      }
+    }
+    setState(() {
+      thumbnails = List.from(thumbnails)..addAll(loadedThumb);
+    });
+  }
+
   void _openImage(AssetEntity image, int index) async {
+    Uint8List thumbnail = Uint8List(0);
+    if (thumbnails.length > index) thumbnail = thumbnails[index];
+
     await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ImagePageWidget(
             images: loadedImages,
             imageTotal: totalCount,
+            thumbnail: thumbnail,
             index: index,
           ),
         ));
@@ -89,10 +115,11 @@ class _ImageGridState extends State<ImageGridWidget> {
                                     .asMap()
                                     .entries
                                     .map((entry) => imageWidget(
-                                        () => {
-                                              _openImage(entry.value, entry.key)
-                                            },
-                                        entry.value))
+                                          () => {
+                                            _openImage(entry.value, entry.key)
+                                          },
+                                          entry.value,
+                                        ))
                                     .toList()),
                           ),
                         ],

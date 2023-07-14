@@ -11,6 +11,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 class ImagePageWidget extends StatefulWidget {
   int index;
   int imageTotal;
+  Uint8List thumbnail;
   final PageController pageController;
   List<AssetEntity> images;
 
@@ -18,6 +19,7 @@ class ImagePageWidget extends StatefulWidget {
       {super.key,
       required this.images,
       required this.imageTotal,
+      required this.thumbnail,
       required this.index})
       : pageController = PageController(initialPage: index);
 
@@ -54,12 +56,15 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     Size orientatedSize = images[index].orientatedSize;
 
     return PhotoViewGalleryPageOptions(
-      minScale: min(MediaQuery.of(context).size.width / orientatedSize.width,
-          MediaQuery.of(context).size.height / orientatedSize.height),
-      imageProvider: AssetEntityImageProvider(images[index], isOriginal: true),
-      // heroAttributes:
-      //     PhotoViewHeroAttributes(tag: images[index].id),
-    );
+        minScale: min(MediaQuery.of(context).size.width / orientatedSize.width,
+            MediaQuery.of(context).size.height / orientatedSize.height),
+        imageProvider: AssetEntityImage(
+          images[index],
+          isOriginal: true,
+        ).image
+
+        //  AssetEntityImageProvider(images[index], isOriginal: true),
+        );
   }
 
   @override
@@ -77,15 +82,17 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                     tag: images[index].id,
                     child: PhotoViewGallery.builder(
                       pageController: widget.pageController,
-                      loadingBuilder: (context, event) => Center(
-                        child: AspectRatio(
-                          aspectRatio:
-                              orientatedSize.width / orientatedSize.height,
-                          child: Container(
-                            color: Colors.white12,
+                      loadingBuilder: (context, event) {
+                        return Center(
+                          child: AspectRatio(
+                            aspectRatio:
+                                orientatedSize.width / orientatedSize.height,
+                            child: Container(
+                              color: Colors.white12,
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                       allowImplicitScrolling: true,
                       itemCount: widget.imageTotal,
                       builder: _buildItem,
@@ -95,11 +102,8 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                     ),
                   ),
                   AnimatedOpacity(
-                      // If the widget is visible, animate to 0.0 (invisible).
-                      // If the widget is hidden, animate to 1.0 (fully visible).
                       opacity: decorationVisible ? 1.0 : 0.0,
                       duration: const Duration(milliseconds: 300),
-                      // The green box must be a child of the AnimatedOpacity widget.
                       child: Padding(
                           padding: const EdgeInsets.all(20),
                           child: Column(
