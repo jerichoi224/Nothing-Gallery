@@ -40,6 +40,7 @@ class _ImageGridState extends State<ImageGridWidget> {
     });
   }
 
+  // Not used
   Future<void> getThumbnails(List<AssetEntity> images) async {
     List<Uint8List> loadedThumb = [];
     for (AssetEntity image in images) {

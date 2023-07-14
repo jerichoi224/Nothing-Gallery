@@ -13,7 +13,7 @@ TextStyle albumTitleStyle() {
 
 TextStyle pageTitleTextStyle() {
   return TextStyle(
-      fontSize: 20.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
+      fontSize: 18.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
 }
 
 TextStyle imageIndexTextStyle() {

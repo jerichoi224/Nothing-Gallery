@@ -57,35 +57,35 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
             body: SafeArea(
-                child: Column(children: [
-          Padding(
-              padding: const EdgeInsets.all(10),
-              child: Center(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 20, 10, 20),
                   child: Text(
-                'ALBUMS',
-                style: pageTitleTextStyle(),
-              ))),
-
-          // Album Grid
-          Expanded(
-              child: CustomScrollView(
-            primary: false,
-            slivers: <Widget>[
-              SliverPadding(
-                padding: const EdgeInsets.all(25),
-                sliver: SliverGrid.count(
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 15,
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.85,
-                    children: albums
-                        .map((entry) =>
-                            albumWidget(() => {_openAlbum(entry.album)}, entry))
-                        .toList()),
-              ),
-            ],
-          ))
-        ]))));
+                    'ALBUMS',
+                    style: pageTitleTextStyle(),
+                  )),
+              // Album Grid
+              Expanded(
+                  child: CustomScrollView(
+                primary: false,
+                slivers: <Widget>[
+                  SliverPadding(
+                    padding: const EdgeInsets.all(25),
+                    sliver: SliverGrid.count(
+                        crossAxisSpacing: 15,
+                        mainAxisSpacing: 15,
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.85,
+                        children: albums
+                            .map((entry) => albumWidget(
+                                () => {_openAlbum(entry.album)}, entry))
+                            .toList()),
+                  ),
+                ],
+              ))
+            ]))));
   }
 
   @override
