@@ -5,12 +5,15 @@ import 'package:flutter/services.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
 import 'package:nothing_gallery/components/album.dart';
+import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/pages/imageGridPage.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class AlbumsWidget extends StatefulWidget {
-  AlbumsWidget({Key? key}) : super(key: key);
+  late SharedPref sharedPref;
+
+  AlbumsWidget({super.key, required this.sharedPref});
 
   @override
   State createState() => _AlbumsState();
@@ -46,6 +49,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
         MaterialPageRoute(
           builder: (context) => ImageGridWidget(
             albumPath: album,
+            sharedPref: widget.sharedPref,
           ),
         ));
     getAlbums();

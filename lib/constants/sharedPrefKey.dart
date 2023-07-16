@@ -1,7 +1,12 @@
 enum SharedPrefKeys {
-  hasPermission(text: "hasPermission");
+  // Settings
+  hasPermission(text: "hasPermission", type: bool),
 
-  const SharedPrefKeys({required this.text});
+  // ImageGridPage
+  imageGridPageNumCol(text: "imageGridPageNumCol", type: int);
+
+  const SharedPrefKeys({required this.text, required this.type});
 
   final String text;
+  final Type type;
 }

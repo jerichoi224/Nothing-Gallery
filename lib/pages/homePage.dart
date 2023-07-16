@@ -26,7 +26,12 @@ class _HomeState extends State<HomeWidget> {
     super.initState();
   }
 
-  List<Widget> _children() => [PicturesWidget(), AlbumsWidget()];
+  List<Widget> _children() => [
+        PicturesWidget(),
+        AlbumsWidget(
+          sharedPref: widget.sharedPref,
+        )
+      ];
 
   static const List<Tab> _tabs = [
     Tab(text: "PICTURES"),

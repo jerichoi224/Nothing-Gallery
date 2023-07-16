@@ -61,7 +61,6 @@ class _PicturesState extends State<PicturesWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print(loadedImages.length);
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(

@@ -61,10 +61,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
         imageProvider: AssetEntityImage(
           images[index],
           isOriginal: true,
-        ).image
-
-        //  AssetEntityImageProvider(images[index], isOriginal: true),
-        );
+        ).image);
   }
 
   @override
@@ -83,15 +80,12 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                     child: PhotoViewGallery.builder(
                       pageController: widget.pageController,
                       loadingBuilder: (context, event) {
-                        return Center(
-                          child: AspectRatio(
-                            aspectRatio:
-                                orientatedSize.width / orientatedSize.height,
-                            child: Container(
-                              color: Colors.white12,
-                            ),
-                          ),
-                        );
+                        return Image(
+                            fit: BoxFit.contain,
+                            image: AssetEntityImageProvider(
+                              images[index],
+                              isOriginal: false,
+                            ));
                       },
                       allowImplicitScrolling: true,
                       itemCount: widget.imageTotal,
