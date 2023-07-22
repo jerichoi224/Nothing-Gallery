@@ -25,7 +25,6 @@ class _ImageGridState extends State<ImageGridWidget> {
   // Map<AssetEntity, Uint8List> images = {};
   List<AssetEntity> loadedImages = [];
   List<Uint8List> thumbnails = [];
-  bool scale_modified = false;
   int totalCount = 0;
   int currentPage = 0;
   int numCol = 4;
@@ -90,29 +89,6 @@ class _ImageGridState extends State<ImageGridWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onScaleUpdate: (ScaleUpdateDetails scaleDetails) {
-          setState(() {
-            double _scale =
-                (scaleDetails.horizontalScale + scaleDetails.verticalScale) / 2;
-            if (!scale_modified) {
-              if (_scale < 0.6 && numCol < 8) {
-                numCol += 1;
-                scale_modified = true;
-                widget.sharedPref
-                    .set(SharedPrefKeys.imageGridPageNumCol, numCol);
-              } else if (_scale > 2 && numCol > 2) {
-                numCol -= 1;
-                scale_modified = true;
-                widget.sharedPref
-                    .set(SharedPrefKeys.imageGridPageNumCol, numCol);
-              }
-            }
-          });
-        },
-        onScaleEnd: (details) {
-          scale_modified = false;
-        },
-        behavior: HitTestBehavior.deferToChild,
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
             body: NotificationListener<ScrollNotification>(
@@ -141,30 +117,24 @@ class _ImageGridState extends State<ImageGridWidget> {
                           child: CustomScrollView(
                         primary: false,
                         slivers: <Widget>[
-                          LocalHeroScope(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                            child: SliverPadding(
-                              padding: const EdgeInsets.all(12),
-                              sliver: SliverGrid.count(
-                                  crossAxisSpacing: 3,
-                                  mainAxisSpacing: 3,
-                                  crossAxisCount: numCol,
-                                  childAspectRatio: 1,
-                                  children: loadedImages
-                                      .asMap()
-                                      .entries
-                                      .map((entry) => LocalHero(
-                                          tag: entry.value.id,
-                                          child: imageWidget(
-                                            () => {
-                                              _openImage(entry.value, entry.key)
-                                            },
-                                            entry.value,
-                                          )))
-                                      .toList()),
-                            ),
-                          )
+                          SliverPadding(
+                            padding: const EdgeInsets.all(12),
+                            sliver: SliverGrid.count(
+                                crossAxisSpacing: 3,
+                                mainAxisSpacing: 3,
+                                crossAxisCount: numCol,
+                                childAspectRatio: 1,
+                                children: loadedImages
+                                    .asMap()
+                                    .entries
+                                    .map((entry) => imageWidget(
+                                          () => {
+                                            _openImage(entry.value, entry.key)
+                                          },
+                                          entry.value,
+                                        ))
+                                    .toList()),
+                          ),
                         ],
                       ))
                     ])))));
