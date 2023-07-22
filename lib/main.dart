@@ -94,7 +94,8 @@ class _MainState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     Timer(const Duration(milliseconds: 10), () {
-      bool currentPermission = sharedPref.get(SharedPrefKeys.hasPermission);
+      bool currentPermission =
+          sharedPref.get(SharedPrefKeys.hasPermission) ?? false;
 
       if (permissionChecked) {
         if (currentPermission) {

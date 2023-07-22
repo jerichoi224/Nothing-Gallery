@@ -9,7 +9,7 @@
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:label="nothing_gallery"
+        android:label="Nothing Gallery"
         android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"

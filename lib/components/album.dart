@@ -1,13 +1,12 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:photo_manager/photo_manager.dart';
 
 Widget albumWidget(Function onClick, AlbumInfo albumInfo) {
   double radius = 8.0;
   return Column(
+    key: ValueKey(albumInfo.album.id),
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
       Stack(
@@ -22,7 +21,6 @@ Widget albumWidget(Function onClick, AlbumInfo albumInfo) {
                 onTap: () {
                   onClick();
                 },
-                onLongPress: () {},
               ),
             ),
           ),

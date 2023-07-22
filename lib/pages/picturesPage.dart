@@ -17,6 +17,7 @@ class PicturesWidget extends StatefulWidget {
 class _PicturesState extends State<PicturesWidget> {
   late AssetPathEntity recent;
   List<AssetEntity> loadedImages = [];
+  List<Widget> chunksByDate = [];
   int totalCount = 0;
   int currentPage = 0;
 
@@ -39,10 +40,9 @@ class _PicturesState extends State<PicturesWidget> {
     totalCount = await recent.assetCountAsync;
     List<AssetEntity> images =
         await loadImages(recent, currentPage++, size: 100);
-    // getThumbnails(images);
-
     setState(() {
-      loadedImages = List.from(loadedImages)..addAll(images);
+      loadedImages = images;
+      //List.from(loadedImages)..addAll(images);
     });
   }
 
@@ -86,29 +86,9 @@ class _PicturesState extends State<PicturesWidget> {
                           )),
                       // Images Grid
                       Expanded(
-                          child: CustomScrollView(
-                        primary: false,
-                        slivers: <Widget>[
-                          SliverPadding(
-                            padding: const EdgeInsets.all(12),
-                            sliver: SliverGrid.count(
-                                crossAxisSpacing: 3,
-                                mainAxisSpacing: 3,
-                                crossAxisCount: 4,
-                                childAspectRatio: 1,
-                                children: loadedImages
-                                    .asMap()
-                                    .entries
-                                    .map((entry) => imageWidget(
-                                          () => {
-                                            _openImage(entry.value, entry.key)
-                                          },
-                                          entry.value,
-                                        ))
-                                    .toList()),
-                          ),
-                        ],
-                      ))
+                          child: Column(
+                        children: chunksByDate,
+                      )),
                     ])))));
   }
 }

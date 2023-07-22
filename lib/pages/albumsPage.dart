@@ -66,9 +66,16 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
                     children: [
               Padding(
                   padding: const EdgeInsets.fromLTRB(30, 20, 10, 20),
-                  child: Text(
-                    'ALBUMS',
-                    style: pageTitleTextStyle(),
+                  child: Row(
+                    children: [
+                      Text(
+                        'ALBUMS',
+                        style: pageTitleTextStyle(),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                          onPressed: () {}, icon: const Icon(Icons.search))
+                    ],
                   )),
               // Album Grid
               Expanded(
