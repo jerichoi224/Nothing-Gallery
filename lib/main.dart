@@ -35,25 +35,20 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Spending Manager',
-        theme: FlexThemeData.light(
-            useMaterial3: true,
-            scheme: FlexScheme.hippieBlue,
-            fontFamily: GoogleFonts.robotoMono().fontFamily),
-        darkTheme: FlexThemeData.dark(
+      debugShowCheckedModeBanner: false,
+      title: 'Spending Manager',
+      theme: FlexThemeData.light(
           useMaterial3: true,
           scheme: FlexScheme.hippieBlue,
-          darkIsTrueBlack: true,
-        ),
-        themeMode: ThemeMode.dark,
-        home: const MainApp(),
-        routes: <String, WidgetBuilder>{
-          '/home': (BuildContext context) =>
-              HomeWidget(parentCtx: context, sharedPref: sharedPref),
-          '/permission': (BuildContext context) =>
-              PermissionCheckWidget(parentCtx: context, sharedPref: sharedPref),
-        });
+          fontFamily: GoogleFonts.robotoMono().fontFamily),
+      darkTheme: FlexThemeData.dark(
+        useMaterial3: true,
+        scheme: FlexScheme.hippieBlue,
+        darkIsTrueBlack: true,
+      ),
+      themeMode: ThemeMode.dark,
+      home: const MainApp(),
+    );
   }
 }
 
@@ -69,10 +64,23 @@ class MainApp extends StatefulWidget {
 
 class _MainState extends State<MainApp> {
   bool permissionChecked = false;
+  bool imagesLoaded = false;
+  List<AssetEntity> pictures = [];
 
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> getAllImages() async {
+    int total = await PhotoManager.getAssetCount();
+    pictures = await PhotoManager.getAssetListRange(start: 0, end: total);
+    pictures.sort((a, b) => b.createDateTime.millisecondsSinceEpoch
+        .compareTo(a.createDateTime.millisecondsSinceEpoch));
+
+    setState(() {
+      imagesLoaded = true;
+    });
   }
 
   Future<void> checkPermission(bool currentState) async {
@@ -98,12 +106,27 @@ class _MainState extends State<MainApp> {
           sharedPref.get(SharedPrefKeys.hasPermission) ?? false;
 
       if (permissionChecked) {
+        if (!currentPermission) {
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (context) => PermissionCheckWidget(
+                    parentCtx: context, sharedPref: sharedPref),
+              ),
+              (Route<dynamic> route) => false);
+        }
         if (currentPermission) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              '/home', (Route<dynamic> route) => false);
-        } else {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              '/permission', (Route<dynamic> route) => false);
+          if (!imagesLoaded) {
+            getAllImages();
+          } else {
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (context) => HomeWidget(
+                      parentCtx: context,
+                      sharedPref: sharedPref,
+                      pictures: pictures),
+                ),
+                (Route<dynamic> route) => false);
+          }
         }
       } else {
         checkPermission(currentPermission);

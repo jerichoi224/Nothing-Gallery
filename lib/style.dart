@@ -20,3 +20,8 @@ TextStyle imageIndexTextStyle() {
   return TextStyle(
       fontSize: 20.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
 }
+
+TextStyle picturesDateTakenStyle() {
+  return TextStyle(
+      fontSize: 18.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
+}

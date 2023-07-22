@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:local_hero/local_hero.dart';
 import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
@@ -80,7 +79,6 @@ class _ImageGridState extends State<ImageGridWidget> {
           builder: (context) => ImagePageWidget(
             images: loadedImages,
             imageTotal: totalCount,
-            thumbnail: thumbnail,
             index: index,
           ),
         ));

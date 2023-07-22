@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/util/imageLoader.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class PicturesWidget extends StatefulWidget {
-  PicturesWidget({Key? key}) : super(key: key);
+  late List<AssetEntity> pictures;
+
+  PicturesWidget({super.key, required this.pictures});
 
   @override
   State createState() => _PicturesState();
@@ -16,34 +17,108 @@ class PicturesWidget extends StatefulWidget {
 
 class _PicturesState extends State<PicturesWidget> {
   late AssetPathEntity recent;
+  List<AssetEntity> unusedImages = [];
   List<AssetEntity> loadedImages = [];
   List<Widget> chunksByDate = [];
-  int totalCount = 0;
+  int totalLoaded = 0;
+
   int currentPage = 0;
+  int loadImageCount = 100;
+
+  List<String> monthAbrev = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan"
+  ];
+
+  PMFilter createFilter() {
+    final CustomFilter filterOption = CustomFilter.sql(
+      where:
+          '${CustomColumns.base.width} > 100 AND ${CustomColumns.base.height} > 100',
+      orderBy: [OrderByItem.desc(CustomColumns.base.createDate)],
+    );
+
+    return filterOption;
+  }
 
   @override
   void initState() {
     super.initState();
-    getRecent();
+    loadMoreDates();
   }
 
-  Future<void> getRecent() async {
-    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
-    setState(() {
-      recent =
-          paths.firstWhere((element) => element.id == 'isAll'); // remove recent
-      getImages();
-    });
+  List<AssetEntity> loadImages() {
+    currentPage += 1;
+    return widget.pictures.sublist(
+        (currentPage - 1) * loadImageCount, currentPage * loadImageCount);
   }
 
-  Future<void> getImages() async {
-    totalCount = await recent.assetCountAsync;
-    List<AssetEntity> images =
-        await loadImages(recent, currentPage++, size: 100);
-    setState(() {
-      loadedImages = images;
-      //List.from(loadedImages)..addAll(images);
-    });
+  Future<void> loadMoreDates() async {
+    do {
+      List<AssetEntity> newlyLoaded = loadImages();
+      loadedImages.addAll(newlyLoaded);
+      unusedImages.addAll(newlyLoaded);
+    } while (unusedImages.isEmpty ||
+        DateUtils.isSameDay(
+            unusedImages[0].createDateTime, unusedImages.last.createDateTime));
+
+    if (unusedImages.isEmpty) return;
+
+    DateTime oldestDay = unusedImages.last.createDateTime;
+
+    while (!DateUtils.isSameDay(oldestDay, unusedImages[0].createDateTime)) {
+      List<AssetEntity> dateImages = [];
+      DateTime currentDate = unusedImages[0].createDateTime;
+
+      while (unusedImages.isNotEmpty &&
+          DateUtils.isSameDay(currentDate, unusedImages[0].createDateTime)) {
+        dateImages.add(unusedImages.removeAt(0));
+      }
+
+      String dateText = currentDate.year == DateTime.now().year
+          ? "${monthAbrev[currentDate.month]} ${currentDate.day + 1}"
+          : "${currentDate.year} ${monthAbrev[currentDate.month]} ${currentDate.day + 1}";
+
+      chunksByDate.add(Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+            child: Text(
+              dateText,
+              style: picturesDateTakenStyle(),
+            ),
+          ),
+          GridView.count(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              primary: false,
+              crossAxisSpacing: 3,
+              mainAxisSpacing: 3,
+              shrinkWrap: true,
+              crossAxisCount: 4,
+              children: dateImages.asMap().entries.map((entry) {
+                int ind = totalLoaded + entry.key;
+                return imageWidget(
+                  () => {_openImage(entry.value, ind)},
+                  entry.value,
+                );
+              }).toList())
+        ],
+      ));
+
+      totalLoaded += dateImages.length;
+    }
+    setState(() {});
   }
 
   void _openImage(AssetEntity image, int index) async {
@@ -51,9 +126,8 @@ class _PicturesState extends State<PicturesWidget> {
         context,
         MaterialPageRoute(
           builder: (context) => ImagePageWidget(
-            images: loadedImages,
-            imageTotal: totalCount,
-            thumbnail: Uint8List(0),
+            images: widget.pictures,
+            imageTotal: widget.pictures.length,
             index: index,
           ),
         ));
@@ -66,12 +140,10 @@ class _PicturesState extends State<PicturesWidget> {
         child: Scaffold(
             body: NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification scroll) {
-                  // 현재 스크롤 위치 - scroll.metrics.pixels
-                  // 스크롤 끝 위치 scroll.metrics.maxScrollExtent
                   final scrollPixels =
                       scroll.metrics.pixels / scroll.metrics.maxScrollExtent;
 
-                  if (scrollPixels > 0.6) getImages();
+                  if (scrollPixels > 0.6) loadMoreDates();
                   return false;
                 },
                 child: SafeArea(
@@ -79,16 +151,33 @@ class _PicturesState extends State<PicturesWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                       Padding(
-                          padding: const EdgeInsets.fromLTRB(30, 20, 10, 20),
-                          child: Text(
-                            'PICTURES',
-                            style: pageTitleTextStyle(),
+                          padding: const EdgeInsets.fromLTRB(30, 20, 10, 0),
+                          child: Row(
+                            children: [
+                              Text(
+                                'PICTURES',
+                                style: pageTitleTextStyle(),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.search))
+                            ],
                           )),
-                      // Images Grid
+                      // Album Grid
                       Expanded(
-                          child: Column(
-                        children: chunksByDate,
-                      )),
+                        child:
+                            CustomScrollView(primary: false, slivers: <Widget>[
+                          SliverPadding(
+                              padding: const EdgeInsets.all(5),
+                              sliver: SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                  return chunksByDate[index];
+                                }, childCount: chunksByDate.length),
+                              )),
+                        ]),
+                      )
                     ])))));
   }
 }

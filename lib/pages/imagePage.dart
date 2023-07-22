@@ -11,7 +11,6 @@ import 'package:photo_view/photo_view_gallery.dart';
 class ImagePageWidget extends StatefulWidget {
   int index;
   int imageTotal;
-  Uint8List thumbnail;
   final PageController pageController;
   List<AssetEntity> images;
 
@@ -19,7 +18,6 @@ class ImagePageWidget extends StatefulWidget {
       {super.key,
       required this.images,
       required this.imageTotal,
-      required this.thumbnail,
       required this.index})
       : pageController = PageController(initialPage: index);
 

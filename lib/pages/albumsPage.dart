@@ -29,7 +29,6 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
   }
 
   Future<void> getAlbums() async {
-    albums = [];
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
     paths.removeWhere((element) => element.id == 'isAll'); // remove recent
     for (AssetPathEntity path in paths) {

@@ -3,13 +3,19 @@ import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/pages/albumsPage.dart';
 import 'package:nothing_gallery/pages/picturesPage.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 //ignore: must_be_immutable
 class HomeWidget extends StatefulWidget {
   final BuildContext parentCtx;
   late SharedPref sharedPref;
+  late List<AssetEntity> pictures;
 
-  HomeWidget({super.key, required this.parentCtx, required this.sharedPref});
+  HomeWidget(
+      {super.key,
+      required this.parentCtx,
+      required this.sharedPref,
+      required this.pictures});
 
   @override
   State<HomeWidget> createState() => _HomeState();
@@ -27,7 +33,9 @@ class _HomeState extends State<HomeWidget> {
   }
 
   List<Widget> _children() => [
-        PicturesWidget(),
+        PicturesWidget(
+          pictures: widget.pictures,
+        ),
         AlbumsWidget(
           sharedPref: widget.sharedPref,
         )
