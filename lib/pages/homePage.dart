@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/pages/albumsPage.dart';
@@ -10,12 +11,14 @@ class HomeWidget extends StatefulWidget {
   final BuildContext parentCtx;
   late SharedPref sharedPref;
   late List<AssetEntity> pictures;
+  late List<AlbumInfo> albums;
 
   HomeWidget(
       {super.key,
       required this.parentCtx,
       required this.sharedPref,
-      required this.pictures});
+      required this.pictures,
+      required this.albums});
 
   @override
   State<HomeWidget> createState() => _HomeState();
@@ -38,6 +41,7 @@ class _HomeState extends State<HomeWidget> {
         ),
         AlbumsWidget(
           sharedPref: widget.sharedPref,
+          albums: widget.albums,
         )
       ];
 

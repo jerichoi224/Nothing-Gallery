@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/components/image.dart';
@@ -59,8 +60,8 @@ class _PicturesState extends State<PicturesWidget> {
 
   List<AssetEntity> loadImages() {
     currentPage += 1;
-    return widget.pictures.sublist(
-        (currentPage - 1) * loadImageCount, currentPage * loadImageCount);
+    return widget.pictures.sublist((currentPage - 1) * loadImageCount,
+        min(currentPage * loadImageCount, widget.pictures.length));
   }
 
   Future<void> loadMoreDates() async {

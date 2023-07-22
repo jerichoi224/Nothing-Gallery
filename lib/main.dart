@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
@@ -66,6 +67,7 @@ class _MainState extends State<MainApp> {
   bool permissionChecked = false;
   bool imagesLoaded = false;
   List<AssetEntity> pictures = [];
+  List<AlbumInfo> albums = [];
 
   @override
   void initState() {
@@ -77,6 +79,17 @@ class _MainState extends State<MainApp> {
     pictures = await PhotoManager.getAssetListRange(start: 0, end: total);
     pictures.sort((a, b) => b.createDateTime.millisecondsSinceEpoch
         .compareTo(a.createDateTime.millisecondsSinceEpoch));
+
+    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
+    paths.removeWhere((element) => element.id == 'isAll'); // remove recent
+    for (AssetPathEntity path in paths) {
+      List<AssetEntity> thumbnailList =
+          await path.getAssetListRange(start: 0, end: 1);
+      if (thumbnailList.isEmpty) continue;
+      int assetCount = await path.assetCountAsync;
+      AlbumInfo info = AlbumInfo(path, thumbnailList[0], assetCount);
+      albums.add(info);
+    }
 
     setState(() {
       imagesLoaded = true;
@@ -123,7 +136,8 @@ class _MainState extends State<MainApp> {
                   builder: (context) => HomeWidget(
                       parentCtx: context,
                       sharedPref: sharedPref,
-                      pictures: pictures),
+                      pictures: pictures,
+                      albums: albums),
                 ),
                 (Route<dynamic> route) => false);
           }

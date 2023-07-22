@@ -12,16 +12,15 @@ import 'package:photo_manager/photo_manager.dart';
 
 class AlbumsWidget extends StatefulWidget {
   late SharedPref sharedPref;
+  late List<AlbumInfo> albums;
 
-  AlbumsWidget({super.key, required this.sharedPref});
+  AlbumsWidget({super.key, required this.sharedPref, required this.albums});
 
   @override
   State createState() => _AlbumsState();
 }
 
 class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
-  List<AlbumInfo> albums = [];
-
   @override
   void initState() {
     super.initState();
@@ -32,14 +31,17 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
     paths.removeWhere((element) => element.id == 'isAll'); // remove recent
     for (AssetPathEntity path in paths) {
-      List<AssetEntity> thumbnailList =
-          await path.getAssetListRange(start: 0, end: 1);
-      if (thumbnailList.isEmpty) continue;
-      int assetCount = await path.assetCountAsync;
-      AlbumInfo info = AlbumInfo(path, thumbnailList[0], assetCount);
-      albums.add(info);
+      if (!widget.albums.any(
+        (element) => element.album.id == path.id,
+      )) {
+        List<AssetEntity> thumbnailList =
+            await path.getAssetListRange(start: 0, end: 1);
+        if (thumbnailList.isEmpty) continue;
+        int assetCount = await path.assetCountAsync;
+        AlbumInfo info = AlbumInfo(path, thumbnailList[0], assetCount);
+        widget.albums.add(info);
+      }
     }
-    setState(() {});
   }
 
   void _openAlbum(AssetPathEntity album) async {
@@ -88,7 +90,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
                         mainAxisSpacing: 15,
                         crossAxisCount: 2,
                         childAspectRatio: 0.85,
-                        children: albums
+                        children: widget.albums
                             .map((entry) => albumWidget(
                                 () => {_openAlbum(entry.album)}, entry))
                             .toList()),
