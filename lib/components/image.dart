@@ -1,10 +1,20 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 Widget imageWidget(Function onClick, AssetEntity image) {
   double radius = 0;
+
+  String duration = '';
+
+  if (image.type == AssetType.video) {
+    duration = image.videoDuration.toString().split('.').first.padLeft(8, "0");
+    if (duration.startsWith('00:')) {
+      duration = duration.substring(3);
+    }
+  }
   return Hero(
       tag: image.id,
       child: Stack(
@@ -23,6 +33,20 @@ Widget imageWidget(Function onClick, AssetEntity image) {
               ),
             ),
           ),
+          image.type == AssetType.video
+              ? Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(2, 2, 0, 0),
+                      child: Icon(
+                        Icons.play_circle_outline,
+                        size: 22,
+                      ),
+                    ),
+                    Text(" $duration", style: videoDurationTextStyle())
+                  ],
+                )
+              : Container()
         ],
       ));
 }

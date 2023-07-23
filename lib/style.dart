@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -19,6 +20,11 @@ TextStyle pageTitleTextStyle() {
 TextStyle imageIndexTextStyle() {
   return TextStyle(
       fontSize: 20.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
+}
+
+TextStyle videoDurationTextStyle() {
+  return TextStyle(
+      fontSize: 14.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
 }
 
 TextStyle picturesDateTakenStyle() {

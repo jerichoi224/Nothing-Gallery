@@ -8,7 +8,7 @@ import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/util/imageLoader.dart';
+import 'package:nothing_gallery/util/imageFunctions.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class ImageGridWidget extends StatefulWidget {
@@ -50,8 +50,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   void getPreferences() {
-    dynamic prefCol = widget.sharedPref.get(SharedPrefKeys.imageGridPageNumCol);
-    if (prefCol != null) numCol = prefCol;
+    numCol = widget.sharedPref.get(SharedPrefKeys.imageGridPageNumCol);
   }
 
   Future<void> getImages() async {

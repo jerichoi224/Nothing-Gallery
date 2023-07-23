@@ -8,7 +8,7 @@ import 'package:nothing_gallery/components/album.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/pages/imageGridPage.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/util/imageLoader.dart';
+import 'package:nothing_gallery/util/imageFunctions.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class AlbumsWidget extends StatefulWidget {

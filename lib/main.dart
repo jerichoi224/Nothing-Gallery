@@ -8,7 +8,7 @@ import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/pages/homePage.dart';
 import 'package:nothing_gallery/pages/permissionCheckPage.dart';
-import 'package:nothing_gallery/util/imageLoader.dart';
+import 'package:nothing_gallery/util/imageFunctions.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -108,8 +108,7 @@ class _MainState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     Timer(const Duration(milliseconds: 10), () {
-      bool currentPermission =
-          sharedPref.get(SharedPrefKeys.hasPermission) ?? false;
+      bool currentPermission = sharedPref.get(SharedPrefKeys.hasPermission);
 
       if (permissionChecked) {
         if (!currentPermission) {

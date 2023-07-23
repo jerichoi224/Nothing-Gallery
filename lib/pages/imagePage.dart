@@ -3,7 +3,10 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/constants/sharedPrefKey.dart';
+import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/util/imageFunctions.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -30,6 +33,8 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
   int index = 0;
   List<AssetEntity> images = [];
   bool decorationVisible = true;
+  bool useTrashBin = true;
+  bool isFavorite = false;
 
   late AnimationController animationController;
   late Animation fadeAnimation;
@@ -37,11 +42,25 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
   @override
   void initState() {
     super.initState();
+    getPreferences();
+
     index = widget.index;
     images = widget.images;
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     fadeAnimation = Tween(begin: 0, end: 1).animate(animationController);
+  }
+
+  void getPreferences() {
+    useTrashBin = sharedPref.get(SharedPrefKeys.useTrashBin);
+    checkFavorite();
+  }
+
+  void checkFavorite() {
+    setState(() {
+      isFavorite =
+          sharedPref.get(SharedPrefKeys.favoriteIds).contains(images[index].id);
+    });
   }
 
   @override
@@ -52,20 +71,22 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
 
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
     Size orientatedSize = images[index].orientatedSize;
-
-    return PhotoViewGalleryPageOptions(
-        minScale: min(MediaQuery.of(context).size.width / orientatedSize.width,
-            MediaQuery.of(context).size.height / orientatedSize.height),
-        imageProvider: AssetEntityImage(
-          images[index],
-          isOriginal: true,
-        ).image);
+    // if (images[index].type == AssetType.video) {
+    // } else
+    {
+      return PhotoViewGalleryPageOptions(
+          minScale: min(
+              MediaQuery.of(context).size.width / orientatedSize.width,
+              MediaQuery.of(context).size.height / orientatedSize.height),
+          imageProvider: AssetEntityImage(
+            images[index],
+            isOriginal: true,
+          ).image);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    Size orientatedSize = images[index].orientatedSize;
-
     return Scaffold(
         body: SafeArea(
             child: GestureDetector(
@@ -90,6 +111,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                       builder: _buildItem,
                       onPageChanged: (index) => setState(() {
                         this.index = index;
+                        checkFavorite();
                       }),
                     ),
                   ),
@@ -115,13 +137,36 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                               ),
                               const Spacer(),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   IconButton(
                                       onPressed: () {
-                                        Navigator.pop(context);
+                                        setFavorite(
+                                            images[index].id, !isFavorite);
+                                        setState(() {
+                                          isFavorite = !isFavorite;
+                                        });
+                                      },
+                                      icon: Icon(isFavorite
+                                          ? Icons.favorite
+                                          : Icons.favorite_border_outlined)),
+                                  IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.share)),
+                                  IconButton(
+                                      onPressed: () {
+                                        confirmDelete(
+                                            context,
+                                            [
+                                              images[index],
+                                            ],
+                                            useTrashBin);
                                       },
                                       icon: const Icon(Icons.delete)),
+                                  IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.more_vert)),
                                 ],
                               )
                             ],

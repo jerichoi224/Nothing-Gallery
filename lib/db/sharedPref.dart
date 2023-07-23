@@ -33,7 +33,7 @@ class SharedPref {
   dynamic get(SharedPrefKeys spKey) {
     String key = spKey.text;
     if (!prefMap.keys.contains(key)) {
-      return null;
+      return spKey.onNull;
     }
     return prefMap[key];
   }
