@@ -8,6 +8,7 @@ import 'package:nothing_gallery/components/album.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/pages/imageGridPage.dart';
 import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/util/imageLoader.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class AlbumsWidget extends StatefulWidget {
@@ -21,39 +22,37 @@ class AlbumsWidget extends StatefulWidget {
 }
 
 class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
+  List<AlbumInfo> albums = [];
+
   @override
   void initState() {
     super.initState();
-    getAlbums();
+    albums = widget.albums;
   }
 
-  Future<void> getAlbums() async {
+  Future<void> reloadAlbums() async {
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
     paths.removeWhere((element) => element.id == 'isAll'); // remove recent
+
+    List<AlbumInfo> reloaded = [];
     for (AssetPathEntity path in paths) {
-      if (!widget.albums.any(
-        (element) => element.album.id == path.id,
-      )) {
-        List<AssetEntity> thumbnailList =
-            await path.getAssetListRange(start: 0, end: 1);
-        if (thumbnailList.isEmpty) continue;
-        int assetCount = await path.assetCountAsync;
-        AlbumInfo info = AlbumInfo(path, thumbnailList[0], assetCount);
-        widget.albums.add(info);
-      }
+      reloaded.add(await getAlbumInfo(path));
     }
+
+    setState(() {
+      albums = reloaded;
+    });
   }
 
-  void _openAlbum(AssetPathEntity album) async {
+  void _openAlbum(AlbumInfo album) async {
     await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ImageGridWidget(
-            albumPath: album,
+            album: album,
             sharedPref: widget.sharedPref,
           ),
         ));
-    getAlbums();
   }
 
   @override
@@ -91,8 +90,8 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
                         crossAxisCount: 2,
                         childAspectRatio: 0.85,
                         children: widget.albums
-                            .map((entry) => albumWidget(
-                                () => {_openAlbum(entry.album)}, entry))
+                            .map((entry) =>
+                                albumWidget(() => {_openAlbum(entry)}, entry))
                             .toList()),
                   ),
                 ],
@@ -117,6 +116,6 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
 
   @override
   void onResumed() {
-    getAlbums();
+    reloadAlbums();
   }
 }

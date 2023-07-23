@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/classes/AlbumInfo.dart';
+import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
 import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
@@ -10,31 +12,41 @@ import 'package:nothing_gallery/util/imageLoader.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class ImageGridWidget extends StatefulWidget {
-  final AssetPathEntity albumPath;
+  final AlbumInfo album;
   late SharedPref sharedPref;
 
-  ImageGridWidget(
-      {super.key, required this.albumPath, required this.sharedPref});
+  ImageGridWidget({super.key, required this.album, required this.sharedPref});
 
   @override
   State createState() => _ImageGridState();
 }
 
-class _ImageGridState extends State<ImageGridWidget> {
-  // Map<AssetEntity, Uint8List> images = {};
+class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
+  late AlbumInfo albumInfo;
   List<AssetEntity> loadedImages = [];
   List<Uint8List> thumbnails = [];
   int totalCount = 0;
   int currentPage = 0;
   int numCol = 4;
+  int loadImageCount = 100;
 
   @override
   void initState() {
     super.initState();
+    albumInfo = widget.album;
+    totalCount = albumInfo.assetCount;
     getPreferences();
+
     for (int i = 0; i < 3; i++) {
       getImages();
     }
+  }
+
+  Future<void> reloadAlbum() async {
+    AlbumInfo reloaded = await getAlbumInfo(albumInfo.album);
+    setState(() {
+      albumInfo = reloaded;
+    });
   }
 
   void getPreferences() {
@@ -43,12 +55,16 @@ class _ImageGridState extends State<ImageGridWidget> {
   }
 
   Future<void> getImages() async {
-    totalCount = await widget.albumPath.assetCountAsync;
-    List<AssetEntity> images =
-        await loadImages(widget.albumPath, currentPage++, size: 80);
-    setState(() {
-      loadedImages = List.from(loadedImages)..addAll(images);
-    });
+    currentPage += 1;
+    if (albumInfo.images.length > (currentPage - 1) * loadImageCount) {
+      List<AssetEntity> images = albumInfo.images.sublist(
+          (currentPage - 1) * loadImageCount,
+          min(currentPage * loadImageCount, albumInfo.images.length));
+
+      setState(() {
+        loadedImages = List.from(loadedImages)..addAll(images);
+      });
+    }
   }
 
   // Not used
@@ -106,7 +122,7 @@ class _ImageGridState extends State<ImageGridWidget> {
                       Padding(
                           padding: const EdgeInsets.all(20),
                           child: Text(
-                            widget.albumPath.name.toUpperCase(),
+                            albumInfo.album.name.toUpperCase(),
                             style: pageTitleTextStyle(),
                           )),
 
@@ -136,5 +152,25 @@ class _ImageGridState extends State<ImageGridWidget> {
                         ],
                       ))
                     ])))));
+  }
+
+  @override
+  void onDetached() {
+    // TODO: implement onDetached
+  }
+
+  @override
+  void onInactive() {
+    // TODO: implement onInactive
+  }
+
+  @override
+  void onPaused() {
+    // TODO: implement onPaused
+  }
+
+  @override
+  void onResumed() {
+    reloadAlbum();
   }
 }

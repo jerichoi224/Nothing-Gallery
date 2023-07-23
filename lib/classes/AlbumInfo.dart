@@ -6,6 +6,7 @@ class AlbumInfo {
   AssetPathEntity album;
   AssetEntity thumbnailImage;
   int assetCount;
+  List<AssetEntity> images;
 
-  AlbumInfo(this.album, this.thumbnailImage, this.assetCount);
+  AlbumInfo(this.album, this.images, this.thumbnailImage, this.assetCount);
 }

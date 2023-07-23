@@ -8,6 +8,7 @@ import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/pages/homePage.dart';
 import 'package:nothing_gallery/pages/permissionCheckPage.dart';
+import 'package:nothing_gallery/util/imageLoader.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -75,20 +76,12 @@ class _MainState extends State<MainApp> {
   }
 
   Future<void> getAllImages() async {
-    int total = await PhotoManager.getAssetCount();
-    pictures = await PhotoManager.getAssetListRange(start: 0, end: total);
-    pictures.sort((a, b) => b.createDateTime.millisecondsSinceEpoch
-        .compareTo(a.createDateTime.millisecondsSinceEpoch));
+    pictures = await loadAllImages();
 
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
     paths.removeWhere((element) => element.id == 'isAll'); // remove recent
     for (AssetPathEntity path in paths) {
-      List<AssetEntity> thumbnailList =
-          await path.getAssetListRange(start: 0, end: 1);
-      if (thumbnailList.isEmpty) continue;
-      int assetCount = await path.assetCountAsync;
-      AlbumInfo info = AlbumInfo(path, thumbnailList[0], assetCount);
-      albums.add(info);
+      albums.add(await getAlbumInfo(path));
     }
 
     setState(() {
@@ -100,9 +93,9 @@ class _MainState extends State<MainApp> {
     final permitted = await Permission.mediaLibrary.request().isGranted &&
         await Permission.photos.request().isGranted;
 
-    final PermissionState _ps = await PhotoManager.requestPermissionExtend();
+    final PermissionState ps = await PhotoManager.requestPermissionExtend();
 
-    if (permitted || _ps.isAuth) {
+    if (permitted || ps.isAuth) {
       sharedPref.set(SharedPrefKeys.hasPermission, true);
     } else {
       sharedPref.set(SharedPrefKeys.hasPermission, false);
