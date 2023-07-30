@@ -41,11 +41,12 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
 
     setState(() {
       albums = reloaded;
+      widget.albums = reloaded;
     });
   }
 
   void _openAlbum(AlbumInfo album) async {
-    await Navigator.push(
+    bool needReload = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ImageGridWidget(
@@ -53,6 +54,10 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
             sharedPref: widget.sharedPref,
           ),
         ));
+
+    if (needReload) {
+      reloadAlbums();
+    }
   }
 
   @override
@@ -89,7 +94,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
                         mainAxisSpacing: 15,
                         crossAxisCount: 2,
                         childAspectRatio: 0.85,
-                        children: widget.albums
+                        children: albums
                             .map((entry) =>
                                 albumWidget(() => {_openAlbum(entry)}, entry))
                             .toList()),

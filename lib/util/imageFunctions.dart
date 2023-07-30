@@ -29,7 +29,7 @@ Future<AlbumInfo> getAlbumInfo(AssetPathEntity album) async {
   return AlbumInfo(album, images, images[0], assetCount);
 }
 
-Future<void> confirmDelete(BuildContext context,
+Future<List<String>> confirmDelete(BuildContext context,
     List<AssetEntity> deleteEntityList, bool useTrash) async {
   List<File> backups = [];
   if (useTrash) {
@@ -46,7 +46,9 @@ Future<void> confirmDelete(BuildContext context,
     for (var element in backups) {
       element.deleteSync();
     }
+    return [];
   }
+  return result;
 }
 
 Future<void> shareFiles(List<AssetEntity> images) async {

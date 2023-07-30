@@ -29,6 +29,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   int currentPage = 0;
   int numCol = 4;
   int loadImageCount = 100;
+  bool needReload = false;
 
   @override
   void initState() {
@@ -40,13 +41,6 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     for (int i = 0; i < 3; i++) {
       getImages();
     }
-  }
-
-  Future<void> reloadAlbum() async {
-    AlbumInfo reloaded = await getAlbumInfo(albumInfo.album);
-    setState(() {
-      albumInfo = reloaded;
-    });
   }
 
   void getPreferences() {
@@ -85,7 +79,8 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   void _openImage(AssetEntity image, int index) async {
-    await Navigator.push(
+    print(totalCount);
+    List<String> imageDeleted = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ImagePageWidget(
@@ -94,6 +89,17 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
             index: index,
           ),
         ));
+
+    if (imageDeleted.isNotEmpty) {
+      needReload = true;
+      loadedImages.removeWhere((image) => imageDeleted.contains(image.id));
+      totalCount -= imageDeleted.length;
+      if (totalCount == 0) {
+        Navigator.pop(context, needReload);
+      } else {
+        setState(() {});
+      }
+    }
   }
 
   @override
@@ -111,43 +117,49 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                   if (scrollPixels > 0.6) getImages();
                   return false;
                 },
-                child: SafeArea(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                      Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Text(
-                            albumInfo.album.name.toUpperCase(),
-                            style: pageTitleTextStyle(),
-                          )),
+                child: WillPopScope(
+                    onWillPop: () async {
+                      Navigator.pop(context, needReload);
+                      return needReload;
+                    },
+                    child: SafeArea(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Text(
+                                albumInfo.album.name.toUpperCase(),
+                                style: pageTitleTextStyle(),
+                              )),
 
-                      // Images Grid
-                      Expanded(
-                          child: CustomScrollView(
-                        primary: false,
-                        slivers: <Widget>[
-                          SliverPadding(
-                            padding: const EdgeInsets.all(12),
-                            sliver: SliverGrid.count(
-                                crossAxisSpacing: 3,
-                                mainAxisSpacing: 3,
-                                crossAxisCount: numCol,
-                                childAspectRatio: 1,
-                                children: loadedImages
-                                    .asMap()
-                                    .entries
-                                    .map((entry) => imageWidget(
-                                          () => {
-                                            _openImage(entry.value, entry.key)
-                                          },
-                                          entry.value,
-                                        ))
-                                    .toList()),
-                          ),
-                        ],
-                      ))
-                    ])))));
+                          // Images Grid
+                          Expanded(
+                              child: CustomScrollView(
+                            primary: false,
+                            slivers: <Widget>[
+                              SliverPadding(
+                                padding: const EdgeInsets.all(12),
+                                sliver: SliverGrid.count(
+                                    crossAxisSpacing: 3,
+                                    mainAxisSpacing: 3,
+                                    crossAxisCount: numCol,
+                                    childAspectRatio: 1,
+                                    children: loadedImages
+                                        .asMap()
+                                        .entries
+                                        .map((entry) => imageWidget(
+                                              () => {
+                                                _openImage(
+                                                    entry.value, entry.key)
+                                              },
+                                              entry.value,
+                                            ))
+                                        .toList()),
+                              ),
+                            ],
+                          ))
+                        ]))))));
   }
 
   @override
@@ -166,7 +178,5 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   @override
-  void onResumed() {
-    reloadAlbum();
-  }
+  void onResumed() {}
 }

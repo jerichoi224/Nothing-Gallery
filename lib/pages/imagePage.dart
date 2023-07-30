@@ -32,11 +32,13 @@ class ImagePageWidget extends StatefulWidget {
 class _ImagePageWidgetState extends State<ImagePageWidget>
     with SingleTickerProviderStateMixin {
   int index = 0;
+  int imageTotal = 0;
   List<AssetEntity> images = [];
   List<String> favoriteIds = [];
   bool decorationVisible = true;
   bool useTrashBin = true;
   bool isFavorite = false;
+  List<String> itemDeleted = [];
 
   late AnimationController animationController;
   late Animation fadeAnimation;
@@ -46,6 +48,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     super.initState();
 
     index = widget.index;
+    imageTotal = widget.imageTotal;
     images = widget.images;
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
@@ -82,6 +85,39 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     checkFavorite();
   }
 
+  Future<void> onDelete() async {
+    List<String> deleted = await confirmDelete(
+        context,
+        [
+          images[index],
+        ],
+        useTrashBin);
+    if (deleted.isNotEmpty) {
+      itemDeleted = List.from(itemDeleted)..addAll(deleted);
+
+      imageTotal -= 1;
+      if (images.length == 1) {
+        images.removeAt(index);
+        Navigator.pop(context, itemDeleted);
+      }
+      if (images.length == index + 1) {
+        index--;
+        await widget.pageController.animateToPage(index,
+            duration: const Duration(milliseconds: 300), curve: Curves.ease);
+        images.removeAt(index + 1);
+        setState(() {});
+      } else {
+        index++;
+        await widget.pageController.animateToPage(index,
+            duration: const Duration(milliseconds: 300), curve: Curves.ease);
+        index--;
+        widget.pageController.jumpToPage(index);
+        images.removeAt(index);
+        setState(() {});
+      }
+    }
+  }
+
   @override
   void dispose() {
     animationController.dispose();
@@ -106,90 +142,91 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
 
   @override
   Widget build(BuildContext context) {
-    if (images.length <= index) Navigator.pop(context);
+    if (images.length <= index) {
+      Navigator.pop(context, itemDeleted);
+    }
 
     return Scaffold(
-        body: SafeArea(
-            child: GestureDetector(
-                onTap: () => setState(() {
-                      decorationVisible = !decorationVisible;
-                    }),
-                child: Stack(children: <Widget>[
-                  Hero(
-                    tag: images[index].id,
-                    child: PhotoViewGallery.builder(
-                      pageController: widget.pageController,
-                      loadingBuilder: (context, event) {
-                        return Image(
-                            fit: BoxFit.contain,
-                            image: AssetEntityImageProvider(
-                              images[index],
-                              isOriginal: false,
-                            ));
-                      },
-                      allowImplicitScrolling: true,
-                      itemCount: widget.imageTotal,
-                      builder: _buildItem,
-                      onPageChanged: (index) => setState(() {
-                        this.index = index;
-                        checkFavorite();
-                      }),
-                    ),
-                  ),
-                  AnimatedOpacity(
-                      opacity: decorationVisible ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 300),
-                      child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            children: [
-                              Row(
+        body: WillPopScope(
+            onWillPop: () async {
+              Navigator.pop(context, itemDeleted);
+              return itemDeleted.isNotEmpty;
+            },
+            child: SafeArea(
+                child: GestureDetector(
+                    onTap: () => setState(() {
+                          decorationVisible = !decorationVisible;
+                        }),
+                    child: Stack(children: <Widget>[
+                      Hero(
+                        tag: images[index].id,
+                        child: PhotoViewGallery.builder(
+                          pageController: widget.pageController,
+                          loadingBuilder: (context, event) {
+                            return Image(
+                                fit: BoxFit.contain,
+                                image: AssetEntityImageProvider(
+                                  images[index],
+                                  isOriginal: false,
+                                ));
+                          },
+                          allowImplicitScrolling: true,
+                          itemCount: imageTotal,
+                          builder: _buildItem,
+                          onPageChanged: (index) => setState(() {
+                            this.index = index;
+                            checkFavorite();
+                          }),
+                        ),
+                      ),
+                      AnimatedOpacity(
+                          opacity: decorationVisible ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
                                 children: [
-                                  IconButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      icon: const Icon(Icons.arrow_back)),
-                                  Text(
-                                    "${index + 1}/${widget.imageTotal}",
-                                    style: imageIndexTextStyle(),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, itemDeleted);
+                                          },
+                                          icon: const Icon(Icons.arrow_back)),
+                                      Text(
+                                        "${index + 1}/${imageTotal}",
+                                        style: imageIndexTextStyle(),
+                                      ),
+                                    ],
                                   ),
+                                  const Spacer(),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      IconButton(
+                                          onPressed: () {
+                                            setFavorite(!isFavorite);
+                                          },
+                                          icon: Icon(isFavorite
+                                              ? Icons.favorite
+                                              : Icons
+                                                  .favorite_border_outlined)),
+                                      IconButton(
+                                          onPressed: () {
+                                            shareFiles([images[index]]);
+                                          },
+                                          icon: const Icon(Icons.share)),
+                                      IconButton(
+                                          onPressed: onDelete,
+                                          icon: const Icon(Icons.delete)),
+                                      IconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(Icons.more_vert)),
+                                    ],
+                                  )
                                 ],
-                              ),
-                              const Spacer(),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  IconButton(
-                                      onPressed: () {
-                                        setFavorite(!isFavorite);
-                                      },
-                                      icon: Icon(isFavorite
-                                          ? Icons.favorite
-                                          : Icons.favorite_border_outlined)),
-                                  IconButton(
-                                      onPressed: () {
-                                        shareFiles([images[index]]);
-                                      },
-                                      icon: const Icon(Icons.share)),
-                                  IconButton(
-                                      onPressed: () {
-                                        confirmDelete(
-                                            context,
-                                            [
-                                              images[index],
-                                            ],
-                                            useTrashBin);
-                                      },
-                                      icon: const Icon(Icons.delete)),
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.more_vert)),
-                                ],
-                              )
-                            ],
-                          )))
-                ]))));
+                              )))
+                    ])))));
   }
 }
