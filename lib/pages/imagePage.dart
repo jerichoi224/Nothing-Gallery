@@ -32,6 +32,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     with SingleTickerProviderStateMixin {
   int index = 0;
   List<AssetEntity> images = [];
+  List<String> favoriteIds = [];
   bool decorationVisible = true;
   bool useTrashBin = true;
   bool isFavorite = false;
@@ -42,25 +43,42 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
   @override
   void initState() {
     super.initState();
-    getPreferences();
 
     index = widget.index;
     images = widget.images;
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     fadeAnimation = Tween(begin: 0, end: 1).animate(animationController);
+
+    getPreferences();
   }
 
   void getPreferences() {
     useTrashBin = sharedPref.get(SharedPrefKeys.useTrashBin);
+    favoriteIds = (sharedPref.get(SharedPrefKeys.favoriteIds) as List)
+        .map((item) => item as String)
+        .toList();
     checkFavorite();
   }
 
   void checkFavorite() {
     setState(() {
-      isFavorite =
-          sharedPref.get(SharedPrefKeys.favoriteIds).contains(images[index].id);
+      isFavorite = favoriteIds.contains(images[index].id);
     });
+  }
+
+  void setFavorite(bool favorite) {
+    String imageId = images[index].id;
+    if (favorite) {
+      if (!favoriteIds.contains(imageId)) {
+        favoriteIds.add(imageId);
+      }
+    } else if (favoriteIds.contains(imageId)) {
+      favoriteIds.remove(imageId);
+    }
+
+    sharedPref.set(SharedPrefKeys.favoriteIds, favoriteIds);
+    checkFavorite();
   }
 
   @override
@@ -87,6 +105,8 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
 
   @override
   Widget build(BuildContext context) {
+    if (images.length <= index) Navigator.pop(context);
+
     return Scaffold(
         body: SafeArea(
             child: GestureDetector(
@@ -142,11 +162,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                                 children: [
                                   IconButton(
                                       onPressed: () {
-                                        setFavorite(
-                                            images[index].id, !isFavorite);
-                                        setState(() {
-                                          isFavorite = !isFavorite;
-                                        });
+                                        setFavorite(!isFavorite);
                                       },
                                       icon: Icon(isFavorite
                                           ? Icons.favorite

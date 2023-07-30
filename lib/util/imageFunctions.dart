@@ -48,22 +48,6 @@ Future<void> confirmDelete(BuildContext context,
   }
 }
 
-void setFavorite(String id, bool add) {
-  List<String> favorites = sharedPref.get(SharedPrefKeys.favoriteIds);
-
-  if (add) {
-    if (!favorites.contains(id)) {
-      favorites.add(id);
-      sharedPref.set(SharedPrefKeys.favoriteIds, favorites);
-    }
-  } else {
-    if (favorites.contains(id)) {
-      favorites.remove(id);
-      sharedPref.set(SharedPrefKeys.favoriteIds, favorites);
-    }
-  }
-}
-
 Future<File?> moveToTrash(AssetEntity entity) async {
   Directory private = await getApplicationDocumentsDirectory();
 
