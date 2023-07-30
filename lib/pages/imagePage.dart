@@ -9,6 +9,7 @@ import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/util/imageFunctions.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:share_plus/share_plus.dart';
 
 // ignore: must_be_immutable
 class ImagePageWidget extends StatefulWidget {
@@ -168,7 +169,9 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                                           ? Icons.favorite
                                           : Icons.favorite_border_outlined)),
                                   IconButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        shareFiles([images[index]]);
+                                      },
                                       icon: const Icon(Icons.share)),
                                   IconButton(
                                       onPressed: () {

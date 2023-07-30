@@ -8,6 +8,7 @@ import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:share_plus/share_plus.dart';
 
 Future<List<AssetEntity>> loadAllImages() async {
   int total = await PhotoManager.getAssetCount();
@@ -46,6 +47,19 @@ Future<void> confirmDelete(BuildContext context,
       element.deleteSync();
     }
   }
+}
+
+Future<void> shareFiles(List<AssetEntity> images) async {
+  List<String> paths = [];
+
+  for (AssetEntity image in images) {
+    File? file = await image.originFile;
+    if (file != null) {
+      paths.add(file.path);
+    }
+  }
+
+  Share.shareXFiles(paths.map((path) => XFile(path)).toList());
 }
 
 Future<File?> moveToTrash(AssetEntity entity) async {

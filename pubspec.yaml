@@ -42,7 +42,7 @@ dependencies:
   flex_color_scheme: ^7.0.5
   intl: ^0.18.1
   path_provider: ^2.0.15
-
+  share_plus: ^7.0.2
 
 dev_dependencies:
   flutter_test:

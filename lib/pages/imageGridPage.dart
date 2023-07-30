@@ -85,9 +85,6 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   void _openImage(AssetEntity image, int index) async {
-    Uint8List thumbnail = Uint8List(0);
-    if (thumbnails.length > index) thumbnail = thumbnails[index];
-
     await Navigator.push(
         context,
         MaterialPageRoute(
