@@ -12,7 +12,6 @@ import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/util/imageFunctions.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class ImageGridWidget extends StatefulWidget {
@@ -32,8 +31,8 @@ class ImageGridWidget extends StatefulWidget {
 
 class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   late AlbumInfo albumInfo;
-  List<AssetEntity> loadedImages = [];
-  List<Uint8List> thumbnails = [];
+  List<AssetEntity> images = [];
+  List<AssetEntity> assets = [];
   StreamSubscription? eventSubscription;
   int totalCount = 0;
   int currentPage = 0;
@@ -46,19 +45,25 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     super.initState();
     albumInfo = widget.album;
     totalCount = albumInfo.assetCount;
+    assets = albumInfo.images;
+    images = List.from(assets);
+    images.removeWhere((element) => element.type != AssetType.image);
+
     getPreferences();
-
-    for (int i = 0; i < 3; i++) {
-      getImages();
-    }
-
     eventSubscription =
         widget.eventController.stream.asBroadcastStream().listen((event) {
       if (event.runtimeType == Event) {
         if (event.eventType == EventType.pictureDeleted) {
           if (event.details != null && event.details.runtimeType == String) {
-            loadedImages.removeWhere((image) => image.id == event.details);
+            assets.removeWhere((image) => image.id == event.details);
+            images.removeWhere((image) => image.id == event.details);
             totalCount -= 1;
+
+            // Album is empty
+            if (totalCount == 0) {
+              widget.eventController.sink
+                  .add(Event(EventType.albumEmpty, albumInfo.album.id));
+            }
           }
         } else {}
       }
@@ -75,48 +80,19 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     numCol = widget.sharedPref.get(SharedPrefKeys.imageGridPageNumCol);
   }
 
-  Future<void> getImages() async {
-    currentPage += 1;
-    if (albumInfo.images.length > (currentPage - 1) * loadImageCount) {
-      List<AssetEntity> images = albumInfo.images.sublist(
-          (currentPage - 1) * loadImageCount,
-          min(currentPage * loadImageCount, albumInfo.images.length));
-
-      setState(() {
-        loadedImages = List.from(loadedImages)..addAll(images);
-      });
-    }
-  }
-
-  // Not used
-  Future<void> getThumbnails(List<AssetEntity> images) async {
-    List<Uint8List> loadedThumb = [];
-    for (AssetEntity image in images) {
-      Uint8List? thumbnail = await image.thumbnailDataWithSize(
-          ThumbnailSize(image.orientatedWidth, image.orientatedHeight));
-
-      if (thumbnail == null) {
-        loadedThumb.add(Uint8List(0));
-      } else {
-        loadedThumb.add(thumbnail);
-      }
-    }
-    setState(() {
-      thumbnails = List.from(thumbnails)..addAll(loadedThumb);
-    });
-  }
-
   void _openImage(AssetEntity image, int index) async {
-    await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ImagePageWidget(
-            images: loadedImages,
-            imageTotal: totalCount,
-            index: index,
-            eventController: widget.eventController,
-          ),
-        ));
+    if (image.type == AssetType.image) {
+      await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ImagePageWidget(
+              images: images,
+              imageTotal: images.length,
+              index: index,
+              eventController: widget.eventController,
+            ),
+          ));
+    }
     setState(() {});
   }
 
@@ -133,10 +109,10 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                   onNotification: (ScrollNotification scroll) {
                     // 현재 스크롤 위치 - scroll.metrics.pixels
                     // 스크롤 끝 위치 scroll.metrics.maxScrollExtent
-                    final scrollPixels =
-                        scroll.metrics.pixels / scroll.metrics.maxScrollExtent;
+                    // final scrollPixels =
+                    //     scroll.metrics.pixels / scroll.metrics.maxScrollExtent;
 
-                    if (scrollPixels > 0.6) getImages();
+                    // if (scrollPixels > 0.6) {}
                     return false;
                   },
                   child: WillPopScope(
@@ -167,7 +143,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                                       mainAxisSpacing: 3,
                                       crossAxisCount: numCol,
                                       childAspectRatio: 1,
-                                      children: loadedImages
+                                      children: assets
                                           .asMap()
                                           .entries
                                           .map((entry) => imageWidget(

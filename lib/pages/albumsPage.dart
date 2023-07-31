@@ -4,9 +4,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
+import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
 import 'package:nothing_gallery/components/album.dart';
 import 'package:nothing_gallery/constants/albumStatus.dart';
+import 'package:nothing_gallery/constants/eventType.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/pages/imageGridPage.dart';
 import 'package:nothing_gallery/style.dart';
@@ -30,11 +32,23 @@ class AlbumsWidget extends StatefulWidget {
 
 class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
   List<AlbumInfo> albums = [];
+  StreamSubscription? eventSubscription;
 
   @override
   void initState() {
     super.initState();
     albums = widget.albums;
+    eventSubscription =
+        widget.eventController.stream.asBroadcastStream().listen((event) {
+      if (event.runtimeType == Event) {
+        if (event.eventType == EventType.albumEmpty) {
+          if (event.details != null && event.details.runtimeType == String) {
+            albums.removeWhere(
+                (albumInfo) => albumInfo.album.id == event.details);
+          }
+        } else {}
+      }
+    });
   }
 
   Future<void> reloadAlbums() async {
