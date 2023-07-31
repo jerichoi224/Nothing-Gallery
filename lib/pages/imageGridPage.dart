@@ -82,13 +82,14 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
   void _openImage(AssetEntity image, int index) async {
     if (image.type == AssetType.image) {
+      int imageIdx = images.indexOf(image);
       await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ImagePageWidget(
               images: images,
               imageTotal: images.length,
-              index: index,
+              index: imageIdx,
               eventController: widget.eventController,
             ),
           ));

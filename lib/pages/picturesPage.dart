@@ -25,8 +25,10 @@ class _PicturesState extends State<PicturesWidget> {
   late AssetPathEntity recent;
   List<AssetEntity> unusedImages = [];
   List<AssetEntity> loadedImages = [];
+  List<AssetEntity> images = [];
   List<Widget> chunksByDate = [];
   int totalLoaded = 0;
+  StreamSubscription? eventSubscription;
 
   int currentPage = 0;
   int loadImageCount = 100;
@@ -61,6 +63,19 @@ class _PicturesState extends State<PicturesWidget> {
   void initState() {
     super.initState();
     loadMoreDates();
+    images = List.from(widget.pictures);
+    images.removeWhere((element) => element.type != AssetType.image);
+
+    eventSubscription =
+        widget.eventController.stream.asBroadcastStream().listen((event) {
+      if (event.runtimeType == Event) {
+        if (event.eventType == EventType.pictureDeleted) {
+          if (event.details != null && event.details.runtimeType == String) {
+            images.removeWhere((image) => image.id == event.details);
+          }
+        } else {}
+      }
+    });
   }
 
   List<AssetEntity> loadImages() {
@@ -128,16 +143,20 @@ class _PicturesState extends State<PicturesWidget> {
   }
 
   void _openImage(AssetEntity image, int index) async {
-    await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ImagePageWidget(
-            images: widget.pictures,
-            imageTotal: widget.pictures.length,
-            index: index,
-            eventController: widget.eventController,
-          ),
-        ));
+    if (image.type == AssetType.image) {
+      int imageIdx = images.indexOf(image);
+
+      await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ImagePageWidget(
+              images: images,
+              imageTotal: images.length,
+              index: imageIdx,
+              eventController: widget.eventController,
+            ),
+          ));
+    }
   }
 
   @override
