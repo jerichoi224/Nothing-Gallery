@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
+import 'package:nothing_gallery/classes/Event.dart';
+import 'package:nothing_gallery/constants/eventType.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/pages/albumsPage.dart';
@@ -25,6 +29,11 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeState extends State<HomeWidget> {
+  StreamController<Event> eventController = StreamController<Event>.broadcast();
+  StreamSubscription? eventSubscription;
+  List<AssetEntity> pictures = [];
+  List<AlbumInfo> albums = [];
+
   final List<Widget> screens = [];
 
   bool ready = false;
@@ -33,16 +42,38 @@ class _HomeState extends State<HomeWidget> {
   @override
   void initState() {
     super.initState();
+    pictures = widget.pictures;
+    albums = widget.albums;
+
+    eventSubscription =
+        eventController.stream.asBroadcastStream().listen((event) {
+      if (event.runtimeType == Event) {
+        if (event.eventType == EventType.pictureDeleted) {
+          if (event.details != null && event.details.runtimeType == String) {
+            pictures.removeWhere((element) => element.id == event.details);
+            setState(() {});
+          }
+        } else {}
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    eventController.close();
+    eventSubscription?.cancel();
+    super.dispose();
   }
 
   List<Widget> _children() => [
         PicturesWidget(
           pictures: widget.pictures,
+          eventController: eventController,
         ),
         AlbumsWidget(
-          sharedPref: widget.sharedPref,
-          albums: widget.albums,
-        )
+            sharedPref: widget.sharedPref,
+            albums: widget.albums,
+            eventController: eventController)
       ];
 
   static const List<Tab> _tabs = [

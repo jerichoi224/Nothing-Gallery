@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
 import 'package:nothing_gallery/components/album.dart';
+import 'package:nothing_gallery/constants/albumStatus.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/pages/imageGridPage.dart';
 import 'package:nothing_gallery/style.dart';
@@ -14,8 +16,13 @@ import 'package:photo_manager/photo_manager.dart';
 class AlbumsWidget extends StatefulWidget {
   late SharedPref sharedPref;
   late List<AlbumInfo> albums;
+  late StreamController eventController;
 
-  AlbumsWidget({super.key, required this.sharedPref, required this.albums});
+  AlbumsWidget(
+      {super.key,
+      required this.sharedPref,
+      required this.albums,
+      required this.eventController});
 
   @override
   State createState() => _AlbumsState();
@@ -46,18 +53,15 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
   }
 
   void _openAlbum(AlbumInfo album) async {
-    bool needReload = await Navigator.push(
+    await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ImageGridWidget(
             album: album,
             sharedPref: widget.sharedPref,
+            eventController: widget.eventController,
           ),
         ));
-
-    if (needReload) {
-      reloadAlbums();
-    }
   }
 
   @override

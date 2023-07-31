@@ -1,16 +1,21 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/components/image.dart';
+import 'package:nothing_gallery/constants/eventType.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class PicturesWidget extends StatefulWidget {
   late List<AssetEntity> pictures;
+  late StreamController eventController;
 
-  PicturesWidget({super.key, required this.pictures});
+  PicturesWidget(
+      {super.key, required this.pictures, required this.eventController});
 
   @override
   State createState() => _PicturesState();
@@ -130,6 +135,7 @@ class _PicturesState extends State<PicturesWidget> {
             images: widget.pictures,
             imageTotal: widget.pictures.length,
             index: index,
+            eventController: widget.eventController,
           ),
         ));
   }

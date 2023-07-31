@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
+import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
 import 'package:nothing_gallery/components/image.dart';
+import 'package:nothing_gallery/constants/albumStatus.dart';
+import 'package:nothing_gallery/constants/eventType.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
@@ -14,8 +18,13 @@ import 'package:photo_manager/photo_manager.dart';
 class ImageGridWidget extends StatefulWidget {
   final AlbumInfo album;
   late SharedPref sharedPref;
+  late StreamController eventController;
 
-  ImageGridWidget({super.key, required this.album, required this.sharedPref});
+  ImageGridWidget(
+      {super.key,
+      required this.album,
+      required this.sharedPref,
+      required this.eventController});
 
   @override
   State createState() => _ImageGridState();
@@ -25,11 +34,12 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   late AlbumInfo albumInfo;
   List<AssetEntity> loadedImages = [];
   List<Uint8List> thumbnails = [];
+  StreamSubscription? eventSubscription;
   int totalCount = 0;
   int currentPage = 0;
   int numCol = 4;
   int loadImageCount = 100;
-  bool needReload = false;
+  AlbumState albumState = AlbumState.notModified;
 
   @override
   void initState() {
@@ -41,6 +51,24 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     for (int i = 0; i < 3; i++) {
       getImages();
     }
+
+    eventSubscription =
+        widget.eventController.stream.asBroadcastStream().listen((event) {
+      if (event.runtimeType == Event) {
+        if (event.eventType == EventType.pictureDeleted) {
+          if (event.details != null && event.details.runtimeType == String) {
+            loadedImages.removeWhere((image) => image.id == event.details);
+            totalCount -= 1;
+          }
+        } else {}
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    eventSubscription?.cancel();
+    super.dispose();
   }
 
   void getPreferences() {
@@ -79,87 +107,82 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   void _openImage(AssetEntity image, int index) async {
-    print(totalCount);
-    List<String> imageDeleted = await Navigator.push(
+    await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ImagePageWidget(
             images: loadedImages,
             imageTotal: totalCount,
             index: index,
+            eventController: widget.eventController,
           ),
         ));
-
-    if (imageDeleted.isNotEmpty) {
-      needReload = true;
-      loadedImages.removeWhere((image) => imageDeleted.contains(image.id));
-      totalCount -= imageDeleted.length;
-      if (totalCount == 0) {
-        Navigator.pop(context, needReload);
-      } else {
-        setState(() {});
-      }
-    }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Scaffold(
-            body: NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification scroll) {
-                  // 현재 스크롤 위치 - scroll.metrics.pixels
-                  // 스크롤 끝 위치 scroll.metrics.maxScrollExtent
-                  final scrollPixels =
-                      scroll.metrics.pixels / scroll.metrics.maxScrollExtent;
+    if (totalCount == 0) {
+      Future.microtask(() => Navigator.pop(context));
+      return Container();
+    } else {
+      return GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Scaffold(
+              body: NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scroll) {
+                    // 현재 스크롤 위치 - scroll.metrics.pixels
+                    // 스크롤 끝 위치 scroll.metrics.maxScrollExtent
+                    final scrollPixels =
+                        scroll.metrics.pixels / scroll.metrics.maxScrollExtent;
 
-                  if (scrollPixels > 0.6) getImages();
-                  return false;
-                },
-                child: WillPopScope(
-                    onWillPop: () async {
-                      Navigator.pop(context, needReload);
-                      return needReload;
-                    },
-                    child: SafeArea(
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                          Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: Text(
-                                albumInfo.album.name.toUpperCase(),
-                                style: pageTitleTextStyle(),
-                              )),
+                    if (scrollPixels > 0.6) getImages();
+                    return false;
+                  },
+                  child: WillPopScope(
+                      onWillPop: () async {
+                        Navigator.pop(context, albumState);
+                        return true;
+                      },
+                      child: SafeArea(
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                            Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Text(
+                                  albumInfo.album.name.toUpperCase(),
+                                  style: pageTitleTextStyle(),
+                                )),
 
-                          // Images Grid
-                          Expanded(
-                              child: CustomScrollView(
-                            primary: false,
-                            slivers: <Widget>[
-                              SliverPadding(
-                                padding: const EdgeInsets.all(12),
-                                sliver: SliverGrid.count(
-                                    crossAxisSpacing: 3,
-                                    mainAxisSpacing: 3,
-                                    crossAxisCount: numCol,
-                                    childAspectRatio: 1,
-                                    children: loadedImages
-                                        .asMap()
-                                        .entries
-                                        .map((entry) => imageWidget(
-                                              () => {
-                                                _openImage(
-                                                    entry.value, entry.key)
-                                              },
-                                              entry.value,
-                                            ))
-                                        .toList()),
-                              ),
-                            ],
-                          ))
-                        ]))))));
+                            // Images Grid
+                            Expanded(
+                                child: CustomScrollView(
+                              primary: false,
+                              slivers: <Widget>[
+                                SliverPadding(
+                                  padding: const EdgeInsets.all(12),
+                                  sliver: SliverGrid.count(
+                                      crossAxisSpacing: 3,
+                                      mainAxisSpacing: 3,
+                                      crossAxisCount: numCol,
+                                      childAspectRatio: 1,
+                                      children: loadedImages
+                                          .asMap()
+                                          .entries
+                                          .map((entry) => imageWidget(
+                                                () => {
+                                                  _openImage(
+                                                      entry.value, entry.key)
+                                                },
+                                                entry.value,
+                                              ))
+                                          .toList()),
+                                ),
+                              ],
+                            ))
+                          ]))))));
+    }
   }
 
   @override
