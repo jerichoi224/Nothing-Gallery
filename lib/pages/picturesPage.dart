@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/constants/eventType.dart';
+import 'package:nothing_gallery/constants/imageWidgetStatus.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -29,6 +30,9 @@ class _PicturesState extends State<PicturesWidget> {
   List<Widget> chunksByDate = [];
   int totalLoaded = 0;
   StreamSubscription? eventSubscription;
+
+  bool selectionMode = false;
+  List<String> selected = [];
 
   int currentPage = 0;
   int loadImageCount = 100;
@@ -130,9 +134,14 @@ class _PicturesState extends State<PicturesWidget> {
               children: dateImages.asMap().entries.map((entry) {
                 int ind = totalLoaded + entry.key;
                 return imageWidget(
-                  () => {_openImage(entry.value, ind)},
-                  entry.value,
-                );
+                    () => {_onTapImage(entry.value, ind)},
+                    entry.value,
+                    selectionMode
+                        ? selected.contains(entry.value.id)
+                            ? ImageWidgetStatus.selected
+                            : ImageWidgetStatus.unselected
+                        : ImageWidgetStatus.normal,
+                    toggleSelection);
               }).toList())
         ],
       ));
@@ -142,7 +151,19 @@ class _PicturesState extends State<PicturesWidget> {
     setState(() {});
   }
 
-  void _openImage(AssetEntity image, int index) async {
+  void toggleSelection(String imageId) {
+    if (selected.contains(imageId)) {
+      selected.remove(imageId);
+    } else {
+      selected.add(imageId);
+    }
+    if (selected.isNotEmpty) {
+      selectionMode = true;
+    }
+    setState(() {});
+  }
+
+  void _onTapImage(AssetEntity image, int index) async {
     if (image.type == AssetType.image) {
       int imageIdx = images.indexOf(image);
 
@@ -172,38 +193,51 @@ class _PicturesState extends State<PicturesWidget> {
                   if (scrollPixels > 0.6) loadMoreDates();
                   return false;
                 },
-                child: SafeArea(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                      Padding(
-                          padding: const EdgeInsets.fromLTRB(30, 20, 10, 0),
-                          child: Row(
+                child: WillPopScope(
+                    onWillPop: () async {
+                      if (selectionMode) {
+                        setState(() {
+                          selected.clear();
+                          selectionMode = false;
+                        });
+                        return false;
+                      }
+                      Navigator.pop(context);
+                      return true;
+                    },
+                    child: SafeArea(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'PICTURES',
-                                style: pageTitleTextStyle(),
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.search))
-                            ],
-                          )),
-                      // Album Grid
-                      Expanded(
-                        child:
-                            CustomScrollView(primary: false, slivers: <Widget>[
-                          SliverPadding(
-                              padding: const EdgeInsets.all(5),
-                              sliver: SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                    (context, index) {
-                                  return chunksByDate[index];
-                                }, childCount: chunksByDate.length),
+                          Padding(
+                              padding: const EdgeInsets.fromLTRB(30, 20, 10, 0),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'PICTURES',
+                                    style: pageTitleTextStyle(),
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.search))
+                                ],
                               )),
-                        ]),
-                      )
-                    ])))));
+                          // Album Grid
+                          Expanded(
+                            child: CustomScrollView(
+                                primary: false,
+                                slivers: <Widget>[
+                                  SliverPadding(
+                                      padding: const EdgeInsets.all(5),
+                                      sliver: SliverList(
+                                        delegate: SliverChildBuilderDelegate(
+                                            (context, index) {
+                                          return chunksByDate[index];
+                                        }, childCount: chunksByDate.length),
+                                      )),
+                                ]),
+                          )
+                        ]))))));
   }
 }

@@ -8,6 +8,7 @@ import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
 import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/constants/albumStatus.dart';
 import 'package:nothing_gallery/constants/eventType.dart';
+import 'package:nothing_gallery/constants/imageWidgetStatus.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
@@ -38,6 +39,9 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   int currentPage = 0;
   int numCol = 4;
   int loadImageCount = 100;
+  bool selectionMode = false;
+  List<String> selected = [];
+
   AlbumState albumState = AlbumState.notModified;
 
   @override
@@ -80,19 +84,35 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     numCol = widget.sharedPref.get(SharedPrefKeys.imageGridPageNumCol);
   }
 
-  void _openImage(AssetEntity image, int index) async {
-    if (image.type == AssetType.image) {
-      int imageIdx = images.indexOf(image);
-      await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ImagePageWidget(
-              images: images,
-              imageTotal: images.length,
-              index: imageIdx,
-              eventController: widget.eventController,
-            ),
-          ));
+  void toggleSelection(String imageId) {
+    if (selected.contains(imageId)) {
+      selected.remove(imageId);
+    } else {
+      selected.add(imageId);
+    }
+    if (selected.isNotEmpty) {
+      selectionMode = true;
+    }
+    setState(() {});
+  }
+
+  void _onImageTap(AssetEntity image, int index) async {
+    if (selectionMode) {
+      toggleSelection(image.id);
+    } else {
+      if (image.type == AssetType.image) {
+        int imageIdx = images.indexOf(image);
+        await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ImagePageWidget(
+                images: images,
+                imageTotal: images.length,
+                index: imageIdx,
+                eventController: widget.eventController,
+              ),
+            ));
+      }
     }
     setState(() {});
   }
@@ -118,6 +138,13 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                   },
                   child: WillPopScope(
                       onWillPop: () async {
+                        if (selectionMode) {
+                          setState(() {
+                            selected.clear();
+                            selectionMode = false;
+                          });
+                          return false;
+                        }
                         Navigator.pop(context, albumState);
                         return true;
                       },
@@ -148,12 +175,21 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                                           .asMap()
                                           .entries
                                           .map((entry) => imageWidget(
-                                                () => {
-                                                  _openImage(
-                                                      entry.value, entry.key)
-                                                },
-                                                entry.value,
-                                              ))
+                                              () => {
+                                                    _onImageTap(
+                                                        entry.value, entry.key)
+                                                  },
+                                              entry.value,
+                                              selectionMode
+                                                  ? selected.contains(
+                                                          entry.value.id)
+                                                      ? ImageWidgetStatus
+                                                          .selected
+                                                      : ImageWidgetStatus
+                                                          .unselected
+                                                  : ImageWidgetStatus.normal,
+                                              (String imageId) =>
+                                                  {toggleSelection(imageId)}))
                                           .toList()),
                                 ),
                               ],

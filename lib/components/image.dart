@@ -1,10 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/constants/imageWidgetStatus.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-Widget imageWidget(Function onClick, AssetEntity image) {
+Widget imageWidget(Function onClick, AssetEntity image,
+    ImageWidgetStatus status, Function(String imageId) onLongTap) {
   double radius = 0;
 
   String duration = '';
@@ -22,14 +24,18 @@ Widget imageWidget(Function onClick, AssetEntity image) {
           imageThumbnailWidget(image, radius),
           Positioned.fill(
             child: Material(
-              color: Colors.transparent,
+              color: status == ImageWidgetStatus.selected
+                  ? Colors.black38
+                  : Colors.transparent,
               child: InkWell(
                 customBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(radius))),
                 onTap: () {
                   onClick();
                 },
-                onLongPress: () {},
+                onLongPress: () {
+                  onLongTap(image.id);
+                },
               ),
             ),
           ),
@@ -46,7 +52,23 @@ Widget imageWidget(Function onClick, AssetEntity image) {
                     Text(" $duration", style: videoDurationTextStyle())
                   ],
                 )
-              : Container()
+              : Container(),
+          status == ImageWidgetStatus.normal
+              ? Container()
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      status == ImageWidgetStatus.selected
+                          ? Icons.check_circle_outline
+                          : Icons.circle_outlined,
+                      size: 22,
+                      color: status == ImageWidgetStatus.selected
+                          ? Colors.white
+                          : Colors.grey.shade700,
+                    ),
+                  ],
+                )
         ],
       ));
 }
