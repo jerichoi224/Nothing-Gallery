@@ -11,8 +11,10 @@ import 'package:nothing_gallery/constants/eventType.dart';
 import 'package:nothing_gallery/constants/imageWidgetStatus.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
+import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
 import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/util/imageFunctions.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class ImageGridWidget extends StatefulWidget {
@@ -40,6 +42,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   int numCol = 4;
   int loadImageCount = 100;
   bool selectionMode = false;
+  bool useTrashBin = true;
   List<String> selected = [];
 
   AlbumState albumState = AlbumState.notModified;
@@ -82,6 +85,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
   void getPreferences() {
     numCol = widget.sharedPref.get(SharedPrefKeys.imageGridPageNumCol);
+    useTrashBin = sharedPref.get(SharedPrefKeys.useTrashBin);
   }
 
   void toggleSelection(String imageId) {
@@ -94,6 +98,20 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
       selectionMode = true;
     }
     setState(() {});
+  }
+
+  Future<void> onDelete() async {
+    List<String> deletedImages = await confirmDelete(
+        context,
+        assets.where((element) => selected.contains(element.id)).toList(),
+        useTrashBin);
+    if (deletedImages.isNotEmpty) {
+      for (String imageId in deletedImages) {
+        widget.eventController.sink
+            .add(Event(EventType.pictureDeleted, imageId));
+      }
+      setState(() {});
+    }
   }
 
   void _onImageTap(AssetEntity image, int index) async {
@@ -152,12 +170,29 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                            Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Text(
-                                  albumInfo.album.name.toUpperCase(),
-                                  style: pageTitleTextStyle(),
-                                )),
+                            Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                      padding: const EdgeInsets.all(20),
+                                      child: Text(
+                                        albumInfo.album.name.toUpperCase(),
+                                        style: pageTitleTextStyle(),
+                                      )),
+                                  const Spacer(),
+                                  selected.isNotEmpty
+                                      ? Row(children: [
+                                          IconButton(
+                                            onPressed: onDelete,
+                                            icon: const Icon(Icons.delete),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {},
+                                            icon: const Icon(Icons.more_vert),
+                                          )
+                                        ])
+                                      : Container()
+                                ]),
 
                             // Images Grid
                             Expanded(
