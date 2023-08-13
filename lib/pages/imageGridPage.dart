@@ -9,6 +9,7 @@ import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/constants/albumStatus.dart';
 import 'package:nothing_gallery/constants/eventType.dart';
 import 'package:nothing_gallery/constants/imageWidgetStatus.dart';
+import 'package:nothing_gallery/constants/selectedImageMenu.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/main.dart';
@@ -183,13 +184,39 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                                   selected.isNotEmpty
                                       ? Row(children: [
                                           IconButton(
+                                            onPressed: () {
+                                              shareFiles(
+                                                assets
+                                                    .where((element) => selected
+                                                        .contains(element.id))
+                                                    .toList(),
+                                              );
+                                            },
+                                            icon: const Icon(Icons.share),
+                                          ),
+                                          IconButton(
                                             onPressed: onDelete,
                                             icon: const Icon(Icons.delete),
                                           ),
-                                          IconButton(
-                                            onPressed: () {},
-                                            icon: const Icon(Icons.more_vert),
-                                          )
+                                          PopupMenuButton<SelectedImageMenu>(
+                                              onSelected:
+                                                  (SelectedImageMenu item) {
+                                            print(item);
+                                          }, itemBuilder:
+                                                  (BuildContext context) {
+                                            return [
+                                              for (final value
+                                                  in SelectedImageMenu.values)
+                                                PopupMenuItem(
+                                                  value: value,
+                                                  child: Text(
+                                                    value.text,
+                                                    style:
+                                                        videoDurationTextStyle(),
+                                                  ),
+                                                )
+                                            ];
+                                          }),
                                         ])
                                       : Container()
                                 ]),
