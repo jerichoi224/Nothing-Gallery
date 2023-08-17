@@ -142,15 +142,22 @@ class _MainState extends State<MainApp> {
     // App Logo screen or sth
     return Scaffold(
         body: SafeArea(
-      child: Column(children: [
-        Padding(
-            padding: const EdgeInsets.all(10),
-            child: Center(
-                child: Text(
-              'Loading Screen (Icon)',
-              style: pageTitleTextStyle(),
-            )))
-      ]),
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+                padding: const EdgeInsets.all(10),
+                child: Center(
+                    child: SizedBox(
+                        height: 150,
+                        width: 150,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(300.0),
+                          child:
+                              const Image(image: AssetImage('assets/icon.png')),
+                        ))))
+          ]),
     ));
   }
 }
