@@ -14,6 +14,7 @@ import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
+import 'package:nothing_gallery/pages/videoPlayerPage.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/util/imageFunctions.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -116,6 +117,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   void _onImageTap(AssetEntity image, int index) async {
+    print('tap');
     if (selectionMode) {
       toggleSelection(image.id);
     } else {
@@ -131,9 +133,19 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                 eventController: widget.eventController,
               ),
             ));
+      } else if (image.type == AssetType.video) {
+        print('vdieo');
+        await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VideoPlayerPageWidget(
+                video: image,
+                eventController: widget.eventController,
+              ),
+            ));
       }
+      setState(() {});
     }
-    setState(() {});
   }
 
   @override
@@ -276,5 +288,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   @override
-  void onResumed() {}
+  void onResumed() {
+    // TODO: implement onResumed
+  }
 }
