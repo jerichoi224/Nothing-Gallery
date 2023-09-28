@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/constants/eventType.dart';
+import 'package:nothing_gallery/constants/mainMenu.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/pages/albumsPage.dart';
 import 'package:nothing_gallery/pages/picturesPage.dart';
+import 'package:nothing_gallery/util/navigation.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 //ignore: must_be_immutable
@@ -115,13 +117,37 @@ class _HomeState extends State<HomeWidget> {
                     Expanded(
                         flex: 1,
                         child: SizedBox(
-                            height: 50,
-                            child: InkWell(
-                                child: const Icon(
+                          height: 50,
+                          child: PopupMenuButton<MainMenu>(
+                              // Callback that sets the selected popup menu item.
+                              onSelected: (MainMenu item) {
+                                switch (item) {
+                                  case MainMenu.settings:
+                                    openSettings(context);
+                                    break;
+                                  default:
+                                    break;
+                                }
+                              },
+                              child: const InkWell(
+                                child: Icon(
                                   Icons.list,
                                   size: 26,
                                 ),
-                                onTap: () {}))),
+                              ),
+                              itemBuilder: (BuildContext context) {
+                                return [
+                                  for (final value in MainMenu.values)
+                                    PopupMenuItem(
+                                      value: value,
+                                      child: Text(
+                                        value.text,
+                                        style: videoDurationTextStyle(),
+                                      ),
+                                    )
+                                ];
+                              }),
+                        )),
                   ],
                 )),
             body: TabBarView(children: _children()),

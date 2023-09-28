@@ -17,6 +17,16 @@ TextStyle pageTitleTextStyle() {
       fontSize: 18.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
 }
 
+TextStyle settingsTitleTextStyle() {
+  return TextStyle(
+      fontSize: 24.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
+}
+
+TextStyle settingsMenuTextStyle() {
+  return TextStyle(
+      fontSize: 18.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
+}
+
 TextStyle imageIndexTextStyle() {
   return TextStyle(
       fontSize: 20.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);

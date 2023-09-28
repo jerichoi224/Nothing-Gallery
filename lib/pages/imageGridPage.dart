@@ -208,23 +208,23 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                                           ),
                                           PopupMenuButton<SelectedImageMenu>(
                                               onSelected:
-                                                  (SelectedImageMenu item) {
-                                            print(item);
-                                          }, itemBuilder:
+                                                  (SelectedImageMenu item) {},
+                                              itemBuilder:
                                                   (BuildContext context) {
-                                            return [
-                                              for (final value
-                                                  in SelectedImageMenu.values)
-                                                PopupMenuItem(
-                                                  value: value,
-                                                  child: Text(
-                                                    value.text,
-                                                    style:
-                                                        videoDurationTextStyle(),
-                                                  ),
-                                                )
-                                            ];
-                                          }),
+                                                return [
+                                                  for (final value
+                                                      in SelectedImageMenu
+                                                          .values)
+                                                    PopupMenuItem(
+                                                      value: value,
+                                                      child: Text(
+                                                        value.text,
+                                                        style:
+                                                            videoDurationTextStyle(),
+                                                      ),
+                                                    )
+                                                ];
+                                              }),
                                         ])
                                       : Container()
                                 ]),
