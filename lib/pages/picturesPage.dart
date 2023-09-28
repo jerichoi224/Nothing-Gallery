@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/constants/eventType.dart';
 import 'package:nothing_gallery/constants/imageWidgetStatus.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
+import 'package:nothing_gallery/pages/videoPlayerPage.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -174,6 +174,15 @@ class _PicturesState extends State<PicturesWidget> {
               images: images,
               imageTotal: images.length,
               index: imageIdx,
+              eventController: widget.eventController,
+            ),
+          ));
+    } else if (image.type == AssetType.video) {
+      await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VideoPlayerPageWidget(
+              video: image,
               eventController: widget.eventController,
             ),
           ));

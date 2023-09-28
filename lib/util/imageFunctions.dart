@@ -3,9 +3,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
-import 'package:nothing_gallery/constants/sharedPrefKey.dart';
-import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/style.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
@@ -69,10 +66,10 @@ Future<File?> moveToTrash(AssetEntity entity) async {
 
   Uint8List? originBytes = await entity.originBytes;
   File? originFile = await entity.originFile;
-  Directory trash_dir = Directory("${private.path}/trash");
+  Directory trashDir = Directory("${private.path}/trash");
 
-  if (!(await trash_dir.exists())) {
-    await trash_dir.create();
+  if (!(await trashDir.exists())) {
+    await trashDir.create();
   }
 
   if (originFile != null && originBytes != null) {
@@ -80,7 +77,7 @@ Future<File?> moveToTrash(AssetEntity entity) async {
     var lastSeparator = originFile.path.lastIndexOf(Platform.pathSeparator);
 
     File file = await File(
-            '${trash_dir.path}${originFile.path.substring(lastSeparator)}')
+            '${trashDir.path}${originFile.path.substring(lastSeparator)}')
         .create();
     file.writeAsBytesSync(imageInUnit8List);
     return file;

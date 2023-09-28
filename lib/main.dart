@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
-import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/pages/homePage.dart';
 import 'package:nothing_gallery/pages/permissionCheckPage.dart';
 import 'package:nothing_gallery/util/imageFunctions.dart';
@@ -18,7 +17,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   sharedPref = await SharedPref.create();
 
-  runApp(MaterialApp(debugShowCheckedModeBanner: false, home: const MyApp()));
+  runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
 }
 
 class MyApp extends StatefulWidget {

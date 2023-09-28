@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
@@ -117,7 +115,6 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   void _onImageTap(AssetEntity image, int index) async {
-    print('tap');
     if (selectionMode) {
       toggleSelection(image.id);
     } else {
@@ -134,7 +131,6 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
               ),
             ));
       } else if (image.type == AssetType.video) {
-        print('vdieo');
         await Navigator.push(
             context,
             MaterialPageRoute(
