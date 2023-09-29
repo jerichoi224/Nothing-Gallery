@@ -12,11 +12,9 @@ import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class PicturesWidget extends StatefulWidget {
-  late List<AssetEntity> pictures;
   late StreamController eventController;
 
-  PicturesWidget(
-      {super.key, required this.pictures, required this.eventController});
+  PicturesWidget({super.key, required this.eventController});
 
   @override
   State createState() => _PicturesState();
@@ -66,8 +64,9 @@ class _PicturesState extends State<PicturesWidget> {
   @override
   void initState() {
     super.initState();
-    loadMoreDates();
-    images = List.from(widget.pictures);
+
+    // loadMoreDates();
+    images = []; // List.from(widget.pictures);
     images.removeWhere((element) => element.type != AssetType.image);
 
     eventSubscription =
@@ -84,8 +83,9 @@ class _PicturesState extends State<PicturesWidget> {
 
   List<AssetEntity> loadImages() {
     currentPage += 1;
-    return widget.pictures.sublist((currentPage - 1) * loadImageCount,
-        min(currentPage * loadImageCount, widget.pictures.length));
+    return [];
+    // widget.pictures.sublist((currentPage - 1) * loadImageCount,
+    //     min(currentPage * loadImageCount, widget.pictures.length));
   }
 
   Future<void> loadMoreDates() async {
@@ -191,6 +191,7 @@ class _PicturesState extends State<PicturesWidget> {
 
   @override
   Widget build(BuildContext context) {
+    return Container();
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(

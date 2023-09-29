@@ -1,30 +1,19 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/constants/eventType.dart';
-import 'package:nothing_gallery/constants/mainMenu.dart';
-import 'package:nothing_gallery/db/sharedPref.dart';
-import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/constants/home_page_enum.dart';
 import 'package:nothing_gallery/pages/albumsPage.dart';
 import 'package:nothing_gallery/pages/picturesPage.dart';
 import 'package:nothing_gallery/util/navigation.dart';
-import 'package:photo_manager/photo_manager.dart';
 
 //ignore: must_be_immutable
 class HomeWidget extends StatefulWidget {
-  final BuildContext parentCtx;
-  late SharedPref sharedPref;
-  late List<AssetEntity> pictures;
   late List<AlbumInfo> albums;
 
-  HomeWidget(
-      {super.key,
-      required this.parentCtx,
-      required this.sharedPref,
-      required this.pictures,
-      required this.albums});
+  HomeWidget({super.key, required this.albums});
 
   @override
   State<HomeWidget> createState() => _HomeState();
@@ -33,18 +22,17 @@ class HomeWidget extends StatefulWidget {
 class _HomeState extends State<HomeWidget> {
   StreamController<Event> eventController = StreamController<Event>.broadcast();
   StreamSubscription? eventSubscription;
-  List<AssetEntity> pictures = [];
+
   List<AlbumInfo> albums = [];
 
-  final List<Widget> screens = [];
+  static final List<Tab> _tabs =
+      HomeTabMenu.values.map((tab) => Tab(text: tab.text)).toList();
 
-  bool ready = false;
-  String? username = "";
+  static const double navBarHeight = 50;
 
   @override
   void initState() {
     super.initState();
-    pictures = widget.pictures;
     albums = widget.albums;
 
     eventSubscription =
@@ -52,7 +40,6 @@ class _HomeState extends State<HomeWidget> {
       if (event.runtimeType == Event) {
         if (event.eventType == EventType.pictureDeleted) {
           if (event.details != null && event.details.runtimeType == String) {
-            pictures.removeWhere((element) => element.id == event.details);
             setState(() {});
           }
         } else {}
@@ -67,21 +54,46 @@ class _HomeState extends State<HomeWidget> {
     super.dispose();
   }
 
-  List<Widget> _children() => [
+  List<Widget> tabPages() => [
         PicturesWidget(
-          pictures: widget.pictures,
           eventController: eventController,
         ),
-        AlbumsWidget(
-            sharedPref: widget.sharedPref,
-            albums: widget.albums,
-            eventController: eventController)
+        AlbumsWidget(albums: widget.albums, eventController: eventController)
       ];
 
-  static const List<Tab> _tabs = [
-    Tab(text: "PICTURES"),
-    Tab(text: "ALBUMS"),
-  ];
+  Widget homePopupMenu() {
+    return PopupMenuButton<HomePopupMenu>(
+        tooltip: '',
+        onSelected: onHomePopupMenuSelected,
+        child: const InkWell(
+          child: Icon(
+            Icons.list,
+            size: 26,
+          ),
+        ),
+        itemBuilder: (BuildContext context) {
+          return [
+            for (final value in HomePopupMenu.values)
+              PopupMenuItem(
+                value: value,
+                child: Text(
+                  value.text,
+                  style: mainTextStyle(TextStyleType.popUpMenu),
+                ),
+              )
+          ];
+        });
+  }
+
+  void onHomePopupMenuSelected(HomePopupMenu item) {
+    switch (item) {
+      case HomePopupMenu.settings:
+        openSettings(context);
+        break;
+      default:
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +105,7 @@ class _HomeState extends State<HomeWidget> {
           length: 2,
           child: Scaffold(
             bottomNavigationBar: SizedBox(
-                height: 50,
+                height: navBarHeight,
                 child: Row(
                   children: [
                     Expanded(
@@ -108,9 +120,9 @@ class _HomeState extends State<HomeWidget> {
                             return Colors.transparent;
                           },
                         ),
-                        labelStyle: mainTextStyle(TextStyleType.navrBarText),
+                        labelStyle: mainTextStyle(TextStyleType.navBar),
                         unselectedLabelStyle:
-                            mainTextStyle(TextStyleType.navrBarText),
+                            mainTextStyle(TextStyleType.navBar),
                         tabs: _tabs,
                         labelColor: Colors.red,
                       ),
@@ -118,41 +130,10 @@ class _HomeState extends State<HomeWidget> {
                     Expanded(
                         flex: 1,
                         child: SizedBox(
-                          height: 50,
-                          child: PopupMenuButton<MainMenu>(
-                              // Callback that sets the selected popup menu item.
-                              onSelected: (MainMenu item) {
-                                switch (item) {
-                                  case MainMenu.settings:
-                                    openSettings(context);
-                                    break;
-                                  default:
-                                    break;
-                                }
-                              },
-                              child: const InkWell(
-                                child: Icon(
-                                  Icons.list,
-                                  size: 26,
-                                ),
-                              ),
-                              itemBuilder: (BuildContext context) {
-                                return [
-                                  for (final value in MainMenu.values)
-                                    PopupMenuItem(
-                                      value: value,
-                                      child: Text(
-                                        value.text,
-                                        style: mainTextStyle(
-                                            TextStyleType.videoDuration),
-                                      ),
-                                    )
-                                ];
-                              }),
-                        )),
+                            height: navBarHeight, child: homePopupMenu())),
                   ],
                 )),
-            body: TabBarView(children: _children()),
+            body: TabBarView(children: tabPages()),
           ),
         ));
   }

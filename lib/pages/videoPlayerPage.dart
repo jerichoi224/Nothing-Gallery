@@ -158,7 +158,7 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                                     thumbRadius: 5.0,
                                     timeLabelLocation: TimeLabelLocation.sides,
                                     timeLabelTextStyle: mainTextStyle(
-                                        TextStyleType.videoDuration),
+                                        TextStyleType.videoPlayerDuration),
                                     onSeek: (position) {
                                       _controller.seekTo(position);
                                       setState(() {

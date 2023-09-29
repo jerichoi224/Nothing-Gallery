@@ -9,24 +9,19 @@ import 'package:nothing_gallery/constants/eventType.dart';
 import 'package:nothing_gallery/constants/imageWidgetStatus.dart';
 import 'package:nothing_gallery/constants/selectedImageMenu.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
-import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/pages/imagePage.dart';
 import 'package:nothing_gallery/pages/videoPlayerPage.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/util/imageFunctions.dart';
+import 'package:nothing_gallery/util/image_functions.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class ImageGridWidget extends StatefulWidget {
   final AlbumInfo album;
-  late SharedPref sharedPref;
   late StreamController eventController;
 
   ImageGridWidget(
-      {super.key,
-      required this.album,
-      required this.sharedPref,
-      required this.eventController});
+      {super.key, required this.album, required this.eventController});
 
   @override
   State createState() => _ImageGridState();
@@ -84,7 +79,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   void getPreferences() {
-    numCol = widget.sharedPref.get(SharedPrefKeys.imageGridPageNumCol);
+    numCol = sharedPref.get(SharedPrefKeys.imageGridPageNumCol);
     useTrashBin = sharedPref.get(SharedPrefKeys.useTrashBin);
   }
 

@@ -8,7 +8,7 @@ import 'package:nothing_gallery/constants/eventType.dart';
 import 'package:nothing_gallery/constants/sharedPrefKey.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/util/imageFunctions.dart';
+import 'package:nothing_gallery/util/image_functions.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
