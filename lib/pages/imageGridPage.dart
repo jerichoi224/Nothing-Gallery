@@ -18,10 +18,8 @@ import 'package:photo_manager/photo_manager.dart';
 
 class ImageGridWidget extends StatefulWidget {
   final AlbumInfo album;
-  late StreamController eventController;
 
-  ImageGridWidget(
-      {super.key, required this.album, required this.eventController});
+  ImageGridWidget({super.key, required this.album});
 
   @override
   State createState() => _ImageGridState();
@@ -53,7 +51,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
     getPreferences();
     eventSubscription =
-        widget.eventController.stream.asBroadcastStream().listen((event) {
+        eventController.stream.asBroadcastStream().listen((event) {
       if (event.runtimeType == Event) {
         if (event.eventType == EventType.pictureDeleted) {
           if (event.details != null && event.details.runtimeType == String) {
@@ -63,7 +61,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
             // Album is empty
             if (totalCount == 0) {
-              widget.eventController.sink
+              eventController.sink
                   .add(Event(EventType.albumEmpty, albumInfo.album.id));
             }
           }
@@ -102,8 +100,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
         useTrashBin);
     if (deletedImages.isNotEmpty) {
       for (String imageId in deletedImages) {
-        widget.eventController.sink
-            .add(Event(EventType.pictureDeleted, imageId));
+        eventController.sink.add(Event(EventType.pictureDeleted, imageId));
       }
       setState(() {});
     }
@@ -122,7 +119,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                 images: images,
                 imageTotal: images.length,
                 index: imageIdx,
-                eventController: widget.eventController,
+                eventController: eventController,
               ),
             ));
       } else if (image.type == AssetType.video) {
@@ -131,7 +128,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
             MaterialPageRoute(
               builder: (context) => VideoPlayerPageWidget(
                 video: image,
-                eventController: widget.eventController,
+                eventController: eventController,
               ),
             ));
       }

@@ -19,7 +19,7 @@ Widget imageWidget(Function onClick, AssetEntity image,
       tag: image.id,
       child: Stack(
         children: <Widget>[
-          imageThumbnailWidget(image, radius),
+          imageThumbnailWidget(image, radius, false),
           Positioned.fill(
             child: Material(
               color: status == ImageWidgetStatus.selected
@@ -72,23 +72,24 @@ Widget imageWidget(Function onClick, AssetEntity image,
       ));
 }
 
-Widget imageThumbnailWidget(AssetEntity image, double radius) {
+Widget imageThumbnailWidget(AssetEntity image, double radius, bool isOriginal) {
   return AspectRatio(
       aspectRatio: 1,
       child: ClipRRect(
           borderRadius: BorderRadius.circular(radius),
           child: AssetEntityImage(
             image,
-            isOriginal: false,
+            isOriginal: isOriginal,
             fit: BoxFit.cover,
-            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-              if (frame == null) {
-                // fallback to placeholder
-                return Container(
-                  color: Colors.white12,
-                );
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
               }
-              return child;
+              return AssetEntityImage(
+                image,
+                isOriginal: false,
+                fit: BoxFit.cover,
+              );
             },
           )));
 }

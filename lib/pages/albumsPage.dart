@@ -6,17 +6,15 @@ import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
 import 'package:nothing_gallery/components/album.dart';
 import 'package:nothing_gallery/constants/eventType.dart';
-import 'package:nothing_gallery/db/sharedPref.dart';
-import 'package:nothing_gallery/pages/imageGridPage.dart';
+import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:photo_manager/photo_manager.dart';
+import 'package:nothing_gallery/util/loader_functions.dart';
 
+@immutable
 class AlbumsWidget extends StatefulWidget {
-  late List<AlbumInfo> albums;
-  late StreamController eventController;
+  final List<AlbumInfo> albums;
 
-  AlbumsWidget(
-      {super.key, required this.albums, required this.eventController});
+  const AlbumsWidget({super.key, required this.albums});
 
   @override
   State createState() => _AlbumsState();
@@ -29,9 +27,11 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
   @override
   void initState() {
     super.initState();
+    // only time reading widget.album
     albums = widget.albums;
+
     eventSubscription =
-        widget.eventController.stream.asBroadcastStream().listen((event) {
+        eventController.stream.asBroadcastStream().listen((event) {
       if (event.runtimeType == Event) {
         if (event.eventType == EventType.albumEmpty) {
           if (event.details != null && event.details.runtimeType == String) {
@@ -44,29 +44,10 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
   }
 
   Future<void> reloadAlbums() async {
-    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
-    paths.removeWhere((element) => element.id == 'isAll'); // remove recent
-
-    List<AlbumInfo> reloaded = [];
-    for (AssetPathEntity path in paths) {
-      // reloaded.add(await getAlbumInfo(path));
-    }
-
+    List<AlbumInfo> reloadedAlbums = await getInitialAlbums();
     setState(() {
-      albums = reloaded;
-      widget.albums = reloaded;
+      albums = reloadedAlbums;
     });
-  }
-
-  void _openAlbum(AlbumInfo album) async {
-    await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ImageGridWidget(
-            album: album,
-            eventController: widget.eventController,
-          ),
-        ));
   }
 
   @override
@@ -104,8 +85,8 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
                         crossAxisCount: 2,
                         childAspectRatio: 0.85,
                         children: albums
-                            .map((entry) =>
-                                albumWidget(() => {_openAlbum(entry)}, entry))
+                            .map((albumeInfo) =>
+                                AlbumWidget(albumInfo: albumeInfo))
                             .toList()),
                   ),
                 ],

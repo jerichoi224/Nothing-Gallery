@@ -3,6 +3,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
+import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/pages/homePage.dart';
 import 'package:nothing_gallery/pages/permissionCheckPage.dart';
@@ -11,10 +12,11 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 late SharedPref sharedPref;
-
+late StreamController<Event> eventController;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   sharedPref = await SharedPref.create();
+  eventController = StreamController<Event>.broadcast();
 
   runApp(const MyApp());
 }
@@ -64,7 +66,15 @@ class _MainState extends State<MainApp> {
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
 
     if (permitted || ps.isAuth) {
-      getAlbums();
+      getInitialAlbums().then(
+        (initialAlbums) {
+          setState(() {
+            albums = initialAlbums;
+            initialized = true;
+          });
+        },
+      );
+
       setState(() {
         permissionChecked = permissionGranted = true;
       });
@@ -73,18 +83,6 @@ class _MainState extends State<MainApp> {
         permissionChecked = true;
       });
     }
-  }
-
-  Future<void> getAlbums() async {
-    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
-    paths.removeWhere((element) => element.id == 'isAll'); // remove recent
-    for (AssetPathEntity path in paths) {
-      albums.add(await getInitialAlbumInfo(path));
-    }
-
-    setState(() {
-      initialized = true;
-    });
   }
 
   @override

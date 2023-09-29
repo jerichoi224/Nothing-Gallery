@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
@@ -9,21 +10,18 @@ import 'package:nothing_gallery/pages/albumsPage.dart';
 import 'package:nothing_gallery/pages/picturesPage.dart';
 import 'package:nothing_gallery/util/navigation.dart';
 
-//ignore: must_be_immutable
+@immutable
 class HomeWidget extends StatefulWidget {
-  late List<AlbumInfo> albums;
+  final List<AlbumInfo> albums;
 
-  HomeWidget({super.key, required this.albums});
+  const HomeWidget({super.key, required this.albums});
 
   @override
   State<HomeWidget> createState() => _HomeState();
 }
 
 class _HomeState extends State<HomeWidget> {
-  StreamController<Event> eventController = StreamController<Event>.broadcast();
   StreamSubscription? eventSubscription;
-
-  List<AlbumInfo> albums = [];
 
   static final List<Tab> _tabs =
       HomeTabMenu.values.map((tab) => Tab(text: tab.text)).toList();
@@ -33,7 +31,6 @@ class _HomeState extends State<HomeWidget> {
   @override
   void initState() {
     super.initState();
-    albums = widget.albums;
 
     eventSubscription =
         eventController.stream.asBroadcastStream().listen((event) {
@@ -54,12 +51,8 @@ class _HomeState extends State<HomeWidget> {
     super.dispose();
   }
 
-  List<Widget> tabPages() => [
-        PicturesWidget(
-          eventController: eventController,
-        ),
-        AlbumsWidget(albums: widget.albums, eventController: eventController)
-      ];
+  List<Widget> tabPages() =>
+      [PicturesWidget(), AlbumsWidget(albums: widget.albums)];
 
   Widget homePopupMenu() {
     return PopupMenuButton<HomePopupMenu>(
