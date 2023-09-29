@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/constants/event_type.dart';
 import 'package:nothing_gallery/constants/home_page_enum.dart';
@@ -12,9 +11,7 @@ import 'package:nothing_gallery/util/navigation.dart';
 
 @immutable
 class HomeWidget extends StatefulWidget {
-  final List<AlbumInfo> albums;
-
-  const HomeWidget({super.key, required this.albums});
+  const HomeWidget({super.key});
 
   @override
   State<HomeWidget> createState() => _HomeState();
@@ -51,8 +48,7 @@ class _HomeState extends State<HomeWidget> {
     super.dispose();
   }
 
-  List<Widget> tabPages() =>
-      [PicturesWidget(), AlbumsWidget(albums: widget.albums)];
+  List<Widget> tabPages() => [const PicturesWidget(), const AlbumsWidget()];
 
   Widget homePopupMenu() {
     return PopupMenuButton<HomePopupMenu>(

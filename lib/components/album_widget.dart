@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
-import 'package:nothing_gallery/components/image.dart';
+import 'package:nothing_gallery/components/grid_item_widget.dart';
+import 'package:nothing_gallery/components/image_thumbnail_widget.dart';
 import 'package:nothing_gallery/pages/image_grid_page.dart';
 import 'package:nothing_gallery/style.dart';
 
@@ -28,7 +29,10 @@ class AlbumWidget extends StatelessWidget {
       children: <Widget>[
         Stack(
           children: <Widget>[
-            imageThumbnailWidget(albumInfo.thumbnailImage, radius, true),
+            ThumbnailWidget(
+                asset: albumInfo.thumbnailImage,
+                radius: radius,
+                isOriginal: true),
             Positioned.fill(
               child: Material(
                 color: Colors.transparent,

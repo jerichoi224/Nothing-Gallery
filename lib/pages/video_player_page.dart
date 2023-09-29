@@ -10,10 +10,8 @@ import 'package:video_player/video_player.dart';
 // ignore: must_be_immutable
 class VideoPlayerPageWidget extends StatefulWidget {
   late AssetEntity video;
-  late StreamController eventController;
 
-  VideoPlayerPageWidget(
-      {super.key, required this.video, required this.eventController});
+  VideoPlayerPageWidget({super.key, required this.video});
 
   @override
   State createState() => _VideoPlayerPageWidgetState();

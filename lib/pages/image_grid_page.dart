@@ -1,25 +1,26 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/components/grid_item_widget.dart';
+import 'package:provider/provider.dart';
+
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
-import 'package:nothing_gallery/components/image.dart';
 import 'package:nothing_gallery/constants/album_status.dart';
 import 'package:nothing_gallery/constants/event_type.dart';
-import 'package:nothing_gallery/constants/image_widget_status.dart';
 import 'package:nothing_gallery/constants/selected_image_menu.dart';
 import 'package:nothing_gallery/constants/shared_pref_keys.dart';
 import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/pages/image_page.dart';
-import 'package:nothing_gallery/pages/video_player_page.dart';
+import 'package:nothing_gallery/model/image_selection.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/util/image_functions.dart';
+import 'package:nothing_gallery/util/loader_functions.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class ImageGridWidget extends StatefulWidget {
   final AlbumInfo album;
 
-  ImageGridWidget({super.key, required this.album});
+  const ImageGridWidget({super.key, required this.album});
 
   @override
   State createState() => _ImageGridState();
@@ -30,13 +31,12 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   List<AssetEntity> images = [];
   List<AssetEntity> assets = [];
   StreamSubscription? eventSubscription;
+
   int totalCount = 0;
   int currentPage = 0;
   int numCol = 4;
   int loadImageCount = 100;
-  bool selectionMode = false;
   bool useTrashBin = true;
-  List<String> selected = [];
 
   AlbumState albumState = AlbumState.notModified;
 
@@ -81,59 +81,80 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     useTrashBin = sharedPref.get(SharedPrefKeys.useTrashBin);
   }
 
-  void toggleSelection(String imageId) {
-    if (selected.contains(imageId)) {
-      selected.remove(imageId);
-    } else {
-      selected.add(imageId);
-    }
-    if (selected.isNotEmpty) {
-      selectionMode = true;
-    }
-    setState(() {});
+  Future<void> getImages() async {
+    if (assets.length >= albumInfo.assetCount) return;
+
+    List<AssetEntity> newAssets =
+        await loadAssets(albumInfo.album, ++currentPage, size: 80);
+    setState(() {
+      assets = List.from(assets)..addAll(newAssets);
+      images = List.from(images)
+        ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+    });
   }
 
-  Future<void> onDelete() async {
-    List<String> deletedImages = await confirmDelete(
-        context,
-        assets.where((element) => selected.contains(element.id)).toList(),
-        useTrashBin);
+  Future<void> onDelete(
+      List<AssetEntity> selectedAssets, ImageSelection imageSelection) async {
+    List<String> deletedImages =
+        await confirmDelete(context, selectedAssets, useTrashBin);
     if (deletedImages.isNotEmpty) {
       for (String imageId in deletedImages) {
         eventController.sink.add(Event(EventType.pictureDeleted, imageId));
       }
-      setState(() {});
+      imageSelection.endSelection();
     }
   }
 
-  void _onImageTap(AssetEntity image, int index) async {
-    if (selectionMode) {
-      toggleSelection(image.id);
-    } else {
-      if (image.type == AssetType.image) {
-        int imageIdx = images.indexOf(image);
-        await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ImagePageWidget(
-                images: images,
-                imageTotal: images.length,
-                index: imageIdx,
-                eventController: eventController,
-              ),
-            ));
-      } else if (image.type == AssetType.video) {
-        await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VideoPlayerPageWidget(
-                video: image,
-                eventController: eventController,
-              ),
-            ));
-      }
-      setState(() {});
-    }
+  Widget selectionModeMenu(ImageSelection imageSelection) {
+    List<AssetEntity> selectedAssets = assets
+        .where((element) => imageSelection.selectedIds.contains(element.id))
+        .toList();
+
+    return Row(children: [
+      IconButton(
+        onPressed: () {
+          shareFiles(selectedAssets);
+        },
+        icon: const Icon(Icons.share),
+      ),
+      IconButton(
+        onPressed: () {
+          onDelete(selectedAssets, imageSelection);
+        },
+        icon: const Icon(Icons.delete),
+      ),
+      PopupMenuButton<SelectedImageMenu>(
+          onSelected: (SelectedImageMenu item) {},
+          itemBuilder: (BuildContext context) {
+            return [
+              for (final value in SelectedImageMenu.values)
+                PopupMenuItem(
+                  value: value,
+                  child: Text(
+                    value.text,
+                    style: mainTextStyle(TextStyleType.videoDuration),
+                  ),
+                )
+            ];
+          }),
+    ]);
+  }
+
+  Widget gridPageWrapper(Widget child) {
+    return GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Scaffold(
+            body: SafeArea(
+                child: NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scroll) {
+                      final scrollPixels = scroll.metrics.pixels /
+                          scroll.metrics.maxScrollExtent;
+                      if (scrollPixels > 0.6) {
+                        getImages();
+                      }
+                      return false;
+                    },
+                    child: child))));
   }
 
   @override
@@ -142,123 +163,64 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
       Future.microtask(() => Navigator.pop(context));
       return Container();
     } else {
-      return GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: Scaffold(
-              body: NotificationListener<ScrollNotification>(
-                  onNotification: (ScrollNotification scroll) {
-                    // 현재 스크롤 위치 - scroll.metrics.pixels
-                    // 스크롤 끝 위치 scroll.metrics.maxScrollExtent
-                    // final scrollPixels =
-                    //     scroll.metrics.pixels / scroll.metrics.maxScrollExtent;
-
-                    // if (scrollPixels > 0.6) {}
-                    return false;
+      return ChangeNotifierProvider<ImageSelection>(
+          create: (_) => ImageSelection(),
+          builder: (context, child) {
+            return Consumer<ImageSelection>(
+                builder: (context, imageSelection, child) {
+              return gridPageWrapper(WillPopScope(
+                  onWillPop: () async {
+                    if (imageSelection.selectionMode) {
+                      imageSelection.endSelection();
+                      return false;
+                    }
+                    Navigator.pop(context, albumState);
+                    return true;
                   },
-                  child: WillPopScope(
-                      onWillPop: () async {
-                        if (selectionMode) {
-                          setState(() {
-                            selected.clear();
-                            selectionMode = false;
-                          });
-                          return false;
-                        }
-                        Navigator.pop(context, albumState);
-                        return true;
-                      },
-                      child: SafeArea(
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                            Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                      padding: const EdgeInsets.all(20),
-                                      child: Text(
-                                        albumInfo.album.name.toUpperCase(),
-                                        style: mainTextStyle(
-                                            TextStyleType.pageTitle),
-                                      )),
-                                  const Spacer(),
-                                  selected.isNotEmpty
-                                      ? Row(children: [
-                                          IconButton(
-                                            onPressed: () {
-                                              shareFiles(
-                                                assets
-                                                    .where((element) => selected
-                                                        .contains(element.id))
-                                                    .toList(),
-                                              );
-                                            },
-                                            icon: const Icon(Icons.share),
-                                          ),
-                                          IconButton(
-                                            onPressed: onDelete,
-                                            icon: const Icon(Icons.delete),
-                                          ),
-                                          PopupMenuButton<SelectedImageMenu>(
-                                              onSelected:
-                                                  (SelectedImageMenu item) {},
-                                              itemBuilder:
-                                                  (BuildContext context) {
-                                                return [
-                                                  for (final value
-                                                      in SelectedImageMenu
-                                                          .values)
-                                                    PopupMenuItem(
-                                                      value: value,
-                                                      child: Text(
-                                                        value.text,
-                                                        style: mainTextStyle(
-                                                            TextStyleType
-                                                                .videoDuration),
-                                                      ),
-                                                    )
-                                                ];
-                                              }),
-                                        ])
-                                      : Container()
-                                ]),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Text(
+                                    albumInfo.album.name.toUpperCase(),
+                                    style:
+                                        mainTextStyle(TextStyleType.pageTitle),
+                                  )),
+                              const Spacer(),
+                              imageSelection.selectionMode
+                                  ? selectionModeMenu(imageSelection)
+                                  : Container()
+                            ]),
 
-                            // Images Grid
-                            Expanded(
-                                child: CustomScrollView(
-                              primary: false,
-                              slivers: <Widget>[
-                                SliverPadding(
-                                  padding: const EdgeInsets.all(12),
-                                  sliver: SliverGrid.count(
-                                      crossAxisSpacing: 3,
-                                      mainAxisSpacing: 3,
-                                      crossAxisCount: numCol,
-                                      childAspectRatio: 1,
-                                      children: assets
-                                          .asMap()
-                                          .entries
-                                          .map((entry) => imageWidget(
-                                              () => {
-                                                    _onImageTap(
-                                                        entry.value, entry.key)
-                                                  },
-                                              entry.value,
-                                              selectionMode
-                                                  ? selected.contains(
-                                                          entry.value.id)
-                                                      ? ImageWidgetStatus
-                                                          .selected
-                                                      : ImageWidgetStatus
-                                                          .unselected
-                                                  : ImageWidgetStatus.normal,
-                                              (String imageId) =>
-                                                  {toggleSelection(imageId)}))
-                                          .toList()),
-                                ),
-                              ],
-                            ))
-                          ]))))));
+                        // Images Grid
+                        Expanded(
+                            child: CustomScrollView(
+                          primary: false,
+                          slivers: <Widget>[
+                            SliverPadding(
+                              padding: const EdgeInsets.all(12),
+                              sliver: SliverGrid.count(
+                                  crossAxisSpacing: 3,
+                                  mainAxisSpacing: 3,
+                                  crossAxisCount: numCol,
+                                  childAspectRatio: 1,
+                                  children: assets
+                                      .asMap()
+                                      .entries
+                                      .map((entry) =>
+                                          GridItemWidget(asset: entry.value))
+                                      .toList()),
+                            ),
+                          ],
+                        ))
+                      ])));
+            });
+          });
     }
   }
 

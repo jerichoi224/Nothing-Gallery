@@ -1,19 +1,18 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/components/image.dart';
+import 'package:nothing_gallery/components/grid_item_widget.dart';
 import 'package:nothing_gallery/constants/event_type.dart';
-import 'package:nothing_gallery/constants/image_widget_status.dart';
 import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/model/image_selection.dart';
 import 'package:nothing_gallery/pages/image_page.dart';
 import 'package:nothing_gallery/pages/video_player_page.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class PicturesWidget extends StatefulWidget {
-  PicturesWidget({super.key});
+  const PicturesWidget({super.key});
 
   @override
   State createState() => _PicturesState();
@@ -87,7 +86,7 @@ class _PicturesState extends State<PicturesWidget> {
     //     min(currentPage * loadImageCount, widget.pictures.length));
   }
 
-  Future<void> loadMoreDates() async {
+  Future<void> loadMoreDates(ImageSelection imageSelection) async {
     do {
       List<AssetEntity> newlyLoaded = loadImages();
       loadedImages.addAll(newlyLoaded);
@@ -131,16 +130,7 @@ class _PicturesState extends State<PicturesWidget> {
               shrinkWrap: true,
               crossAxisCount: 4,
               children: dateImages.asMap().entries.map((entry) {
-                int ind = totalLoaded + entry.key;
-                return imageWidget(
-                    () => {_onTapImage(entry.value, ind)},
-                    entry.value,
-                    selectionMode
-                        ? selected.contains(entry.value.id)
-                            ? ImageWidgetStatus.selected
-                            : ImageWidgetStatus.unselected
-                        : ImageWidgetStatus.normal,
-                    toggleSelection);
+                return GridItemWidget(asset: entry.value);
               }).toList())
         ],
       ));
@@ -173,7 +163,6 @@ class _PicturesState extends State<PicturesWidget> {
               images: images,
               imageTotal: images.length,
               index: imageIdx,
-              eventController: eventController,
             ),
           ));
     } else if (image.type == AssetType.video) {
@@ -182,7 +171,6 @@ class _PicturesState extends State<PicturesWidget> {
           MaterialPageRoute(
             builder: (context) => VideoPlayerPageWidget(
               video: image,
-              eventController: eventController,
             ),
           ));
     }
@@ -191,6 +179,7 @@ class _PicturesState extends State<PicturesWidget> {
   @override
   Widget build(BuildContext context) {
     return Container();
+    /*
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
@@ -249,5 +238,6 @@ class _PicturesState extends State<PicturesWidget> {
                                 ]),
                           )
                         ]))))));
+                        */
   }
 }

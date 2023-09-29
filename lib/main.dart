@@ -2,12 +2,10 @@ import 'dart:async';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/db/sharedPref.dart';
+import 'package:nothing_gallery/model/sharedPref.dart';
 import 'package:nothing_gallery/pages/home_page.dart';
 import 'package:nothing_gallery/pages/permission_check_page.dart';
-import 'package:nothing_gallery/util/loader_functions.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -52,12 +50,16 @@ class _MainState extends State<MainApp> {
   bool permissionChecked = false;
   bool initialized = false;
 
-  List<AlbumInfo> albums = [];
-
   @override
   void initState() {
     super.initState();
     checkPermission();
+  }
+
+  void initialize() {
+    setState(() {
+      initialized = true;
+    });
   }
 
   Future<void> checkPermission() async {
@@ -66,15 +68,7 @@ class _MainState extends State<MainApp> {
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
 
     if (permitted || ps.isAuth) {
-      getInitialAlbums().then(
-        (initialAlbums) {
-          setState(() {
-            albums = initialAlbums;
-            initialized = true;
-          });
-        },
-      );
-
+      initialize();
       setState(() {
         permissionChecked = permissionGranted = true;
       });
@@ -102,7 +96,7 @@ class _MainState extends State<MainApp> {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
-                builder: (context) => HomeWidget(albums: albums),
+                builder: (context) => const HomeWidget(),
               ),
               (Route<dynamic> route) => false);
         });

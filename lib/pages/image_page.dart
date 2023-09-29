@@ -18,15 +18,13 @@ class ImagePageWidget extends StatefulWidget {
   int imageTotal;
   final PageController pageController;
   List<AssetEntity> images;
-  late StreamController eventController;
 
-  ImagePageWidget(
-      {super.key,
-      required this.images,
-      required this.imageTotal,
-      required this.index,
-      required this.eventController})
-      : pageController = PageController(initialPage: index);
+  ImagePageWidget({
+    super.key,
+    required this.images,
+    required this.imageTotal,
+    required this.index,
+  }) : pageController = PageController(initialPage: index);
 
   @override
   State createState() => _ImagePageWidgetState();
@@ -96,8 +94,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
         useTrashBin);
     if (deletedImages.isNotEmpty) {
       for (String imageId in deletedImages) {
-        widget.eventController.sink
-            .add(Event(EventType.pictureDeleted, imageId));
+        eventController.sink.add(Event(EventType.pictureDeleted, imageId));
       }
 
       if (images.length == index + 1) {

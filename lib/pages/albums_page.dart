@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
-import 'package:nothing_gallery/components/album.dart';
+import 'package:nothing_gallery/components/album_widget.dart';
 import 'package:nothing_gallery/constants/event_type.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
@@ -12,9 +12,7 @@ import 'package:nothing_gallery/util/loader_functions.dart';
 
 @immutable
 class AlbumsWidget extends StatefulWidget {
-  final List<AlbumInfo> albums;
-
-  const AlbumsWidget({super.key, required this.albums});
+  const AlbumsWidget({super.key});
 
   @override
   State createState() => _AlbumsState();
@@ -27,8 +25,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
   @override
   void initState() {
     super.initState();
-    // only time reading widget.album
-    albums = widget.albums;
+    reloadAlbums();
 
     eventSubscription =
         eventController.stream.asBroadcastStream().listen((event) {
@@ -47,6 +44,8 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
     List<AlbumInfo> reloadedAlbums = await getInitialAlbums();
     setState(() {
       albums = reloadedAlbums;
+      albums.removeWhere(
+          (element) => element.album.id == 'isAll'); // remove recent
     });
   }
 
