@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/components/image_thumbnail_widget.dart';
+import 'package:nothing_gallery/constants/event_type.dart';
 import 'package:nothing_gallery/constants/image_widget_status.dart';
+import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/model/image_selection.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -29,9 +32,9 @@ class GridItemWidget extends StatelessWidget {
       toggleSelection(imageSelection);
     } else {
       if (asset.type == AssetType.image) {
-        // TODO: eventController. Open Image (id)
+        eventController.sink.add(Event(EventType.pictureOpen, asset));
       } else if (asset.type == AssetType.video) {
-        // TODO: eventController. Open Video (id)
+        eventController.sink.add(Event(EventType.videoOpen, asset));
       }
     }
   }

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/components/grid_item_widget.dart';
+import 'package:nothing_gallery/util/event_functions.dart';
+import 'package:nothing_gallery/util/navigation.dart';
 import 'package:provider/provider.dart';
 
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
@@ -50,22 +52,29 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     images.removeWhere((element) => element.type != AssetType.image);
 
     getPreferences();
+
     eventSubscription =
         eventController.stream.asBroadcastStream().listen((event) {
-      if (event.runtimeType == Event) {
-        if (event.eventType == EventType.pictureDeleted) {
-          if (event.details != null && event.details.runtimeType == String) {
-            assets.removeWhere((image) => image.id == event.details);
-            images.removeWhere((image) => image.id == event.details);
-            totalCount -= 1;
+      switch (validateEventType(event)) {
+        case EventType.pictureDeleted:
+          assets.removeWhere((image) => image.id == event.details);
+          images.removeWhere((image) => image.id == event.details);
+          totalCount -= 1;
 
-            // Album is empty
-            if (totalCount == 0) {
-              eventController.sink
-                  .add(Event(EventType.albumEmpty, albumInfo.album.id));
-            }
+          // Album is empty
+          if (totalCount == 0) {
+            eventController.sink
+                .add(Event(EventType.albumEmpty, albumInfo.album.id));
           }
-        } else {}
+          break;
+        case EventType.videoOpen:
+          openVideoPlayerPage(context, event.details);
+          break;
+        case EventType.pictureOpen:
+          openImagePage(
+              context, images.indexOf(event.details), images.length, images);
+          break;
+        default:
       }
     });
   }
