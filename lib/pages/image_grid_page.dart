@@ -4,14 +4,14 @@ import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
 import 'package:nothing_gallery/components/image.dart';
-import 'package:nothing_gallery/constants/albumStatus.dart';
-import 'package:nothing_gallery/constants/eventType.dart';
-import 'package:nothing_gallery/constants/imageWidgetStatus.dart';
-import 'package:nothing_gallery/constants/selectedImageMenu.dart';
-import 'package:nothing_gallery/constants/sharedPrefKey.dart';
+import 'package:nothing_gallery/constants/album_status.dart';
+import 'package:nothing_gallery/constants/event_type.dart';
+import 'package:nothing_gallery/constants/image_widget_status.dart';
+import 'package:nothing_gallery/constants/selected_image_menu.dart';
+import 'package:nothing_gallery/constants/shared_pref_keys.dart';
 import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/pages/imagePage.dart';
-import 'package:nothing_gallery/pages/videoPlayerPage.dart';
+import 'package:nothing_gallery/pages/image_page.dart';
+import 'package:nothing_gallery/pages/video_player_page.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/util/image_functions.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -279,6 +279,11 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
   @override
   void onResumed() {
+    // TODO: implement onResumed
+  }
+
+  @override
+  void onHidden() {
     // TODO: implement onResumed
   }
 }

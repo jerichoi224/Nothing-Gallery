@@ -4,8 +4,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/constants/eventType.dart';
-import 'package:nothing_gallery/constants/sharedPrefKey.dart';
+import 'package:nothing_gallery/constants/event_type.dart';
+import 'package:nothing_gallery/constants/shared_pref_keys.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/util/image_functions.dart';

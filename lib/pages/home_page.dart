@@ -4,10 +4,10 @@ import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/constants/eventType.dart';
+import 'package:nothing_gallery/constants/event_type.dart';
 import 'package:nothing_gallery/constants/home_page_enum.dart';
-import 'package:nothing_gallery/pages/albumsPage.dart';
-import 'package:nothing_gallery/pages/picturesPage.dart';
+import 'package:nothing_gallery/pages/albums_page.dart';
+import 'package:nothing_gallery/pages/pictures_page.dart';
 import 'package:nothing_gallery/util/navigation.dart';
 
 @immutable

@@ -5,7 +5,7 @@ import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/classes/Event.dart';
 import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
 import 'package:nothing_gallery/components/album.dart';
-import 'package:nothing_gallery/constants/eventType.dart';
+import 'package:nothing_gallery/constants/event_type.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/util/loader_functions.dart';
@@ -112,5 +112,10 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
   @override
   void onResumed() {
     reloadAlbums();
+  }
+
+  @override
+  void onHidden() {
+    // TODO: implement onHidden
   }
 }

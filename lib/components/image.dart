@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/constants/imageWidgetStatus.dart';
+import 'package:nothing_gallery/constants/image_widget_status.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 

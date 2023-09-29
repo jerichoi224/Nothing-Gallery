@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/AlbumInfo.dart';
 import 'package:nothing_gallery/components/image.dart';
-import 'package:nothing_gallery/pages/imageGridPage.dart';
+import 'package:nothing_gallery/pages/image_grid_page.dart';
 import 'package:nothing_gallery/style.dart';
 
 class AlbumWidget extends StatelessWidget {

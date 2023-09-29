@@ -1,4 +1,4 @@
-import 'package:nothing_gallery/constants/sharedPrefKey.dart';
+import 'package:nothing_gallery/constants/shared_pref_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPref {

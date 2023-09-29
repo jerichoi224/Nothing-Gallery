@@ -1,4 +1,4 @@
-import 'package:nothing_gallery/constants/eventType.dart';
+import 'package:nothing_gallery/constants/event_type.dart';
 
 class Event {
   EventType? eventType;

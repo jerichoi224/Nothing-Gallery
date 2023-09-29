@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/pages/settingsPage.dart';
+import 'package:nothing_gallery/pages/settings_page.dart';
 
 void openSettings(BuildContext context) async {
   await Navigator.push(

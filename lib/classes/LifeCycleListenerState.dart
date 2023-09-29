@@ -36,10 +36,14 @@ abstract class LifecycleListenerState<T extends StatefulWidget> extends State<T>
       case AppLifecycleState.detached:
         onDetached();
         break;
+      case AppLifecycleState.hidden:
+        onHidden();
+        break;
     }
   }
 
   void onResumed();
+  void onHidden();
   void onPaused();
   void onInactive();
   void onDetached();
