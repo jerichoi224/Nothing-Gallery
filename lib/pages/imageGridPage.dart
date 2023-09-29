@@ -186,7 +186,8 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                                       padding: const EdgeInsets.all(20),
                                       child: Text(
                                         albumInfo.album.name.toUpperCase(),
-                                        style: pageTitleTextStyle(),
+                                        style: mainTextStyle(
+                                            TextStyleType.pageTitle),
                                       )),
                                   const Spacer(),
                                   selected.isNotEmpty
@@ -219,8 +220,9 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                                                       value: value,
                                                       child: Text(
                                                         value.text,
-                                                        style:
-                                                            videoDurationTextStyle(),
+                                                        style: mainTextStyle(
+                                                            TextStyleType
+                                                                .videoDuration),
                                                       ),
                                                     )
                                                 ];

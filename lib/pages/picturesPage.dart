@@ -121,7 +121,7 @@ class _PicturesState extends State<PicturesWidget> {
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: Text(
               dateText,
-              style: picturesDateTakenStyle(),
+              style: mainTextStyle(TextStyleType.picturesDateTaken),
             ),
           ),
           GridView.count(
@@ -224,7 +224,8 @@ class _PicturesState extends State<PicturesWidget> {
                                 children: [
                                   Text(
                                     'PICTURES',
-                                    style: pageTitleTextStyle(),
+                                    style:
+                                        mainTextStyle(TextStyleType.pageTitle),
                                   ),
                                   const Spacer(),
                                   IconButton(

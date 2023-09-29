@@ -197,7 +197,8 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                                           icon: const Icon(Icons.arrow_back)),
                                       Text(
                                         "${index + 1}/$imageTotal",
-                                        style: imageIndexTextStyle(),
+                                        style: mainTextStyle(
+                                            TextStyleType.imageIndex),
                                       ),
                                     ],
                                   ),

@@ -2,42 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-TextStyle bottomNavTextStyle() {
-  return TextStyle(
-      fontSize: 16.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
+enum TextStyleType {
+  albumTitle(fontSize: 12),
+  videoDuration(fontSize: 14),
+  navrBarText(fontSize: 16),
+  pageTitle(fontSize: 18),
+  settingsMenu(fontSize: 18),
+  picturesDateTaken(fontSize: 18),
+  imageIndex(fontSize: 20),
+  settingTitle(fontSize: 24);
+
+  const TextStyleType({required this.fontSize});
+  final double fontSize;
 }
 
-TextStyle albumTitleStyle() {
+TextStyle mainTextStyle(TextStyleType style) {
   return TextStyle(
-      fontSize: 12.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
-}
-
-TextStyle pageTitleTextStyle() {
-  return TextStyle(
-      fontSize: 18.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
-}
-
-TextStyle settingsTitleTextStyle() {
-  return TextStyle(
-      fontSize: 24.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
-}
-
-TextStyle settingsMenuTextStyle() {
-  return TextStyle(
-      fontSize: 18.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
-}
-
-TextStyle imageIndexTextStyle() {
-  return TextStyle(
-      fontSize: 20.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
-}
-
-TextStyle videoDurationTextStyle() {
-  return TextStyle(
-      fontSize: 14.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
-}
-
-TextStyle picturesDateTakenStyle() {
-  return TextStyle(
-      fontSize: 18.0, fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
+      fontSize: style.fontSize,
+      fontFamily: GoogleFonts.spaceGrotesk().fontFamily);
 }

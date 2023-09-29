@@ -108,8 +108,9 @@ class _HomeState extends State<HomeWidget> {
                             return Colors.transparent;
                           },
                         ),
-                        labelStyle: bottomNavTextStyle(),
-                        unselectedLabelStyle: bottomNavTextStyle(),
+                        labelStyle: mainTextStyle(TextStyleType.navrBarText),
+                        unselectedLabelStyle:
+                            mainTextStyle(TextStyleType.navrBarText),
                         tabs: _tabs,
                         labelColor: Colors.red,
                       ),
@@ -142,7 +143,8 @@ class _HomeState extends State<HomeWidget> {
                                       value: value,
                                       child: Text(
                                         value.text,
-                                        style: videoDurationTextStyle(),
+                                        style: mainTextStyle(
+                                            TextStyleType.videoDuration),
                                       ),
                                     )
                                 ];

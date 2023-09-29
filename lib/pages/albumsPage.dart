@@ -90,7 +90,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
                     children: [
                       Text(
                         'ALBUMS',
-                        style: pageTitleTextStyle(),
+                        style: mainTextStyle(TextStyleType.pageTitle),
                       ),
                       const Spacer(),
                       IconButton(

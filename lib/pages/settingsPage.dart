@@ -25,12 +25,12 @@ class _SettingsState extends State<SettingsPage> {
                     child: Column(children: [
                       Text(
                         'SETTINGS',
-                        style: settingsTitleTextStyle(),
+                        style: mainTextStyle(TextStyleType.settingTitle),
                       ),
                       Expanded(
                           child: Text(
                         'WIP',
-                        style: settingsTitleTextStyle(),
+                        style: mainTextStyle(TextStyleType.settingsMenu),
                       ))
                     ])))));
   }

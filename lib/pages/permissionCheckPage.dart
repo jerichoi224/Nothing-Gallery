@@ -37,7 +37,7 @@ class _PermissionCheckState extends State<PermissionCheckWidget> {
               child: Center(
                   child: Text(
                 'Permission Check Screen',
-                style: pageTitleTextStyle(),
+                style: mainTextStyle(TextStyleType.pageTitle),
               )))
         ]))));
   }

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/constants/imageWidgetStatus.dart';
 import 'package:nothing_gallery/style.dart';
@@ -48,7 +47,8 @@ Widget imageWidget(Function onClick, AssetEntity image,
                         size: 22,
                       ),
                     ),
-                    Text(" $duration", style: videoDurationTextStyle())
+                    Text(" $duration",
+                        style: mainTextStyle(TextStyleType.videoDuration))
                   ],
                 )
               : Container(),

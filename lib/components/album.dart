@@ -30,7 +30,7 @@ Widget albumWidget(Function onClick, AlbumInfo albumInfo) {
         padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
         child: Text(
           "${albumInfo.album.name.toUpperCase()} (${albumInfo.assetCount})",
-          style: albumTitleStyle(),
+          style: mainTextStyle(TextStyleType.albumTitle),
         ),
       ),
     ],
