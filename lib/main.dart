@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -63,8 +64,16 @@ class _MainState extends State<MainApp> {
   }
 
   Future<void> checkPermission() async {
-    final permitted = await Permission.mediaLibrary.request().isGranted &&
-        await Permission.photos.request().isGranted;
+    bool permitted = false;
+    var androidInfo = await DeviceInfoPlugin().androidInfo;
+
+    if (androidInfo.version.sdkInt <= 32) {
+      permitted = await Permission.storage.request().isGranted;
+    } else {
+      permitted = await Permission.mediaLibrary.request().isGranted &&
+          await Permission.photos.request().isGranted &&
+          await Permission.videos.request().isGranted;
+    }
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
 
     if (permitted || ps.isAuth) {
