@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/model/album_info_list.dart';
 import 'package:nothing_gallery/pages/pages.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/util/util.dart';
+import 'package:provider/provider.dart';
 
 @immutable
 class HomeWidget extends StatefulWidget {
@@ -26,11 +28,15 @@ class _HomeState extends State<HomeWidget> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
+      albumInfoList.refreshAlbums();
+    });
 
     eventSubscription =
         eventController.stream.asBroadcastStream().listen((event) {
       if (event.runtimeType == Event) {
-        if (event.eventType == EventType.pictureDeleted) {
+        if (event.eventType == EventType.assetDeleted) {
           if (event.details != null && event.details.runtimeType == String) {
             setState(() {});
           }

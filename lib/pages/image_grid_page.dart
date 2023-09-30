@@ -39,36 +39,43 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     super.initState();
     albumInfo = widget.album;
     totalCount = albumInfo.assetCount;
-    assets = [];
-    images = [];
     images.removeWhere((element) => element.type != AssetType.image);
 
     getPreferences();
     getImages();
 
-    eventSubscription =
-        eventController.stream.asBroadcastStream().listen((event) {
-      switch (validateEventType(event)) {
-        case EventType.pictureDeleted:
-          assets.removeWhere((image) => image.id == event.details);
-          images.removeWhere((image) => image.id == event.details);
-          totalCount -= 1;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
+      eventSubscription =
+          eventController.stream.asBroadcastStream().listen((event) {
+        switch (validateEventType(event)) {
+          case EventType.assetDeleted:
+            setState(() {
+              assets.removeWhere((image) =>
+                  (event.details as List<String>).contains(image.id));
+              images.removeWhere((image) =>
+                  (event.details as List<String>).contains(image.id));
+            });
+            albumInfoList.updateAlbum(albumInfo.pathEntity);
 
-          // Album is empty
-          if (totalCount == 0) {
-            eventController.sink
-                .add(Event(EventType.albumEmpty, albumInfo.pathEntity.id));
-          }
-          break;
-        case EventType.videoOpen:
-          openVideoPlayerPage(context, event.details);
-          break;
-        case EventType.pictureOpen:
-          openImagePage(
-              context, images.indexOf(event.details), images.length, images);
-          break;
-        default:
-      }
+            totalCount -= 1;
+
+            // Album is empty
+            if (totalCount == 0) {
+              eventController.sink
+                  .add(Event(EventType.albumEmpty, albumInfo.pathEntity.id));
+            }
+            break;
+          case EventType.videoOpen:
+            openVideoPlayerPage(context, event.details);
+            break;
+          case EventType.pictureOpen:
+            openImagePage(
+                context, images.indexOf(event.details), images.length, images);
+            break;
+          default:
+        }
+      });
     });
   }
 
@@ -87,12 +94,23 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     if (assets.length >= albumInfo.assetCount) return;
 
     List<AssetEntity> newAssets =
-        await loadAssets(albumInfo.pathEntity, ++currentPage, size: 80);
+        await loadAssets(albumInfo.pathEntity, currentPage++, size: 80);
     setState(() {
       assets = List.from(assets)..addAll(newAssets);
       images = List.from(images)
         ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
     });
+
+    while (assets.length < albumInfo.assetCount) {
+      newAssets =
+          await loadAssets(albumInfo.pathEntity, currentPage++, size: 80);
+      if (newAssets.isEmpty) break;
+
+      assets = List.from(assets)..addAll(newAssets);
+      images = List.from(images)
+        ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+    }
+    setState(() {});
   }
 
   Future<void> onDelete(
@@ -100,9 +118,6 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     List<String> deletedImages =
         await confirmDelete(context, selectedAssets, useTrashBin);
     if (deletedImages.isNotEmpty) {
-      for (String imageId in deletedImages) {
-        eventController.sink.add(Event(EventType.pictureDeleted, imageId));
-      }
       imageSelection.endSelection();
     }
   }
@@ -112,7 +127,18 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
         .where((element) => imageSelection.selectedIds.contains(element.id))
         .toList();
 
+    bool allSelected = imageSelection.selectedCount == albumInfo.assetCount;
     return Row(children: [
+      IconButton(
+        onPressed: () {
+          if (allSelected) {
+            imageSelection.clearSelection();
+          } else {
+            imageSelection.setSelection(assets.map((e) => e.id).toList());
+          }
+        },
+        icon: Icon(allSelected ? Icons.check_circle : Icons.circle_outlined),
+      ),
       IconButton(
         onPressed: () {
           shareFiles(selectedAssets);
@@ -204,20 +230,17 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                             child: CustomScrollView(
                           primary: false,
                           slivers: <Widget>[
-                            SliverPadding(
-                              padding: const EdgeInsets.all(12),
-                              sliver: SliverGrid.count(
-                                  crossAxisSpacing: 3,
-                                  mainAxisSpacing: 3,
-                                  crossAxisCount: numCol,
-                                  childAspectRatio: 1,
-                                  children: assets
-                                      .asMap()
-                                      .entries
-                                      .map((entry) =>
-                                          GridItemWidget(asset: entry.value))
-                                      .toList()),
-                            ),
+                            SliverGrid.count(
+                                crossAxisSpacing: 2,
+                                mainAxisSpacing: 2,
+                                crossAxisCount: numCol,
+                                childAspectRatio: 1,
+                                children: assets
+                                    .asMap()
+                                    .entries
+                                    .map((entry) =>
+                                        GridItemWidget(asset: entry.value))
+                                    .toList()),
                           ],
                         ))
                       ])));
@@ -242,9 +265,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   @override
-  void onResumed() {
-    // TODO: implement onResumed
-  }
+  void onResumed() {}
 
   @override
   void onHidden() {

@@ -97,8 +97,8 @@ class GridItemWidget extends StatelessWidget {
                         const Padding(
                           padding: EdgeInsets.fromLTRB(2, 2, 0, 0),
                           child: Icon(
-                            Icons.play_circle_outline,
-                            size: 22,
+                            Icons.play_circle_rounded,
+                            size: 18,
                           ),
                         ),
                         Text(" $duration",
@@ -115,7 +115,7 @@ class GridItemWidget extends StatelessWidget {
                       children: [
                         Icon(
                           status == ImageWidgetStatus.selected
-                              ? Icons.check_circle_outline
+                              ? Icons.check_circle
                               : Icons.circle_outlined,
                           size: 22,
                           color: status == ImageWidgetStatus.selected

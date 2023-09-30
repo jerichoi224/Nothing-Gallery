@@ -6,6 +6,7 @@ class ImageSelection extends ChangeNotifier {
 
   bool get selectionMode => _selectionMode;
   List<String> get selectedIds => _selectedIds;
+  int get selectedCount => _selectedIds.length;
 
   void startSelection() {
     _selectionMode = true;
@@ -20,6 +21,16 @@ class ImageSelection extends ChangeNotifier {
 
   void addSelection(List<String> ids) {
     _selectedIds = List.from(_selectedIds)..addAll(ids);
+    notifyListeners();
+  }
+
+  void setSelection(List<String> ids) {
+    _selectedIds = ids;
+    notifyListeners();
+  }
+
+  void clearSelection() {
+    _selectedIds.clear();
     notifyListeners();
   }
 

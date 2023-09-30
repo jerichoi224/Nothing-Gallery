@@ -70,13 +70,20 @@ class _PicturesState extends State<PicturesWidget> {
     eventSubscription =
         eventController.stream.asBroadcastStream().listen((event) {
       if (event.runtimeType == Event) {
-        if (event.eventType == EventType.pictureDeleted) {
+        if (event.eventType == EventType.assetDeleted) {
           if (event.details != null && event.details.runtimeType == String) {
             images.removeWhere((image) => image.id == event.details);
           }
         } else {}
       }
     });
+  }
+
+  @override
+  void dispose() {
+    eventController.close();
+    eventSubscription?.cancel();
+    super.dispose();
   }
 
   List<AssetEntity> loadImages() {

@@ -94,7 +94,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
         useTrashBin);
     if (deletedImages.isNotEmpty) {
       for (String imageId in deletedImages) {
-        eventController.sink.add(Event(EventType.pictureDeleted, imageId));
+        eventController.sink.add(Event(EventType.assetDeleted, imageId));
       }
 
       if (images.length == index + 1) {

@@ -11,7 +11,7 @@ enum TextStyleType {
   albumTitle(fontSize: 12),
 
   // GridItemWidget
-  videoDuration(fontSize: 14),
+  videoDuration(fontSize: 12),
 
   // VideoPlayerPage
   videoPlayerDuration(fontSize: 14),

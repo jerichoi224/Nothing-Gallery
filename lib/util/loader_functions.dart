@@ -10,11 +10,14 @@ Future<List<AssetEntity>> loadAssets(AssetPathEntity album, int page,
   return images;
 }
 
-Future<List<AlbumInfo>> getInitialAlbums() async {
+Future<List<AlbumInfo>> getCurrentAlbumStates(List<String> ids) async {
   List<AlbumInfo> albums = [];
 
-  final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
-  for (AssetPathEntity path in paths) {
+  List<AssetPathEntity> pathEntities = await PhotoManager.getAssetPathList();
+  if (ids.isNotEmpty) {
+    pathEntities.removeWhere((entity) => !ids.contains(entity.id));
+  }
+  for (AssetPathEntity path in pathEntities) {
     albums.add(await getInitialAlbumInfo(path));
   }
   return albums;
@@ -24,7 +27,6 @@ Future<AlbumInfo> getInitialAlbumInfo(AssetPathEntity album) async {
   int assetCount = await album.assetCountAsync;
 
   List<AssetEntity> images = await album.getAssetListRange(start: 0, end: 1);
-  print(images);
 
   images.sort((a, b) => b.createDateTime.millisecondsSinceEpoch
       .compareTo(a.createDateTime.millisecondsSinceEpoch));

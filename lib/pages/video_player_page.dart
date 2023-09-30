@@ -59,6 +59,7 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                 (Timer t) => {
                       if (_controller.value.isPlaying)
                         {
+                          //This error might indicate a memory leak if setState() is being called because another object is retaining a reference to this State object after it has been removed from the tree. To avoid memory leaks, consider breaking the reference to this object during dispose().
                           setState(
                             () {
                               progress = Duration(
@@ -143,7 +144,8 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                                 ),
                                 const Spacer(),
                                 Padding(
-                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 35),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 35),
                                   child: ProgressBar(
                                     progress: progress,
                                     total: _controller.value.duration,

@@ -9,6 +9,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/model/model.dart';
 import 'package:nothing_gallery/pages/pages.dart';
+import 'package:provider/provider.dart';
 
 late SharedPref sharedPref;
 late StreamController<Event> eventController;
@@ -25,17 +26,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Nothing Gallery',
-      theme: FlexThemeData.dark(
-        useMaterial3: true,
-        scheme: FlexScheme.hippieBlue,
-        darkIsTrueBlack: true,
-      ),
-      // TODO: add light/dark Theme:
-      home: const MainApp(),
-    );
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AlbumInfoList>(create: (_) => AlbumInfoList())
+        ],
+        child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Nothing Gallery',
+            theme: FlexThemeData.dark(
+              useMaterial3: true,
+              scheme: FlexScheme.hippieBlue,
+              darkIsTrueBlack: true,
+            ),
+            // TODO: add light/dark Theme:
+            home: const MainApp()));
   }
 }
 
@@ -57,12 +61,6 @@ class _MainState extends State<MainApp> {
     checkPermission();
   }
 
-  void initialize() {
-    setState(() {
-      initialized = true;
-    });
-  }
-
   Future<void> checkPermission() async {
     bool permitted = false;
     var androidInfo = await DeviceInfoPlugin().androidInfo;
@@ -77,7 +75,6 @@ class _MainState extends State<MainApp> {
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
 
     if (permitted || ps.isAuth) {
-      initialize();
       setState(() {
         permissionChecked = permissionGranted = true;
       });
@@ -100,14 +97,14 @@ class _MainState extends State<MainApp> {
               ),
               (Route<dynamic> route) => false);
         });
-      } else if (initialized) {
+      } else {
         // Permission & loaded
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => const HomeWidget(),
-              ),
-              (Route<dynamic> route) => false);
+          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+            builder: (context) {
+              return const HomeWidget();
+            },
+          ), (Route<dynamic> route) => false);
         });
       }
     }

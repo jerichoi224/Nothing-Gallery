@@ -1,5 +1,5 @@
 enum EventType {
-  pictureDeleted,
+  assetDeleted,
   pictureOpen,
   videoOpen,
   albumEmpty,

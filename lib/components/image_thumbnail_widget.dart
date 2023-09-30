@@ -22,15 +22,14 @@ class ThumbnailWidget extends StatelessWidget {
               asset,
               isOriginal: isOriginal,
               fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) {
-                  return child;
+              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                if (frame == null) {
+                  // fallback to placeholder
+                  return Container(
+                    color: Colors.white12,
+                  );
                 }
-                return AssetEntityImage(
-                  asset,
-                  isOriginal: false,
-                  fit: BoxFit.cover,
-                );
+                return child;
               },
             )));
   }

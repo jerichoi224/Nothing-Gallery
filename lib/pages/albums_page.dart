@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/main.dart';
@@ -19,78 +20,75 @@ class AlbumsWidget extends StatefulWidget {
 }
 
 class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
-  List<AlbumInfo> albums = [];
   StreamSubscription? eventSubscription;
 
   @override
   void initState() {
     super.initState();
-    reloadAlbums();
-
-    eventSubscription =
-        eventController.stream.asBroadcastStream().listen((event) {
-      if (event.runtimeType == Event) {
-        if (event.eventType == EventType.albumEmpty) {
-          if (event.details != null && event.details.runtimeType == String) {
-            albums.removeWhere(
-                (albumInfo) => albumInfo.pathEntity.id == event.details);
-          }
-        } else {}
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
+      eventSubscription =
+          eventController.stream.asBroadcastStream().listen((event) {
+        switch (validateEventType(event)) {
+          case EventType.albumEmpty:
+            albumInfoList.removeAlbum(event.details);
+            break;
+          default:
+        }
+      });
     });
   }
 
-  Future<void> reloadAlbums() async {
-    List<AlbumInfo> reloadedAlbums = await getInitialAlbums();
-    setState(() {
-      albums = reloadedAlbums;
-      albums.removeWhere(
-          (element) => element.pathEntity.id == 'isAll'); // remove recent
-    });
+  @override
+  void dispose() {
+    eventController.close();
+    eventSubscription?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Scaffold(
-            body: SafeArea(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(30, 20, 10, 20),
-                  child: Row(
-                    children: [
-                      Text(
-                        'ALBUMS',
-                        style: mainTextStyle(TextStyleType.pageTitle),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                          onPressed: () {}, icon: const Icon(Icons.search))
-                    ],
-                  )),
-              // Album Grid
-              Expanded(
-                  child: CustomScrollView(
-                primary: false,
-                slivers: <Widget>[
-                  SliverPadding(
-                    padding: const EdgeInsets.all(25),
-                    sliver: SliverGrid.count(
-                        crossAxisSpacing: 15,
-                        mainAxisSpacing: 15,
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.85,
-                        children: albums
-                            .map((albumeInfo) =>
-                                AlbumWidget(albumInfo: albumeInfo))
-                            .toList()),
-                  ),
-                ],
-              ))
-            ]))));
+        child: Scaffold(body: SafeArea(child:
+            Consumer<AlbumInfoList>(builder: (context, albumInfoList, child) {
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(30, 20, 10, 20),
+                    child: Row(
+                      children: [
+                        Text(
+                          'ALBUMS',
+                          style: mainTextStyle(TextStyleType.pageTitle),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                            onPressed: () {}, icon: const Icon(Icons.search))
+                      ],
+                    )),
+                // Album Grid
+                Expanded(
+                    child: CustomScrollView(
+                  primary: false,
+                  slivers: <Widget>[
+                    SliverPadding(
+                      padding: const EdgeInsets.all(25),
+                      sliver: SliverGrid.count(
+                          crossAxisSpacing: 15,
+                          mainAxisSpacing: 15,
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.85,
+                          children: albumInfoList.albums
+                              .map((albumeInfo) =>
+                                  AlbumWidget(albumInfo: albumeInfo))
+                              .toList()),
+                    ),
+                  ],
+                ))
+              ]);
+        }))));
   }
 
   @override
@@ -109,9 +107,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
   }
 
   @override
-  void onResumed() {
-    reloadAlbums();
-  }
+  void onResumed() {}
 
   @override
   void onHidden() {
