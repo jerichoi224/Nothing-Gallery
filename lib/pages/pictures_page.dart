@@ -1,15 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/util/event_functions.dart';
+import 'package:nothing_gallery/util/loader_functions.dart';
+import 'package:nothing_gallery/util/navigation.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/components/components.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/model/model.dart';
-import 'package:nothing_gallery/pages/pages.dart';
+import 'package:provider/provider.dart';
 
 class PicturesWidget extends StatefulWidget {
   const PicturesWidget({super.key});
@@ -18,22 +20,22 @@ class PicturesWidget extends StatefulWidget {
   State createState() => _PicturesState();
 }
 
-class _PicturesState extends State<PicturesWidget> {
-  late AssetPathEntity recent;
-  List<AssetEntity> unusedImages = [];
-  List<AssetEntity> loadedImages = [];
+class _PicturesState extends State<PicturesWidget>
+    with AutomaticKeepAliveClientMixin {
+  late AlbumInfo recent;
+  List<AssetEntity> assets = [];
   List<AssetEntity> images = [];
-  List<Widget> chunksByDate = [];
-  int totalLoaded = 0;
+
+  Map<DateTime, List<AssetEntity>> dateMap = {};
+  int totalCount = 0;
+  int currentPage = 0;
+
+  int startingIndex = 0;
+
   StreamSubscription? eventSubscription;
 
-  bool selectionMode = false;
-  List<String> selected = [];
-
-  int currentPage = 0;
-  int loadImageCount = 100;
-
   List<String> monthAbrev = [
+    "",
     "Jan",
     "Feb",
     "Mar",
@@ -49,33 +51,46 @@ class _PicturesState extends State<PicturesWidget> {
     "Jan"
   ];
 
-  PMFilter createFilter() {
-    final CustomFilter filterOption = CustomFilter.sql(
-      where:
-          '${CustomColumns.base.width} > 100 AND ${CustomColumns.base.height} > 100',
-      orderBy: [OrderByItem.desc(CustomColumns.base.createDate)],
-    );
-
-    return filterOption;
-  }
-
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
 
-    // loadMoreDates();
-    images = []; // List.from(widget.pictures);
-    images.removeWhere((element) => element.type != AssetType.image);
+      recent = albumInfoList.recent;
+      totalCount = recent.assetCount;
+      assets = recent.preloadImages;
+      images = assets.where((asset) => asset.type == AssetType.image).toList();
+      getImages();
 
-    eventSubscription =
-        eventController.stream.asBroadcastStream().listen((event) {
-      if (event.runtimeType == Event) {
-        if (event.eventType == EventType.assetDeleted) {
-          if (event.details != null && event.details.runtimeType == String) {
-            images.removeWhere((image) => image.id == event.details);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final albumInfoList =
+            Provider.of<AlbumInfoList>(context, listen: false);
+        eventSubscription =
+            eventController.stream.asBroadcastStream().listen((event) {
+          switch (validateEventType(event)) {
+            case EventType.assetDeleted:
+              setState(() {
+                assets.removeWhere((image) =>
+                    (event.details as List<String>).contains(image.id));
+                images.removeWhere((image) =>
+                    (event.details as List<String>).contains(image.id));
+              });
+              albumInfoList.updateAlbum(recent.pathEntity);
+
+              totalCount -= 1;
+              break;
+            case EventType.videoOpen:
+              openVideoPlayerPage(context, event.details);
+              break;
+            case EventType.pictureOpen:
+              openImagePage(context, images.indexOf(event.details),
+                  images.length, images);
+              break;
+            default:
           }
-        } else {}
-      }
+        });
+      });
     });
   }
 
@@ -85,165 +100,129 @@ class _PicturesState extends State<PicturesWidget> {
     super.dispose();
   }
 
-  List<AssetEntity> loadImages() {
-    currentPage += 1;
-    return [];
-    // widget.pictures.sublist((currentPage - 1) * loadImageCount,
-    //     min(currentPage * loadImageCount, widget.pictures.length));
+  Future<void> getImages() async {
+    if (assets.length >= recent.assetCount) return;
+
+    List<AssetEntity> newAssets =
+        await loadAssets(recent.pathEntity, ++currentPage, size: 80);
+    assets = List.from(assets)..addAll(newAssets);
+    images = List.from(images)
+      ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+
+    startingIndex = await buildImageChunks(startingIndex);
+    setState(() {});
+
+    while (assets.length < recent.assetCount) {
+      newAssets = await loadAssets(recent.pathEntity, ++currentPage, size: 80);
+      if (newAssets.isEmpty) break;
+
+      assets = List.from(assets)..addAll(newAssets);
+      images = List.from(images)
+        ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+    }
+
+    buildImageChunks(startingIndex).then((value) {
+      setState(() {});
+    });
   }
 
-  Future<void> loadMoreDates(ImageSelection imageSelection) async {
-    do {
-      List<AssetEntity> newlyLoaded = loadImages();
-      loadedImages.addAll(newlyLoaded);
-      unusedImages.addAll(newlyLoaded);
-    } while (unusedImages.isEmpty ||
-        DateUtils.isSameDay(
-            unusedImages[0].createDateTime, unusedImages.last.createDateTime));
+  Future<int> buildImageChunks(int startingIndex) async {
+    for (AssetEntity asset in assets.sublist(startingIndex)) {
+      DateTime dateTaken = asset.createDateTime;
+      DateTime date = DateTime(dateTaken.year, dateTaken.month, dateTaken.day);
 
-    if (unusedImages.isEmpty) return;
+      dateMap.putIfAbsent(date, () => []);
+      dateMap[date]!.add(asset);
+    }
+    return assets.length;
+  }
 
-    DateTime oldestDay = unusedImages.last.createDateTime;
+  Widget picturesPageWrapper(ImageSelection imageSelection, Widget child) {
+    return GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Scaffold(
+            body: WillPopScope(
+                onWillPop: () async {
+                  if (imageSelection.selectionMode) {
+                    imageSelection.endSelection();
+                    return false;
+                  }
+                  Navigator.pop(context);
+                  return true;
+                },
+                child: SafeArea(child: child))));
+  }
 
-    while (!DateUtils.isSameDay(oldestDay, unusedImages[0].createDateTime)) {
-      List<AssetEntity> dateImages = [];
-      DateTime currentDate = unusedImages[0].createDateTime;
+  Widget _buildDateChunk(
+      BuildContext context, MapEntry<DateTime, List<AssetEntity>> entry) {
+    String dateText = entry.key.year == DateTime.now().year
+        ? "${monthAbrev[entry.key.month]} ${entry.key.day}"
+        : "${entry.key.year} ${monthAbrev[entry.key.month]} ${entry.key.day}";
 
-      while (unusedImages.isNotEmpty &&
-          DateUtils.isSameDay(currentDate, unusedImages[0].createDateTime)) {
-        dateImages.add(unusedImages.removeAt(0));
-      }
-
-      String dateText = currentDate.year == DateTime.now().year
-          ? "${monthAbrev[currentDate.month]} ${currentDate.day + 1}"
-          : "${currentDate.year} ${monthAbrev[currentDate.month]} ${currentDate.day + 1}";
-
-      chunksByDate.add(Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-            child: Text(
-              dateText,
-              style: mainTextStyle(TextStyleType.picturesDateTaken),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+          child: Text(
+            dateText,
+            style: mainTextStyle(TextStyleType.picturesDateTaken),
           ),
-          GridView.count(
-              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-              primary: false,
-              crossAxisSpacing: 3,
-              mainAxisSpacing: 3,
-              shrinkWrap: true,
-              crossAxisCount: 4,
-              children: dateImages.asMap().entries.map((entry) {
-                return GridItemWidget(asset: entry.value);
-              }).toList())
-        ],
-      ));
-
-      totalLoaded += dateImages.length;
-    }
-    setState(() {});
-  }
-
-  void toggleSelection(String imageId) {
-    if (selected.contains(imageId)) {
-      selected.remove(imageId);
-    } else {
-      selected.add(imageId);
-    }
-    if (selected.isNotEmpty) {
-      selectionMode = true;
-    }
-    setState(() {});
-  }
-
-  void _onTapImage(AssetEntity image, int index) async {
-    if (image.type == AssetType.image) {
-      int imageIdx = images.indexOf(image);
-
-      await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ImagePageWidget(
-              images: images,
-              imageTotal: images.length,
-              index: imageIdx,
-            ),
-          ));
-    } else if (image.type == AssetType.video) {
-      await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => VideoPlayerPageWidget(
-              video: image,
-            ),
-          ));
-    }
+        ),
+        GridView.count(
+            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+            primary: false,
+            crossAxisSpacing: 3,
+            mainAxisSpacing: 3,
+            shrinkWrap: true,
+            crossAxisCount: 4,
+            children: entry.value.map((entry) {
+              return GridItemWidget(asset: entry);
+            }).toList())
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container();
-    /*
-    return GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Scaffold(
-            body: NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification scroll) {
-                  final scrollPixels =
-                      scroll.metrics.pixels / scroll.metrics.maxScrollExtent;
+    super.build(context);
+    var dateList = dateMap.entries.toList();
+    dateList.sort((a, b) => b.key.compareTo(a.key));
 
-                  if (scrollPixels > 0.6) loadMoreDates();
-                  return false;
-                },
-                child: WillPopScope(
-                    onWillPop: () async {
-                      if (selectionMode) {
-                        setState(() {
-                          selected.clear();
-                          selectionMode = false;
-                        });
-                        return false;
-                      }
-                      Navigator.pop(context);
-                      return true;
-                    },
-                    child: SafeArea(
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                          Padding(
-                              padding: const EdgeInsets.fromLTRB(30, 20, 10, 0),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'PICTURES',
-                                    style:
-                                        mainTextStyle(TextStyleType.pageTitle),
-                                  ),
-                                  const Spacer(),
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.search))
-                                ],
-                              )),
-                          // Album Grid
-                          Expanded(
-                            child: CustomScrollView(
-                                primary: false,
-                                slivers: <Widget>[
-                                  SliverPadding(
-                                      padding: const EdgeInsets.all(5),
-                                      sliver: SliverList(
-                                        delegate: SliverChildBuilderDelegate(
-                                            (context, index) {
-                                          return chunksByDate[index];
-                                        }, childCount: chunksByDate.length),
-                                      )),
-                                ]),
-                          )
-                        ]))))));
-                        */
+    return Consumer<ImageSelection>(builder: (context, imageSelection, child) {
+      return picturesPageWrapper(
+          imageSelection,
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+                padding: const EdgeInsets.fromLTRB(30, 20, 10, 0),
+                child: Row(
+                  children: [
+                    Text(
+                      'PICTURES',
+                      style: mainTextStyle(TextStyleType.pageTitle),
+                    ),
+                    const Spacer(),
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.search))
+                  ],
+                )),
+            // Album Grid
+            Expanded(
+              child: CustomScrollView(primary: false, slivers: <Widget>[
+                SliverPadding(
+                    padding: const EdgeInsets.all(5),
+                    sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                      (context, index) =>
+                          _buildDateChunk(context, dateList[index]),
+                      childCount: dateList.length,
+                    ))),
+              ]),
+            )
+          ]));
+    });
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

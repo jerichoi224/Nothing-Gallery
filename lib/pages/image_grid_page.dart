@@ -29,20 +29,15 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   int totalCount = 0;
   int currentPage = 0;
   int numCol = 4;
-  int loadImageCount = 100;
   bool useTrashBin = true;
-
-  AlbumState albumState = AlbumState.notModified;
 
   @override
   void initState() {
     super.initState();
     albumInfo = widget.album;
     totalCount = albumInfo.assetCount;
-    images.removeWhere((element) => element.type != AssetType.image);
-
     getPreferences();
-    getImages();
+    refreshGrid();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
@@ -56,7 +51,6 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
               images.removeWhere((image) =>
                   (event.details as List<String>).contains(image.id));
             });
-            print("Grid Page: Image Removed. Call update Album");
             albumInfoList.updateAlbum(albumInfo.pathEntity);
 
             totalCount -= 1;
@@ -80,6 +74,12 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     super.dispose();
   }
 
+  void refreshGrid() {
+    assets = albumInfo.preloadImages;
+    images = assets.where((asset) => asset.type == AssetType.image).toList();
+    getImages();
+  }
+
   void getPreferences() {
     numCol = sharedPref.get(SharedPrefKeys.imageGridPageNumCol);
     useTrashBin = sharedPref.get(SharedPrefKeys.useTrashBin);
@@ -89,7 +89,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     if (assets.length >= albumInfo.assetCount) return;
 
     List<AssetEntity> newAssets =
-        await loadAssets(albumInfo.pathEntity, currentPage++, size: 80);
+        await loadAssets(albumInfo.pathEntity, ++currentPage, size: 80);
     setState(() {
       assets = List.from(assets)..addAll(newAssets);
       images = List.from(images)
@@ -98,7 +98,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
     while (assets.length < albumInfo.assetCount) {
       newAssets =
-          await loadAssets(albumInfo.pathEntity, currentPage++, size: 80);
+          await loadAssets(albumInfo.pathEntity, ++currentPage, size: 80);
       if (newAssets.isEmpty) break;
 
       assets = List.from(assets)..addAll(newAssets);
@@ -163,21 +163,20 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     ]);
   }
 
-  Widget gridPageWrapper(Widget child) {
+  Widget gridPageWrapper(ImageSelection imageSelection, Widget child) {
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
-            body: SafeArea(
-                child: NotificationListener<ScrollNotification>(
-                    onNotification: (ScrollNotification scroll) {
-                      final scrollPixels = scroll.metrics.pixels /
-                          scroll.metrics.maxScrollExtent;
-                      if (scrollPixels > 0.6) {
-                        getImages();
-                      }
-                      return false;
-                    },
-                    child: child))));
+            body: WillPopScope(
+                onWillPop: () async {
+                  if (imageSelection.selectionMode) {
+                    imageSelection.endSelection();
+                    return false;
+                  }
+                  Navigator.pop(context);
+                  return true;
+                },
+                child: SafeArea(child: child))));
   }
 
   @override
@@ -186,61 +185,44 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
       Future.microtask(() => Navigator.pop(context));
       return Container();
     } else {
-      return ChangeNotifierProvider<ImageSelection>(
-          create: (_) => ImageSelection(),
-          builder: (context, child) {
-            return Consumer<ImageSelection>(
-                builder: (context, imageSelection, child) {
-              return gridPageWrapper(WillPopScope(
-                  onWillPop: () async {
-                    if (imageSelection.selectionMode) {
-                      imageSelection.endSelection();
-                      return false;
-                    }
-                    Navigator.pop(context, albumState);
-                    return true;
-                  },
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header
-                        Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Text(
-                                    albumInfo.pathEntity.name.toUpperCase(),
-                                    style:
-                                        mainTextStyle(TextStyleType.pageTitle),
-                                  )),
-                              const Spacer(),
-                              imageSelection.selectionMode
-                                  ? selectionModeMenu(imageSelection)
-                                  : Container()
-                            ]),
+      return Consumer<ImageSelection>(
+          builder: (context, imageSelection, child) {
+        return gridPageWrapper(
+            imageSelection,
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // Header
+              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(
+                      albumInfo.pathEntity.name.toUpperCase(),
+                      style: mainTextStyle(TextStyleType.pageTitle),
+                    )),
+                const Spacer(),
+                imageSelection.selectionMode
+                    ? selectionModeMenu(imageSelection)
+                    : Container()
+              ]),
 
-                        // Images Grid
-                        Expanded(
-                            child: CustomScrollView(
-                          primary: false,
-                          slivers: <Widget>[
-                            SliverGrid.count(
-                                crossAxisSpacing: 2,
-                                mainAxisSpacing: 2,
-                                crossAxisCount: numCol,
-                                childAspectRatio: 1,
-                                children: assets
-                                    .asMap()
-                                    .entries
-                                    .map((entry) =>
-                                        GridItemWidget(asset: entry.value))
-                                    .toList()),
-                          ],
-                        ))
-                      ])));
-            });
-          });
+              // Images Grid
+              Expanded(
+                  child: CustomScrollView(
+                primary: false,
+                slivers: <Widget>[
+                  SliverGrid.count(
+                      crossAxisSpacing: 2,
+                      mainAxisSpacing: 2,
+                      crossAxisCount: numCol,
+                      childAspectRatio: 1,
+                      children: assets
+                          .asMap()
+                          .entries
+                          .map((entry) => GridItemWidget(asset: entry.value))
+                          .toList()),
+                ],
+              ))
+            ]));
+      });
     }
   }
 
@@ -260,7 +242,14 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   @override
-  void onResumed() {}
+  void onResumed() async {
+    List<AlbumInfo> updatedAlbum =
+        await getCurrentAlbumStates([albumInfo.pathEntity.id]);
+
+    if (updatedAlbum.isEmpty) return;
+    albumInfo = updatedAlbum[0];
+    refreshGrid();
+  }
 
   @override
   void onHidden() {

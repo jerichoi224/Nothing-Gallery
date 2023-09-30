@@ -14,7 +14,8 @@ class AlbumsWidget extends StatefulWidget {
   State createState() => _AlbumsState();
 }
 
-class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
+class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
+    with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
@@ -22,6 +23,8 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(body: SafeArea(child:
@@ -86,10 +89,16 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
   }
 
   @override
-  void onResumed() {}
+  void onResumed() {
+    Provider.of<AlbumInfoList>(context, listen: false).refreshAlbums();
+  }
 
   @override
   void onHidden() {
     // TODO: implement onHidden
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

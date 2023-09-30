@@ -26,10 +26,10 @@ Future<List<AlbumInfo>> getCurrentAlbumStates(List<String> ids) async {
 Future<AlbumInfo> getInitialAlbumInfo(AssetPathEntity album) async {
   int assetCount = await album.assetCountAsync;
 
-  List<AssetEntity> images = await album.getAssetListRange(start: 0, end: 1);
+  List<AssetEntity> images = await album.getAssetListRange(start: 0, end: 80);
 
   images.sort((a, b) => b.createDateTime.millisecondsSinceEpoch
       .compareTo(a.createDateTime.millisecondsSinceEpoch));
 
-  return AlbumInfo(album, images[0], assetCount);
+  return AlbumInfo(album, images[0], assetCount, images);
 }

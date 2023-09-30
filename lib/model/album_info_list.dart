@@ -5,9 +5,11 @@ import 'package:photo_manager/photo_manager.dart';
 class AlbumInfo {
   AssetPathEntity pathEntity;
   AssetEntity thumbnailAsset;
+  List<AssetEntity> preloadImages;
   int assetCount;
 
-  AlbumInfo(this.pathEntity, this.thumbnailAsset, this.assetCount);
+  AlbumInfo(this.pathEntity, this.thumbnailAsset, this.assetCount,
+      this.preloadImages);
 }
 
 class AlbumInfoList extends ChangeNotifier {
@@ -17,6 +19,10 @@ class AlbumInfoList extends ChangeNotifier {
       _albums.where((album) => !album.pathEntity.isAll).toList();
 
   AlbumInfo get recent => _albums.firstWhere((album) => album.pathEntity.isAll);
+
+  AlbumInfo getAlbum(String id) {
+    return _albums.firstWhere((album) => album.pathEntity.id == id);
+  }
 
   Future<void> refreshAlbums() async {
     _albums.clear();

@@ -28,7 +28,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider<AlbumInfoList>(create: (_) => AlbumInfoList())
+          ChangeNotifierProvider<AlbumInfoList>(create: (_) => AlbumInfoList()),
+          ChangeNotifierProvider<ImageSelection>(
+            create: (_) => ImageSelection(),
+          )
         ],
         child: MaterialApp(
             debugShowCheckedModeBanner: false,

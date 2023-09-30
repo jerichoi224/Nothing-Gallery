@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/model/album_info_list.dart';
 import 'package:nothing_gallery/pages/pages.dart';
@@ -127,7 +128,13 @@ class _HomeState extends State<HomeWidget> {
                     Expanded(
                         flex: 1,
                         child: SizedBox(
-                            height: navBarHeight, child: homePopupMenu())),
+                            height: navBarHeight,
+                            child: WillPopScope(
+                                onWillPop: () async {
+                                  SystemNavigator.pop();
+                                  return false;
+                                },
+                                child: homePopupMenu()))),
                   ],
                 )),
             body: TabBarView(children: tabPages()),

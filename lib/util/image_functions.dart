@@ -26,14 +26,11 @@ Future<List<String>> confirmDelete(BuildContext context,
       .toList();
 
   if (result.isEmpty) {
-    print("Files not deleted. Removing Backup");
     for (var element in backups) {
       element.deleteSync();
     }
     return [];
   } else {
-    print("Image Function: Asset Deleted, adding Event");
-    print(result);
     eventController.sink.add(Event(EventType.assetDeleted, result));
   }
   return result;
