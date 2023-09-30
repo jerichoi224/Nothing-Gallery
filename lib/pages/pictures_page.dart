@@ -81,7 +81,6 @@ class _PicturesState extends State<PicturesWidget> {
 
   @override
   void dispose() {
-    eventController.close();
     eventSubscription?.cancel();
     super.dispose();
   }

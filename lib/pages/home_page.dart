@@ -47,7 +47,6 @@ class _HomeState extends State<HomeWidget> {
 
   @override
   void dispose() {
-    eventController.close();
     eventSubscription?.cancel();
     super.dispose();
   }

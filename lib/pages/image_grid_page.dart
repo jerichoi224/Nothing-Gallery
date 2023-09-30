@@ -56,15 +56,10 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
               images.removeWhere((image) =>
                   (event.details as List<String>).contains(image.id));
             });
+            print("Grid Page: Image Removed. Call update Album");
             albumInfoList.updateAlbum(albumInfo.pathEntity);
 
             totalCount -= 1;
-
-            // Album is empty
-            if (totalCount == 0) {
-              eventController.sink
-                  .add(Event(EventType.albumEmpty, albumInfo.pathEntity.id));
-            }
             break;
           case EventType.videoOpen:
             openVideoPlayerPage(context, event.details);

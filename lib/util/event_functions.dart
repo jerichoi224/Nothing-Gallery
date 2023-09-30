@@ -15,11 +15,6 @@ EventType validateEventType(Event event) {
         return event.eventType;
       }
       break;
-    case EventType.albumEmpty:
-      if (event.details != null && event.details.runtimeType == String) {
-        return event.eventType;
-      }
-      break;
     default:
   }
   return EventType.ignore;

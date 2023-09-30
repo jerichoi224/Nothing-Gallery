@@ -1,15 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/components/components.dart';
-import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/model/model.dart';
-import 'package:nothing_gallery/util/util.dart';
 
 @immutable
 class AlbumsWidget extends StatefulWidget {
@@ -20,30 +15,9 @@ class AlbumsWidget extends StatefulWidget {
 }
 
 class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
-  StreamSubscription? eventSubscription;
-
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
-      eventSubscription =
-          eventController.stream.asBroadcastStream().listen((event) {
-        switch (validateEventType(event)) {
-          case EventType.albumEmpty:
-            albumInfoList.removeAlbum(event.details);
-            break;
-          default:
-        }
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    eventController.close();
-    eventSubscription?.cancel();
-    super.dispose();
   }
 
   @override
@@ -56,7 +30,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 20, 10, 20),
+                    padding: const EdgeInsets.fromLTRB(30, 20, 10, 0),
                     child: Row(
                       children: [
                         Text(
@@ -64,6 +38,11 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
                           style: mainTextStyle(TextStyleType.pageTitle),
                         ),
                         const Spacer(),
+                        IconButton(
+                            onPressed: () {
+                              albumInfoList.refreshAlbums();
+                            },
+                            icon: const Icon(Icons.refresh)),
                         IconButton(
                             onPressed: () {}, icon: const Icon(Icons.search))
                       ],
@@ -74,7 +53,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
                   primary: false,
                   slivers: <Widget>[
                     SliverPadding(
-                      padding: const EdgeInsets.all(25),
+                      padding: const EdgeInsets.all(20),
                       sliver: SliverGrid.count(
                           crossAxisSpacing: 15,
                           mainAxisSpacing: 15,

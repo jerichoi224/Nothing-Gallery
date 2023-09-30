@@ -32,6 +32,8 @@ Future<List<String>> confirmDelete(BuildContext context,
     }
     return [];
   } else {
+    print("Image Function: Asset Deleted, adding Event");
+    print(result);
     eventController.sink.add(Event(EventType.assetDeleted, result));
   }
   return result;

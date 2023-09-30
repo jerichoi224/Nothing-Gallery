@@ -19,6 +19,7 @@ class AlbumInfoList extends ChangeNotifier {
   AlbumInfo get recent => _albums.firstWhere((album) => album.pathEntity.isAll);
 
   Future<void> refreshAlbums() async {
+    _albums.clear();
     addAlbum(await getCurrentAlbumStates([]));
   }
 
@@ -30,15 +31,20 @@ class AlbumInfoList extends ChangeNotifier {
   }
 
   void removeAlbum(String id) {
-    albums.removeWhere((album) => album.pathEntity.id == id);
+    _albums.removeWhere((album) => album.pathEntity.id == id);
     notifyListeners();
   }
 
   Future<void> updateAlbum(AssetPathEntity album) async {
-    AlbumInfo updatedAlbum = (await getCurrentAlbumStates([album.id])).first;
-    _albums.removeWhere(
-        (album) => album.pathEntity.id == updatedAlbum.pathEntity.id);
-    addAlbum([updatedAlbum]);
-    notifyListeners();
+    List<AlbumInfo> albumList = (await getCurrentAlbumStates([album.id]));
+    if (albumList.isEmpty) {
+      removeAlbum(album.id);
+    } else {
+      AlbumInfo updatedAlbum = albumList.first;
+      _albums.removeWhere(
+          (album) => album.pathEntity.id == updatedAlbum.pathEntity.id);
+      addAlbum([updatedAlbum]);
+      notifyListeners();
+    }
   }
 }

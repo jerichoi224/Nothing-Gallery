@@ -17,7 +17,7 @@ enum TextStyleType {
   videoPlayerDuration(fontSize: 14),
 
   // Common
-  pageTitle(fontSize: 18),
+  pageTitle(fontSize: 20),
 
   // ImagePage
   picturesDateTaken(fontSize: 18),
