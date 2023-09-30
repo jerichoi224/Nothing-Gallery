@@ -3,12 +3,12 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/model/sharedPref.dart';
-import 'package:nothing_gallery/pages/home_page.dart';
-import 'package:nothing_gallery/pages/permission_check_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
+
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/model/model.dart';
+import 'package:nothing_gallery/pages/pages.dart';
 
 late SharedPref sharedPref;
 late StreamController<Event> eventController;

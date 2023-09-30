@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/pages/pages.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/constants/event_type.dart';
-import 'package:nothing_gallery/constants/home_page_enum.dart';
-import 'package:nothing_gallery/pages/albums_page.dart';
-import 'package:nothing_gallery/pages/pictures_page.dart';
-import 'package:nothing_gallery/util/navigation.dart';
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/util/util.dart';
 
 @immutable
 class HomeWidget extends StatefulWidget {

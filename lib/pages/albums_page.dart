@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/AlbumInfo.dart';
-import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
-import 'package:nothing_gallery/components/album_widget.dart';
-import 'package:nothing_gallery/constants/event_type.dart';
-import 'package:nothing_gallery/main.dart';
+
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/util/loader_functions.dart';
+import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/components/components.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/model/model.dart';
+import 'package:nothing_gallery/util/util.dart';
 
 @immutable
 class AlbumsWidget extends StatefulWidget {
@@ -33,7 +33,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
         if (event.eventType == EventType.albumEmpty) {
           if (event.details != null && event.details.runtimeType == String) {
             albums.removeWhere(
-                (albumInfo) => albumInfo.album.id == event.details);
+                (albumInfo) => albumInfo.pathEntity.id == event.details);
           }
         } else {}
       }
@@ -45,7 +45,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget> {
     setState(() {
       albums = reloadedAlbums;
       albums.removeWhere(
-          (element) => element.album.id == 'isAll'); // remove recent
+          (element) => element.pathEntity.id == 'isAll'); // remove recent
     });
   }
 

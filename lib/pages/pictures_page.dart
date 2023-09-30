@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/components/grid_item_widget.dart';
-import 'package:nothing_gallery/constants/event_type.dart';
-import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/model/image_selection.dart';
-import 'package:nothing_gallery/pages/image_page.dart';
-import 'package:nothing_gallery/pages/video_player_page.dart';
-import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
+
+import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/components/components.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/model/model.dart';
+import 'package:nothing_gallery/pages/pages.dart';
 
 class PicturesWidget extends StatefulWidget {
   const PicturesWidget({super.key});

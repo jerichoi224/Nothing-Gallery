@@ -1,11 +1,12 @@
 // ignore: file_names
 import 'dart:async';
 import 'dart:io';
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/style.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
+
+import 'package:nothing_gallery/style.dart';
 
 // ignore: must_be_immutable
 class VideoPlayerPageWidget extends StatefulWidget {

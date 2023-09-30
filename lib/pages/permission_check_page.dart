@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+//TODO:
 class PermissionCheckWidget extends StatefulWidget {
   PermissionCheckWidget({super.key});
 

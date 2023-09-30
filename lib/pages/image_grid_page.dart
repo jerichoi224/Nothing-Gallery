@@ -1,23 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/components/grid_item_widget.dart';
-import 'package:nothing_gallery/util/event_functions.dart';
-import 'package:nothing_gallery/util/navigation.dart';
 import 'package:provider/provider.dart';
-
-import 'package:nothing_gallery/classes/AlbumInfo.dart';
-import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/classes/LifeCycleListenerState.dart';
-import 'package:nothing_gallery/constants/album_status.dart';
-import 'package:nothing_gallery/constants/event_type.dart';
-import 'package:nothing_gallery/constants/selected_image_menu.dart';
-import 'package:nothing_gallery/constants/shared_pref_keys.dart';
-import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/model/image_selection.dart';
-import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/util/image_functions.dart';
-import 'package:nothing_gallery/util/loader_functions.dart';
 import 'package:photo_manager/photo_manager.dart';
+
+import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/components/components.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/model/model.dart';
+import 'package:nothing_gallery/util/util.dart';
 
 class ImageGridWidget extends StatefulWidget {
   final AlbumInfo album;
@@ -47,11 +39,12 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     super.initState();
     albumInfo = widget.album;
     totalCount = albumInfo.assetCount;
-    assets = albumInfo.images;
-    images = List.from(assets);
+    assets = [];
+    images = [];
     images.removeWhere((element) => element.type != AssetType.image);
 
     getPreferences();
+    getImages();
 
     eventSubscription =
         eventController.stream.asBroadcastStream().listen((event) {
@@ -64,7 +57,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
           // Album is empty
           if (totalCount == 0) {
             eventController.sink
-                .add(Event(EventType.albumEmpty, albumInfo.album.id));
+                .add(Event(EventType.albumEmpty, albumInfo.pathEntity.id));
           }
           break;
         case EventType.videoOpen:
@@ -94,7 +87,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     if (assets.length >= albumInfo.assetCount) return;
 
     List<AssetEntity> newAssets =
-        await loadAssets(albumInfo.album, ++currentPage, size: 80);
+        await loadAssets(albumInfo.pathEntity, ++currentPage, size: 80);
     setState(() {
       assets = List.from(assets)..addAll(newAssets);
       images = List.from(images)
@@ -196,7 +189,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                               Padding(
                                   padding: const EdgeInsets.all(20),
                                   child: Text(
-                                    albumInfo.album.name.toUpperCase(),
+                                    albumInfo.pathEntity.name.toUpperCase(),
                                     style:
                                         mainTextStyle(TextStyleType.pageTitle),
                                   )),

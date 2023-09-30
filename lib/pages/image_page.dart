@@ -3,14 +3,14 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/constants/event_type.dart';
-import 'package:nothing_gallery/constants/shared_pref_keys.dart';
-import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/util/image_functions.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+
+import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/util/util.dart';
 
 // ignore: must_be_immutable
 class ImagePageWidget extends StatefulWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/Event.dart';
+import 'package:nothing_gallery/classes/event.dart';
 import 'package:nothing_gallery/components/image_thumbnail_widget.dart';
 import 'package:nothing_gallery/constants/event_type.dart';
 import 'package:nothing_gallery/constants/image_widget_status.dart';

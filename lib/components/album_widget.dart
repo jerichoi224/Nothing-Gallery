@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/AlbumInfo.dart';
-import 'package:nothing_gallery/components/grid_item_widget.dart';
 import 'package:nothing_gallery/components/image_thumbnail_widget.dart';
+import 'package:nothing_gallery/model/album_info_list.dart';
 import 'package:nothing_gallery/pages/image_grid_page.dart';
 import 'package:nothing_gallery/style.dart';
 
@@ -24,13 +23,13 @@ class AlbumWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      key: ValueKey(albumInfo.album.id),
+      key: ValueKey(albumInfo.pathEntity.id),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Stack(
           children: <Widget>[
             ThumbnailWidget(
-                asset: albumInfo.thumbnailImage,
+                asset: albumInfo.thumbnailAsset,
                 radius: radius,
                 isOriginal: true),
             Positioned.fill(
@@ -50,7 +49,7 @@ class AlbumWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
           child: Text(
-            "${albumInfo.album.name.toUpperCase()} (${albumInfo.assetCount})",
+            "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
             style: mainTextStyle(TextStyleType.albumTitle),
           ),
         ),

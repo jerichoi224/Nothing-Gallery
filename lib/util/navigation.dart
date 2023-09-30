@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/pages/image_page.dart';
-import 'package:nothing_gallery/pages/settings_page.dart';
-import 'package:nothing_gallery/pages/video_player_page.dart';
 import 'package:photo_manager/photo_manager.dart';
+
+import 'package:nothing_gallery/pages/pages.dart';
 
 void openSettings(BuildContext context) async {
   await Navigator.push(

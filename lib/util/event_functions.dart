@@ -1,6 +1,6 @@
-import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/constants/event_type.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/constants/constants.dart';
 
 EventType validateEventType(Event event) {
   switch (event.eventType) {
