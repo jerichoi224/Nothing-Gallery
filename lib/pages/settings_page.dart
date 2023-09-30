@@ -30,7 +30,7 @@ class _SettingsState extends State<SettingsPage> {
                       Expanded(
                           child: Text(
                         'WIP',
-                        style: mainTextStyle(TextStyleType.settingsMenu),
+                        style: mainTextStyle(TextStyleType.pageTitle),
                       ))
                     ])))));
   }

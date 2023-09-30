@@ -56,6 +56,8 @@ class _HomeState extends State<HomeWidget> {
   Widget homePopupMenu() {
     return PopupMenuButton<HomePopupMenu>(
         tooltip: '',
+        offset: const Offset(0, -63),
+        color: Colors.black,
         onSelected: onHomePopupMenuSelected,
         child: const InkWell(
           child: Icon(
@@ -67,12 +69,15 @@ class _HomeState extends State<HomeWidget> {
           return [
             for (final value in HomePopupMenu.values)
               PopupMenuItem(
-                value: value,
-                child: Text(
-                  value.text,
-                  style: mainTextStyle(TextStyleType.popUpMenu),
-                ),
-              )
+                  value: value,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      value.text,
+                      textAlign: TextAlign.center,
+                      style: mainTextStyle(TextStyleType.popUpMenu),
+                    ),
+                  ))
           ];
         });
   }

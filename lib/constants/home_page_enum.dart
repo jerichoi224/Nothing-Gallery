@@ -7,7 +7,7 @@ enum HomeTabMenu {
 }
 
 enum HomePopupMenu {
-  settings(text: 'Settings');
+  settings(text: 'SETTINGS');
 
   const HomePopupMenu({required this.text});
   final String text;

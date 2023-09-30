@@ -17,14 +17,13 @@ enum TextStyleType {
   videoPlayerDuration(fontSize: 14),
 
   // Common
-  pageTitle(fontSize: 20),
+  pageTitle(fontSize: 22),
 
   // ImagePage
   picturesDateTaken(fontSize: 18),
   imageIndex(fontSize: 20),
 
   // SettingsPage
-  settingsMenu(fontSize: 18),
   settingTitle(fontSize: 24);
 
   const TextStyleType({required this.fontSize});
