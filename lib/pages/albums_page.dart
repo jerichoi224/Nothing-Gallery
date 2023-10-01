@@ -21,6 +21,41 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
     super.initState();
   }
 
+  Widget topButton(String text, IconData icon) {
+    return Center(
+        child: ClipRRect(
+      child: Container(
+          decoration: BoxDecoration(
+            color: const Color.fromRGBO(24, 28, 30, 1),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                  onTap: () {},
+                  customBorder: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(30))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        icon,
+                        size: 28,
+                      ),
+                      const SizedBox(
+                        height: double.infinity,
+                        width: 16,
+                      ),
+                      Text(
+                        text,
+                        style: mainTextStyle(TextStyleType.buttonText),
+                      )
+                    ],
+                  )))),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -56,17 +91,30 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                   primary: false,
                   slivers: <Widget>[
                     SliverPadding(
-                      padding: const EdgeInsets.all(20),
-                      sliver: SliverGrid.count(
-                          crossAxisSpacing: 15,
-                          mainAxisSpacing: 15,
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.85,
-                          children: albumInfoList.albums
-                              .map((albumeInfo) =>
-                                  AlbumWidget(albumInfo: albumeInfo))
-                              .toList()),
-                    ),
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        sliver: SliverGrid.count(
+                            crossAxisSpacing: 15,
+                            mainAxisSpacing: 15,
+                            crossAxisCount: 2,
+                            childAspectRatio: 2.5,
+                            children: [
+                              topButton(
+                                "FAVORITE",
+                                Icons.star_border_rounded,
+                              ),
+                              topButton("VIDEO", Icons.video_library_rounded),
+                            ])),
+                    SliverPadding(
+                        padding: const EdgeInsets.all(20),
+                        sliver: SliverGrid.count(
+                            crossAxisSpacing: 15,
+                            mainAxisSpacing: 15,
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.85,
+                            children: albumInfoList.albums
+                                .map((albumeInfo) =>
+                                    AlbumWidget(albumInfo: albumeInfo))
+                                .toList())),
                   ],
                 ))
               ]);
