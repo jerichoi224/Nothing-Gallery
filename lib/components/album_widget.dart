@@ -4,22 +4,13 @@ import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/components/components.dart';
 import 'package:nothing_gallery/model/model.dart';
 import 'package:nothing_gallery/pages/pages.dart';
+import 'package:nothing_gallery/util/util.dart';
 
 class AlbumWidget extends StatelessWidget {
   const AlbumWidget({super.key, required this.albumInfo});
 
   final AlbumInfo albumInfo;
   final double radius = 8.0;
-
-  void _openAlbum(BuildContext context) async {
-    await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ImageGridWidget(
-            album: albumInfo,
-          ),
-        ));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +31,7 @@ class AlbumWidget extends StatelessWidget {
                   customBorder: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(radius))),
                   onTap: () {
-                    _openAlbum(context);
+                    openAlbum(context, albumInfo);
                   },
                 ),
               ),

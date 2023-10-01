@@ -1,5 +1,5 @@
 enum HomeTabMenu {
-  pictures(text: 'PICTURES'),
+  pictures(text: 'TIMELINE'),
   albums(text: 'ALBUMS');
 
   const HomeTabMenu({required this.text});

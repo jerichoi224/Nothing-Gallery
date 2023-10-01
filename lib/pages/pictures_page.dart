@@ -12,8 +12,9 @@ import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/model/model.dart';
 
 class PicturesWidget extends StatefulWidget {
-  const PicturesWidget({super.key});
+  const PicturesWidget({super.key, required this.videosOnly});
 
+  final bool videosOnly;
   @override
   State createState() => _PicturesState();
 }
@@ -59,7 +60,13 @@ class _PicturesState extends State<PicturesWidget>
       recent = albumInfoList.recent;
       totalCount = recent.assetCount;
       assets = recent.preloadImages;
-      images = assets.where((asset) => asset.type == AssetType.image).toList();
+
+      if (widget.videosOnly) {
+        assets.removeWhere((asset) => asset.type == AssetType.image);
+      } else {
+        images =
+            assets.where((asset) => asset.type == AssetType.image).toList();
+      }
       getImages();
 
       eventSubscription =
@@ -85,8 +92,10 @@ class _PicturesState extends State<PicturesWidget>
             setState(() {
               assets.removeWhere((image) =>
                   (event.details as List<String>).contains(image.id));
-              images.removeWhere((image) =>
-                  (event.details as List<String>).contains(image.id));
+              if (!widget.videosOnly) {
+                images.removeWhere((image) =>
+                    (event.details as List<String>).contains(image.id));
+              }
             });
 
             totalCount -= 1;
@@ -111,13 +120,16 @@ class _PicturesState extends State<PicturesWidget>
   }
 
   Future<void> getImages() async {
-    if (assets.length >= recent.assetCount) return;
-
     List<AssetEntity> newAssets =
         await loadAssets(recent.pathEntity, ++currentPage, size: 80);
+
     assets = List.from(assets)..addAll(newAssets);
-    images = List.from(images)
-      ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+    if (widget.videosOnly) {
+      assets.removeWhere((asset) => asset.type == AssetType.image);
+    } else {
+      images = List.from(images)
+        ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+    }
 
     startingIndex = await buildImageChunks(startingIndex);
     setState(() {});
@@ -127,13 +139,17 @@ class _PicturesState extends State<PicturesWidget>
       if (newAssets.isEmpty) break;
 
       assets = List.from(assets)..addAll(newAssets);
-      images = List.from(images)
-        ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
-    }
+      if (widget.videosOnly) {
+        assets.removeWhere((asset) => asset.type == AssetType.image);
+      } else {
+        images = List.from(images)
+          ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+      }
 
-    buildImageChunks(startingIndex).then((value) {
-      setState(() {});
-    });
+      buildImageChunks(startingIndex).then((value) {
+        setState(() {});
+      });
+    }
   }
 
   Future<int> buildImageChunks(int startingIndex) async {
@@ -198,6 +214,7 @@ class _PicturesState extends State<PicturesWidget>
     var dateList = dateMap.entries.toList();
     dateList.sort((a, b) => b.key.compareTo(a.key));
 
+    print(dateMap);
     return Consumer<ImageSelection>(builder: (context, imageSelection, child) {
       return picturesPageWrapper(
           imageSelection,
@@ -207,7 +224,7 @@ class _PicturesState extends State<PicturesWidget>
                 child: Row(
                   children: [
                     Text(
-                      'PICTURES',
+                      widget.videosOnly ? 'VIDEOS' : 'TIMELINE',
                       style: mainTextStyle(TextStyleType.pageTitle),
                     ),
                     const Spacer(),
@@ -236,5 +253,5 @@ class _PicturesState extends State<PicturesWidget>
 
   @override
   // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => !widget.videosOnly;
 }

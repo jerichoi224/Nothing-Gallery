@@ -21,7 +21,12 @@ class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
       HomeTabMenu.values.map((tab) => Tab(text: tab.text)).toList();
 
   static const double navBarHeight = 50;
-  List<Widget> tabPages() => [const PicturesWidget(), const AlbumsWidget()];
+  List<Widget> tabPages() => [
+        const PicturesWidget(
+          videosOnly: false,
+        ),
+        const AlbumsWidget()
+      ];
   late TabController _tabController;
 
   @override
@@ -30,6 +35,10 @@ class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
     _tabController =
         TabController(initialIndex: 1, length: _tabs.length, vsync: this);
     _tabController.addListener(_tabListener);
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);

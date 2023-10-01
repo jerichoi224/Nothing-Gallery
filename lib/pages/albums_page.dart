@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/util/util.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
 
@@ -19,46 +20,6 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
     with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 500));
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Widget topButton(String text, IconData icon) {
-    return Center(
-        child: ClipRRect(
-      child: Container(
-          decoration: BoxDecoration(
-            color: const Color.fromRGBO(24, 28, 30, 1),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                  onTap: () {},
-                  customBorder: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30))),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(
-                        icon,
-                        size: 28,
-                      ),
-                      const SizedBox(
-                        height: double.infinity,
-                        width: 16,
-                      ),
-                      Text(
-                        text,
-                        style: mainTextStyle(TextStyleType.buttonText),
-                      )
-                    ],
-                  )))),
-    ));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,11 +74,17 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                             crossAxisCount: 2,
                             childAspectRatio: 2.5,
                             children: [
-                              topButton(
-                                "FAVORITE",
-                                Icons.star_border_rounded,
-                              ),
-                              topButton("VIDEO", Icons.video_library_rounded),
+                              WideIconButton(
+                                  text: "FAVORITE",
+                                  iconData: Icons.star_border_rounded,
+                                  onTapHandler: () {}),
+                              WideIconButton(
+                                text: "VIDEOS",
+                                iconData: Icons.video_library_rounded,
+                                onTapHandler: () {
+                                  openVideoPage(context);
+                                },
+                              )
                             ])),
                     SliverPadding(
                         padding: const EdgeInsets.all(10),
