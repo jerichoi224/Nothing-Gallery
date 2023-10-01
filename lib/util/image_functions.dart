@@ -1,30 +1,14 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/AlbumInfo.dart';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
 
-Future<List<AssetEntity>> loadAllImages() async {
-  int total = await PhotoManager.getAssetCount();
-  List<AssetEntity> pictures =
-      await PhotoManager.getAssetListRange(start: 0, end: total);
-  pictures.sort((a, b) => b.createDateTime.millisecondsSinceEpoch
-      .compareTo(a.createDateTime.millisecondsSinceEpoch));
-  return pictures;
-}
-
-Future<AlbumInfo> getAlbumInfo(AssetPathEntity album) async {
-  int assetCount = await album.assetCountAsync;
-  List<AssetEntity> images =
-      await album.getAssetListRange(start: 0, end: assetCount);
-  images.sort((a, b) => b.createDateTime.millisecondsSinceEpoch
-      .compareTo(a.createDateTime.millisecondsSinceEpoch));
-
-  return AlbumInfo(album, images, images[0], assetCount);
-}
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/main.dart';
 
 Future<List<String>> confirmDelete(BuildContext context,
     List<AssetEntity> deleteEntityList, bool useTrash) async {
@@ -36,14 +20,18 @@ Future<List<String>> confirmDelete(BuildContext context,
     }
   }
 
-  List<String> result = await PhotoManager.editor
-      .deleteWithIds(deleteEntityList.map((e) => e.id).toList());
+  List<String> result = (await PhotoManager.editor
+          .deleteWithIds(deleteEntityList.map((e) => e.id).toList()))
+      .map((id) => id)
+      .toList();
+
   if (result.isEmpty) {
-    print("Files not deleted. Removing Backup");
     for (var element in backups) {
       element.deleteSync();
     }
     return [];
+  } else {
+    eventController.sink.add(Event(EventType.assetDeleted, result));
   }
   return result;
 }

@@ -3,14 +3,14 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/Event.dart';
-import 'package:nothing_gallery/constants/eventType.dart';
-import 'package:nothing_gallery/constants/sharedPrefKey.dart';
-import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/util/imageFunctions.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+
+import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/util/util.dart';
 
 // ignore: must_be_immutable
 class ImagePageWidget extends StatefulWidget {
@@ -18,15 +18,13 @@ class ImagePageWidget extends StatefulWidget {
   int imageTotal;
   final PageController pageController;
   List<AssetEntity> images;
-  late StreamController eventController;
 
-  ImagePageWidget(
-      {super.key,
-      required this.images,
-      required this.imageTotal,
-      required this.index,
-      required this.eventController})
-      : pageController = PageController(initialPage: index);
+  ImagePageWidget({
+    super.key,
+    required this.images,
+    required this.imageTotal,
+    required this.index,
+  }) : pageController = PageController(initialPage: index);
 
   @override
   State createState() => _ImagePageWidgetState();
@@ -96,8 +94,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
         useTrashBin);
     if (deletedImages.isNotEmpty) {
       for (String imageId in deletedImages) {
-        widget.eventController.sink
-            .add(Event(EventType.pictureDeleted, imageId));
+        eventController.sink.add(Event(EventType.assetDeleted, imageId));
       }
 
       if (images.length == index + 1) {

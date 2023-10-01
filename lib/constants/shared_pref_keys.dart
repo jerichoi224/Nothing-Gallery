@@ -1,7 +1,4 @@
 enum SharedPrefKeys {
-  // Settings
-  hasPermission(text: "hasPermission", type: bool, onNull: false),
-
   // ImageGridPage
   imageGridPageNumCol(text: "imageGridPageNumCol", type: int, onNull: 4),
 

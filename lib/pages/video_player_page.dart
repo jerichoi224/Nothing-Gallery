@@ -1,19 +1,18 @@
 // ignore: file_names
 import 'dart:async';
 import 'dart:io';
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/style.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
+
+import 'package:nothing_gallery/style.dart';
 
 // ignore: must_be_immutable
 class VideoPlayerPageWidget extends StatefulWidget {
   late AssetEntity video;
-  late StreamController eventController;
 
-  VideoPlayerPageWidget(
-      {super.key, required this.video, required this.eventController});
+  VideoPlayerPageWidget({super.key, required this.video});
 
   @override
   State createState() => _VideoPlayerPageWidgetState();
@@ -60,6 +59,7 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                 (Timer t) => {
                       if (_controller.value.isPlaying)
                         {
+                          //This error might indicate a memory leak if setState() is being called because another object is retaining a reference to this State object after it has been removed from the tree. To avoid memory leaks, consider breaking the reference to this object during dispose().
                           setState(
                             () {
                               progress = Duration(
@@ -144,7 +144,8 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                                 ),
                                 const Spacer(),
                                 Padding(
-                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 35),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 35),
                                   child: ProgressBar(
                                     progress: progress,
                                     total: _controller.value.duration,
@@ -158,7 +159,7 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                                     thumbRadius: 5.0,
                                     timeLabelLocation: TimeLabelLocation.sides,
                                     timeLabelTextStyle: mainTextStyle(
-                                        TextStyleType.videoDuration),
+                                        TextStyleType.videoPlayerDuration),
                                     onSeek: (position) {
                                       _controller.seekTo(position);
                                       setState(() {

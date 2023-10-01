@@ -1,6 +1,8 @@
 enum EventType {
-  pictureDeleted,
-  albumEmpty;
+  assetDeleted,
+  pictureOpen,
+  videoOpen,
+  ignore;
 
   const EventType({this.detail});
   final dynamic detail;

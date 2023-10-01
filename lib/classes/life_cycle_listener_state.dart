@@ -1,5 +1,3 @@
-// ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
 
 abstract class LifecycleListenerState<T extends StatefulWidget> extends State<T>
@@ -36,10 +34,14 @@ abstract class LifecycleListenerState<T extends StatefulWidget> extends State<T>
       case AppLifecycleState.detached:
         onDetached();
         break;
+      case AppLifecycleState.hidden:
+        onHidden();
+        break;
     }
   }
 
   void onResumed();
+  void onHidden();
   void onPaused();
   void onInactive();
   void onDetached();

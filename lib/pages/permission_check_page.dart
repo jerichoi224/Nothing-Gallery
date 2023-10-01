@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/db/sharedPref.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+//TODO:
 class PermissionCheckWidget extends StatefulWidget {
-  final BuildContext parentCtx;
-  late SharedPref sharedPref;
-
-  PermissionCheckWidget(
-      {super.key, required this.parentCtx, required this.sharedPref});
+  PermissionCheckWidget({super.key});
 
   @override
   State createState() => _PermissionCheckState();
