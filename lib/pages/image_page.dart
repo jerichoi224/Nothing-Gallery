@@ -86,12 +86,9 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
   }
 
   Future<void> onDelete() async {
-    List<String> deletedImages = await confirmDelete(
-        context,
-        [
-          images[index],
-        ],
-        useTrashBin);
+    List<String> deletedImages = await confirmDelete([
+      images[index],
+    ], useTrashBin);
     if (deletedImages.isNotEmpty) {
       for (String imageId in deletedImages) {
         eventController.sink.add(Event(EventType.assetDeleted, imageId));

@@ -1,11 +1,9 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/model/album_info_list.dart';
+import 'package:nothing_gallery/model/image_selection.dart';
 import 'package:nothing_gallery/pages/pages.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/util/util.dart';
 import 'package:provider/provider.dart';
@@ -18,41 +16,33 @@ class HomeWidget extends StatefulWidget {
   State<HomeWidget> createState() => _HomeState();
 }
 
-class _HomeState extends State<HomeWidget> {
-  StreamSubscription? eventSubscription;
-
+class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
   static final List<Tab> _tabs =
       HomeTabMenu.values.map((tab) => Tab(text: tab.text)).toList();
 
   static const double navBarHeight = 50;
+  List<Widget> tabPages() => [const PicturesWidget(), const AlbumsWidget()];
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController =
+        TabController(initialIndex: 1, length: _tabs.length, vsync: this);
+    _tabController.addListener(_tabListener);
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
       albumInfoList.refreshAlbums();
     });
-
-    eventSubscription =
-        eventController.stream.asBroadcastStream().listen((event) {
-      if (event.runtimeType == Event) {
-        if (event.eventType == EventType.assetDeleted) {
-          if (event.details != null && event.details.runtimeType == String) {
-            setState(() {});
-          }
-        } else {}
-      }
-    });
   }
 
-  @override
-  void dispose() {
-    eventSubscription?.cancel();
-    super.dispose();
+  void _tabListener() {
+    final imageSelection = Provider.of<ImageSelection>(context, listen: false);
+    if (_tabController.index == 1 && imageSelection.selectionMode) {
+      imageSelection.endSelection();
+    }
   }
-
-  List<Widget> tabPages() => [const PicturesWidget(), const AlbumsWidget()];
 
   Widget homePopupMenu() {
     return PopupMenuButton<HomePopupMenu>(
@@ -108,22 +98,27 @@ class _HomeState extends State<HomeWidget> {
                   children: [
                     Expanded(
                       flex: 4,
-                      child: TabBar(
-                        indicatorColor: Colors.transparent,
-                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.pressed)) {
-                              return Colors.white12;
-                            }
-                            return Colors.transparent;
-                          },
-                        ),
-                        labelStyle: mainTextStyle(TextStyleType.navBar),
-                        unselectedLabelStyle:
-                            mainTextStyle(TextStyleType.navBar),
-                        tabs: _tabs,
-                        labelColor: Colors.red,
-                      ),
+                      child: Consumer<ImageSelection>(
+                          builder: (context, imageSelection, child) {
+                        return TabBar(
+                          controller: _tabController,
+                          indicatorColor: Colors.transparent,
+                          overlayColor:
+                              MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                              if (states.contains(MaterialState.pressed)) {
+                                return Colors.white12;
+                              }
+                              return Colors.transparent;
+                            },
+                          ),
+                          labelStyle: mainTextStyle(TextStyleType.navBar),
+                          unselectedLabelStyle:
+                              mainTextStyle(TextStyleType.navBar),
+                          tabs: _tabs,
+                          labelColor: Colors.red,
+                        );
+                      }),
                     ),
                     Expanded(
                         flex: 1,
@@ -137,7 +132,7 @@ class _HomeState extends State<HomeWidget> {
                                 child: homePopupMenu()))),
                   ],
                 )),
-            body: TabBarView(children: tabPages()),
+            body: TabBarView(controller: _tabController, children: tabPages()),
           ),
         ));
   }

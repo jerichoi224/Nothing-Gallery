@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/components/selection_menu.dart';
 import 'package:nothing_gallery/util/event_functions.dart';
 import 'package:nothing_gallery/util/loader_functions.dart';
 import 'package:nothing_gallery/util/navigation.dart';
@@ -197,7 +198,13 @@ class _PicturesState extends State<PicturesWidget>
                       style: mainTextStyle(TextStyleType.pageTitle),
                     ),
                     const Spacer(),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.search))
+                    imageSelection.selectionMode
+                        ? SelectionMenuWidget(
+                            assets: assets,
+                            showMore: false,
+                          )
+                        : IconButton(
+                            onPressed: () {}, icon: const Icon(Icons.search))
                   ],
                 )),
             // Album Grid

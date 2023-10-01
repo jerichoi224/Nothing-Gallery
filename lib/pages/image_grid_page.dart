@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/components/selection_menu.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -104,64 +105,55 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     setState(() {});
   }
 
-  Future<void> onDelete(
-      List<AssetEntity> selectedAssets, ImageSelection imageSelection) async {
-    List<String> deletedImages =
-        await confirmDelete(context, selectedAssets, useTrashBin);
-    if (deletedImages.isNotEmpty) {
-      imageSelection.endSelection();
-    }
-  }
+  // Widget selectionModeMenu(ImageSelection imageSelection) {
+  //   List<AssetEntity> selectedAssets = assets
+  //       .where((element) => imageSelection.selectedIds.contains(element.id))
+  //       .toList();
 
-  Widget selectionModeMenu(ImageSelection imageSelection) {
-    List<AssetEntity> selectedAssets = assets
-        .where((element) => imageSelection.selectedIds.contains(element.id))
-        .toList();
-
-    bool allSelected = imageSelection.selectedCount == albumInfo.assetCount;
-    return Row(children: [
-      IconButton(
-        onPressed: () {
-          if (allSelected) {
-            imageSelection.clearSelection();
-          } else {
-            imageSelection.setSelection(assets.map((e) => e.id).toList());
-          }
-        },
-        icon: Icon(allSelected ? Icons.check_circle : Icons.circle_outlined),
-      ),
-      IconButton(
-        onPressed: () {
-          shareFiles(selectedAssets);
-        },
-        icon: const Icon(Icons.share),
-      ),
-      IconButton(
-        onPressed: () {
-          onDelete(selectedAssets, imageSelection);
-        },
-        icon: const Icon(Icons.delete),
-      ),
-      PopupMenuButton<SelectedImageMenu>(
-          tooltip: '',
-          offset: const Offset(0, 50),
-          onSelected: (SelectedImageMenu item) {},
-          itemBuilder: (BuildContext context) {
-            return [
-              for (final value in SelectedImageMenu.values)
-                PopupMenuItem(
-                    value: value,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text(
-                        value.text,
-                        style: mainTextStyle(TextStyleType.popUpMenu),
-                      ),
-                    ))
-            ];
-          }),
-    ]);
-  }
+  //   bool allSelected = imageSelection.selectedCount == albumInfo.assetCount;
+  //   return Row(children: [
+  //     IconButton(
+  //       onPressed: () {
+  //         if (allSelected) {
+  //           imageSelection.clearSelection();
+  //         } else {
+  //           imageSelection.setSelection(assets.map((e) => e.id).toList());
+  //         }
+  //       },
+  //       icon: Icon(allSelected ? Icons.check_circle : Icons.circle_outlined),
+  //     ),
+  //     IconButton(
+  //       onPressed: () {
+  //         shareFiles(selectedAssets);
+  //       },
+  //       icon: const Icon(Icons.share),
+  //     ),
+  //     IconButton(
+  //       onPressed: () {
+  //         onDelete(selectedAssets, imageSelection, useTrashBin);
+  //       },
+  //       icon: const Icon(Icons.delete),
+  //     ),
+  //     PopupMenuButton<SelectedImageMenu>(
+  //         tooltip: '',
+  //         offset: const Offset(0, 50),
+  //         onSelected: (SelectedImageMenu item) {},
+  //         itemBuilder: (BuildContext context) {
+  //           return [
+  //             for (final value in SelectedImageMenu.values)
+  //               PopupMenuItem(
+  //                   value: value,
+  //                   child: Padding(
+  //                     padding: const EdgeInsets.symmetric(horizontal: 4),
+  //                     child: Text(
+  //                       value.text,
+  //                       style: mainTextStyle(TextStyleType.popUpMenu),
+  //                     ),
+  //                   ))
+  //           ];
+  //         }),
+  //   ]);
+  // }
 
   Widget gridPageWrapper(ImageSelection imageSelection, Widget child) {
     return GestureDetector(
@@ -193,14 +185,17 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
               // Header
               Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
                 Padding(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.fromLTRB(12, 20, 20, 20),
                     child: Text(
                       "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
-                      style: mainTextStyle(TextStyleType.pageTitle),
+                      style: mainTextStyle(TextStyleType.gridPageTitle),
                     )),
                 const Spacer(),
                 imageSelection.selectionMode
-                    ? selectionModeMenu(imageSelection)
+                    ? SelectionMenuWidget(
+                        assets: assets,
+                        showMore: true,
+                      )
                     : Container()
               ]),
 

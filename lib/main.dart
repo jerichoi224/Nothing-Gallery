@@ -80,6 +80,15 @@ class _MainState extends State<MainApp> {
     if (permitted || ps.isAuth) {
       setState(() {
         permissionChecked = permissionGranted = true;
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          Provider.of<AlbumInfoList>(context, listen: false)
+              .refreshAlbums()
+              .then((value) {
+            setState(() {
+              initialized = true;
+            });
+          });
+        });
       });
     } else {
       setState(() {
@@ -100,7 +109,7 @@ class _MainState extends State<MainApp> {
               ),
               (Route<dynamic> route) => false);
         });
-      } else {
+      } else if (initialized) {
         // Permission & loaded
         SchedulerBinding.instance.addPostFrameCallback((_) {
           Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(

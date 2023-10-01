@@ -16,6 +16,9 @@ enum TextStyleType {
   // VideoPlayerPage
   videoPlayerDuration(fontSize: 14),
 
+  // GridPage
+  gridPageTitle(fontSize: 20),
+
   // Common
   pageTitle(fontSize: 22),
   popUpMenu(fontSize: 14),
