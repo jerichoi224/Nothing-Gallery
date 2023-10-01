@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider<AlbumInfoList>(create: (_) => AlbumInfoList()),
+          ChangeNotifierProvider<AppStatus>(create: (_) => AppStatus()),
           ChangeNotifierProvider<ImageSelection>(
             create: (_) => ImageSelection(),
           )

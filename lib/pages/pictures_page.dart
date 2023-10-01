@@ -1,18 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/components/selection_menu.dart';
-import 'package:nothing_gallery/util/event_functions.dart';
-import 'package:nothing_gallery/util/loader_functions.dart';
-import 'package:nothing_gallery/util/navigation.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:provider/provider.dart';
 
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/util/util.dart';
 import 'package:nothing_gallery/components/components.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/model/model.dart';
-import 'package:provider/provider.dart';
 
 class PicturesWidget extends StatefulWidget {
   const PicturesWidget({super.key});
@@ -57,6 +54,7 @@ class _PicturesState extends State<PicturesWidget>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
+      final appStatus = Provider.of<AppStatus>(context, listen: false);
 
       recent = albumInfoList.recent;
       totalCount = recent.assetCount;
@@ -66,6 +64,7 @@ class _PicturesState extends State<PicturesWidget>
 
       eventSubscription =
           eventController.stream.asBroadcastStream().listen((event) {
+        if (appStatus.activeTab == 1) return;
         switch (validateEventType(event)) {
           case EventType.assetDeleted:
             setState(() {
@@ -143,7 +142,6 @@ class _PicturesState extends State<PicturesWidget>
                     imageSelection.endSelection();
                     return false;
                   }
-                  Navigator.pop(context);
                   return true;
                 },
                 child: SafeArea(child: child))));

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
 import 'package:nothing_gallery/model/image_selection.dart';
 
 import 'package:path_provider/path_provider.dart';

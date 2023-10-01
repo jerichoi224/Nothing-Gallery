@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/components/image_thumbnail_widget.dart';
-import 'package:nothing_gallery/model/album_info_list.dart';
-import 'package:nothing_gallery/pages/image_grid_page.dart';
+
 import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/components/components.dart';
+import 'package:nothing_gallery/model/model.dart';
+import 'package:nothing_gallery/pages/pages.dart';
 
 class AlbumWidget extends StatelessWidget {
   const AlbumWidget({super.key, required this.albumInfo});

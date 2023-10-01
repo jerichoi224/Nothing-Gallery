@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/components/selection_menu.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -40,8 +39,12 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     getPreferences();
     refreshGrid();
 
+    final appStatus = Provider.of<AppStatus>(context, listen: false);
+
     eventSubscription =
         eventController.stream.asBroadcastStream().listen((event) {
+      if (appStatus.activeTab == 0) return;
+
       switch (validateEventType(event)) {
         case EventType.assetDeleted:
           setState(() {
@@ -104,56 +107,6 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     }
     setState(() {});
   }
-
-  // Widget selectionModeMenu(ImageSelection imageSelection) {
-  //   List<AssetEntity> selectedAssets = assets
-  //       .where((element) => imageSelection.selectedIds.contains(element.id))
-  //       .toList();
-
-  //   bool allSelected = imageSelection.selectedCount == albumInfo.assetCount;
-  //   return Row(children: [
-  //     IconButton(
-  //       onPressed: () {
-  //         if (allSelected) {
-  //           imageSelection.clearSelection();
-  //         } else {
-  //           imageSelection.setSelection(assets.map((e) => e.id).toList());
-  //         }
-  //       },
-  //       icon: Icon(allSelected ? Icons.check_circle : Icons.circle_outlined),
-  //     ),
-  //     IconButton(
-  //       onPressed: () {
-  //         shareFiles(selectedAssets);
-  //       },
-  //       icon: const Icon(Icons.share),
-  //     ),
-  //     IconButton(
-  //       onPressed: () {
-  //         onDelete(selectedAssets, imageSelection, useTrashBin);
-  //       },
-  //       icon: const Icon(Icons.delete),
-  //     ),
-  //     PopupMenuButton<SelectedImageMenu>(
-  //         tooltip: '',
-  //         offset: const Offset(0, 50),
-  //         onSelected: (SelectedImageMenu item) {},
-  //         itemBuilder: (BuildContext context) {
-  //           return [
-  //             for (final value in SelectedImageMenu.values)
-  //               PopupMenuItem(
-  //                   value: value,
-  //                   child: Padding(
-  //                     padding: const EdgeInsets.symmetric(horizontal: 4),
-  //                     child: Text(
-  //                       value.text,
-  //                       style: mainTextStyle(TextStyleType.popUpMenu),
-  //                     ),
-  //                   ))
-  //           ];
-  //         }),
-  //   ]);
-  // }
 
   Widget gridPageWrapper(ImageSelection imageSelection, Widget child) {
     return GestureDetector(

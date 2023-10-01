@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nothing_gallery/model/album_info_list.dart';
-import 'package:nothing_gallery/model/image_selection.dart';
-import 'package:nothing_gallery/pages/pages.dart';
+import 'package:provider/provider.dart';
+
 import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/model/model.dart';
+import 'package:nothing_gallery/pages/pages.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/util/util.dart';
-import 'package:provider/provider.dart';
 
 @immutable
 class HomeWidget extends StatefulWidget {
@@ -39,8 +39,13 @@ class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
 
   void _tabListener() {
     final imageSelection = Provider.of<ImageSelection>(context, listen: false);
+    final appStatus = Provider.of<AppStatus>(context, listen: false);
     if (_tabController.index == 1 && imageSelection.selectionMode) {
       imageSelection.endSelection();
+    }
+
+    if (appStatus.activeTab != _tabController.index) {
+      appStatus.setActiveTab(_tabController.index);
     }
   }
 
@@ -123,13 +128,7 @@ class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
                     Expanded(
                         flex: 1,
                         child: SizedBox(
-                            height: navBarHeight,
-                            child: WillPopScope(
-                                onWillPop: () async {
-                                  SystemNavigator.pop();
-                                  return false;
-                                },
-                                child: homePopupMenu()))),
+                            height: navBarHeight, child: homePopupMenu())),
                   ],
                 )),
             body: TabBarView(controller: _tabController, children: tabPages()),

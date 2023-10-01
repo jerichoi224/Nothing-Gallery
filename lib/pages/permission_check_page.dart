@@ -4,7 +4,7 @@ import 'package:photo_manager/photo_manager.dart';
 
 //TODO:
 class PermissionCheckWidget extends StatefulWidget {
-  PermissionCheckWidget({super.key});
+  const PermissionCheckWidget({super.key});
 
   @override
   State createState() => _PermissionCheckState();

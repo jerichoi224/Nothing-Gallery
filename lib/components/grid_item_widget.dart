@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/event.dart';
-import 'package:nothing_gallery/components/image_thumbnail_widget.dart';
-import 'package:nothing_gallery/constants/event_type.dart';
-import 'package:nothing_gallery/constants/image_widget_status.dart';
-import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/model/image_selection.dart';
-import 'package:nothing_gallery/style.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
+
+import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/components/components.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/model/model.dart';
 
 class GridItemWidget extends StatelessWidget {
   const GridItemWidget({
