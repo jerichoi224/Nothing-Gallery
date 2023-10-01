@@ -6,3 +6,4 @@ export 'permission_check_page.dart';
 export 'pictures_page.dart';
 export 'settings_page.dart';
 export 'video_player_page.dart';
+export 'videos_page.dart';

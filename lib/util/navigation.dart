@@ -49,8 +49,6 @@ void openVideoPage(BuildContext context) async {
   await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const PicturesWidget(
-          videosOnly: true,
-        ),
+        builder: (context) => const VideosPage(),
       ));
 }

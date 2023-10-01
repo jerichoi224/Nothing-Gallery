@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/components/components.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -38,7 +39,6 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
   List<String> favoriteIds = [];
   bool decorationVisible = true;
   bool useTrashBin = true;
-  bool isFavorite = false;
 
   late AnimationController animationController;
   late Animation fadeAnimation;
@@ -62,27 +62,6 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     favoriteIds = (sharedPref.get(SharedPrefKeys.favoriteIds) as List)
         .map((item) => item as String)
         .toList();
-    checkFavorite();
-  }
-
-  void checkFavorite() {
-    setState(() {
-      isFavorite = favoriteIds.contains(images[index].id);
-    });
-  }
-
-  void setFavorite(bool favorite) {
-    String imageId = images[index].id;
-    if (favorite) {
-      if (!favoriteIds.contains(imageId)) {
-        favoriteIds.add(imageId);
-      }
-    } else if (favoriteIds.contains(imageId)) {
-      favoriteIds.remove(imageId);
-    }
-
-    sharedPref.set(SharedPrefKeys.favoriteIds, favoriteIds);
-    checkFavorite();
   }
 
   Future<void> onDelete() async {
@@ -160,7 +139,6 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                             builder: _buildItem,
                             onPageChanged: (index) => setState(() {
                               this.index = index;
-                              checkFavorite();
                             }),
                           ),
                         ),
@@ -211,30 +189,10 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                                         ],
                                       ),
                                     ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        IconButton(
-                                            onPressed: () {
-                                              setFavorite(!isFavorite);
-                                            },
-                                            icon: Icon(isFavorite
-                                                ? Icons.favorite
-                                                : Icons
-                                                    .favorite_border_outlined)),
-                                        IconButton(
-                                            onPressed: () {
-                                              shareFiles([images[index]]);
-                                            },
-                                            icon: const Icon(Icons.share)),
-                                        IconButton(
-                                            onPressed: onDelete,
-                                            icon: const Icon(Icons.delete)),
-                                        IconButton(
-                                            onPressed: () {},
-                                            icon: const Icon(Icons.more_vert)),
-                                      ],
+                                    child: SingleItemBottomMenu(
+                                      asset: images[index],
+                                      popOnDelete: false,
+                                      parentContext: context,
                                     ))
                               ],
                             ))

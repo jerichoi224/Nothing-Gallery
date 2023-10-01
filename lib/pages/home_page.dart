@@ -21,12 +21,7 @@ class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
       HomeTabMenu.values.map((tab) => Tab(text: tab.text)).toList();
 
   static const double navBarHeight = 50;
-  List<Widget> tabPages() => [
-        const PicturesWidget(
-          videosOnly: false,
-        ),
-        const AlbumsWidget()
-      ];
+  List<Widget> tabPages() => [const PicturesWidget(), const AlbumsWidget()];
   late TabController _tabController;
 
   @override

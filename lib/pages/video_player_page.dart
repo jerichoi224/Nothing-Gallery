@@ -4,16 +4,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/services.dart';
+import 'package:nothing_gallery/components/components.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
 
 import 'package:nothing_gallery/style.dart';
 
-// ignore: must_be_immutable
 class VideoPlayerPageWidget extends StatefulWidget {
-  late AssetEntity video;
+  final AssetEntity video;
 
-  VideoPlayerPageWidget({super.key, required this.video});
+  const VideoPlayerPageWidget({super.key, required this.video});
 
   @override
   State createState() => _VideoPlayerPageWidgetState();
@@ -159,7 +159,7 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                                 const Spacer(),
                                 Padding(
                                   padding:
-                                      const EdgeInsets.fromLTRB(10, 0, 10, 35),
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 16),
                                   child: ProgressBar(
                                     progress: progress,
                                     total: _controller.value.duration,
@@ -181,6 +181,11 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                                       });
                                     },
                                   ),
+                                ),
+                                SingleItemBottomMenu(
+                                  asset: widget.video,
+                                  popOnDelete: true,
+                                  parentContext: context,
                                 )
                               ],
                             )))

@@ -11,18 +11,16 @@ import 'package:nothing_gallery/components/components.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/model/model.dart';
 
-class PicturesWidget extends StatefulWidget {
-  const PicturesWidget({super.key});
+class VideosPage extends StatefulWidget {
+  const VideosPage({super.key});
 
   @override
-  State createState() => _PicturesState();
+  State createState() => _VideosPageState();
 }
 
-class _PicturesState extends State<PicturesWidget>
-    with AutomaticKeepAliveClientMixin {
+class _VideosPageState extends State<VideosPage> {
   late AlbumInfo recent;
   List<AssetEntity> assets = [];
-  List<AssetEntity> images = [];
 
   Map<DateTime, List<AssetEntity>> dateMap = {};
   int totalCount = 0;
@@ -54,17 +52,17 @@ class _PicturesState extends State<PicturesWidget>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
-      final appStatus = Provider.of<AppStatus>(context, listen: false);
 
       recent = albumInfoList.recent;
       totalCount = recent.assetCount;
       assets = recent.preloadImages;
-      images = assets.where((asset) => asset.type == AssetType.image).toList();
-      getImages();
+
+      assets.removeWhere((asset) => asset.type == AssetType.image);
+
+      getVideos();
 
       eventSubscription =
           eventController.stream.asBroadcastStream().listen((event) {
-        if (appStatus.activeTab == 1) return;
         switch (validateEventType(event)) {
           case EventType.assetDeleted:
             List<AssetEntity> deletedAssets = assets
@@ -85,18 +83,12 @@ class _PicturesState extends State<PicturesWidget>
             setState(() {
               assets.removeWhere((image) =>
                   (event.details as List<String>).contains(image.id));
-              images.removeWhere((image) =>
-                  (event.details as List<String>).contains(image.id));
             });
 
             totalCount -= 1;
             break;
           case EventType.videoOpen:
             openVideoPlayerPage(context, event.details);
-            break;
-          case EventType.pictureOpen:
-            openImagePage(
-                context, images.indexOf(event.details), images.length, images);
             break;
           default:
         }
@@ -110,12 +102,12 @@ class _PicturesState extends State<PicturesWidget>
     super.dispose();
   }
 
-  Future<void> getImages() async {
+  Future<void> getVideos() async {
     List<AssetEntity> newAssets =
         await loadAssets(recent.pathEntity, ++currentPage, size: 80);
+
+    newAssets.removeWhere((asset) => asset.type == AssetType.image);
     assets = List.from(assets)..addAll(newAssets);
-    images = List.from(images)
-      ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
 
     startingIndex = await buildImageChunks(startingIndex);
     setState(() {});
@@ -124,9 +116,9 @@ class _PicturesState extends State<PicturesWidget>
       newAssets = await loadAssets(recent.pathEntity, ++currentPage, size: 80);
       if (newAssets.isEmpty) break;
 
+      newAssets.removeWhere((asset) => asset.type == AssetType.image);
       assets = List.from(assets)..addAll(newAssets);
-      images = List.from(images)
-        ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+
       buildImageChunks(startingIndex).then((value) {
         setState(() {});
       });
@@ -144,7 +136,7 @@ class _PicturesState extends State<PicturesWidget>
     return assets.length;
   }
 
-  Widget picturesPageWrapper(ImageSelection imageSelection, Widget child) {
+  Widget videosPageWrapper(ImageSelection imageSelection, Widget child) {
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
@@ -191,12 +183,11 @@ class _PicturesState extends State<PicturesWidget>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     var dateList = dateMap.entries.toList();
     dateList.sort((a, b) => b.key.compareTo(a.key));
 
     return Consumer<ImageSelection>(builder: (context, imageSelection, child) {
-      return picturesPageWrapper(
+      return videosPageWrapper(
           imageSelection,
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Padding(
@@ -204,7 +195,7 @@ class _PicturesState extends State<PicturesWidget>
                 child: Row(
                   children: [
                     Text(
-                      'PICTURES',
+                      'VIDEOS',
                       style: mainTextStyle(TextStyleType.pageTitle),
                     ),
                     const Spacer(),
@@ -230,8 +221,4 @@ class _PicturesState extends State<PicturesWidget>
           ]));
     });
   }
-
-  @override
-  // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
 }
