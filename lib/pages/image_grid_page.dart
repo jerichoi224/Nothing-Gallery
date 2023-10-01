@@ -147,17 +147,21 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
         icon: const Icon(Icons.delete),
       ),
       PopupMenuButton<SelectedImageMenu>(
+          tooltip: '',
+          offset: const Offset(0, 50),
           onSelected: (SelectedImageMenu item) {},
           itemBuilder: (BuildContext context) {
             return [
               for (final value in SelectedImageMenu.values)
                 PopupMenuItem(
-                  value: value,
-                  child: Text(
-                    value.text,
-                    style: mainTextStyle(TextStyleType.videoDuration),
-                  ),
-                )
+                    value: value,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        value.text,
+                        style: mainTextStyle(TextStyleType.popUpMenu),
+                      ),
+                    ))
             ];
           }),
     ]);

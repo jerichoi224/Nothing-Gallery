@@ -1,5 +1,5 @@
 enum SelectedImageMenu {
-  moveTo(text: 'Move to');
+  moveTo(text: 'MOVE TO');
 
   const SelectedImageMenu({required this.text});
   final String text;

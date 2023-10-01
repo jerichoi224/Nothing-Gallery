@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 enum TextStyleType {
   // HomePageWidget
   navBar(fontSize: 16),
-  popUpMenu(fontSize: 16),
 
   // AlbumWidget
   albumTitle(fontSize: 12),
@@ -19,6 +18,7 @@ enum TextStyleType {
 
   // Common
   pageTitle(fontSize: 22),
+  popUpMenu(fontSize: 14),
 
   // ImagePage
   picturesDateTaken(fontSize: 18),
