@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:math' as math;
 
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/classes/classes.dart';
@@ -15,7 +16,10 @@ class AlbumsWidget extends StatefulWidget {
 }
 
 class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 500));
+
   @override
   void initState() {
     super.initState();
@@ -76,11 +80,22 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                           style: mainTextStyle(TextStyleType.pageTitle),
                         ),
                         const Spacer(),
-                        IconButton(
-                            onPressed: () {
-                              albumInfoList.refreshAlbums();
-                            },
-                            icon: const Icon(Icons.refresh)),
+                        GestureDetector(
+                          onTap: () {
+                            albumInfoList.refreshAlbums();
+                            _controller.forward().then((value) {
+                              _controller.reset();
+                            });
+                          },
+                          child: RotationTransition(
+                            turns: Tween(begin: 0.0, end: 1.0)
+                                .animate(_controller),
+                            child: const Icon(Icons.refresh_rounded),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
                         IconButton(
                             onPressed: () {}, icon: const Icon(Icons.search))
                       ],
