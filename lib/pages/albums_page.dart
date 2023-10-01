@@ -29,6 +29,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(body: SafeArea(child:
             Consumer<AlbumInfoList>(builder: (context, albumInfoList, child) {
+          print(albumInfoList.albums.length);
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

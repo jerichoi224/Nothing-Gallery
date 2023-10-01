@@ -128,7 +128,9 @@ class _PicturesState extends State<PicturesWidget>
       images = List.from(images)
         ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
       buildImageChunks(startingIndex).then((value) {
-        setState(() {});
+        setState(() {
+          startingIndex = value;
+        });
       });
     }
   }

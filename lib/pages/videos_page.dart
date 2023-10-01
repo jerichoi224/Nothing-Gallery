@@ -23,10 +23,9 @@ class _VideosPageState extends State<VideosPage> {
   List<AssetEntity> assets = [];
 
   Map<DateTime, List<AssetEntity>> dateMap = {};
-  int totalCount = 0;
   int currentPage = 0;
-
   int startingIndex = 0;
+  int totalLoaded = 0;
 
   StreamSubscription? eventSubscription;
 
@@ -54,8 +53,8 @@ class _VideosPageState extends State<VideosPage> {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
 
       recent = albumInfoList.recent;
-      totalCount = recent.assetCount;
       assets = recent.preloadImages;
+      totalLoaded = assets.length;
 
       assets.removeWhere((asset) => asset.type == AssetType.image);
 
@@ -85,7 +84,6 @@ class _VideosPageState extends State<VideosPage> {
                   (event.details as List<String>).contains(image.id));
             });
 
-            totalCount -= 1;
             break;
           case EventType.videoOpen:
             openVideoPlayerPage(context, event.details);
@@ -106,22 +104,31 @@ class _VideosPageState extends State<VideosPage> {
     List<AssetEntity> newAssets =
         await loadAssets(recent.pathEntity, ++currentPage, size: 80);
 
+    totalLoaded += newAssets.length;
     newAssets.removeWhere((asset) => asset.type == AssetType.image);
     assets = List.from(assets)..addAll(newAssets);
 
-    startingIndex = await buildImageChunks(startingIndex);
-    setState(() {});
+    if (newAssets.isNotEmpty) {
+      startingIndex = await buildImageChunks(startingIndex);
+      setState(() {});
+    }
 
-    while (assets.length < recent.assetCount) {
+    while (totalLoaded < recent.assetCount) {
       newAssets = await loadAssets(recent.pathEntity, ++currentPage, size: 80);
       if (newAssets.isEmpty) break;
 
+      totalLoaded += newAssets.length;
       newAssets.removeWhere((asset) => asset.type == AssetType.image);
-      assets = List.from(assets)..addAll(newAssets);
 
-      buildImageChunks(startingIndex).then((value) {
-        setState(() {});
-      });
+      if (newAssets.isNotEmpty) {
+        assets = List.from(assets)..addAll(newAssets);
+
+        buildImageChunks(startingIndex).then((value) {
+          setState(() {
+            startingIndex = value;
+          });
+        });
+      }
     }
   }
 
