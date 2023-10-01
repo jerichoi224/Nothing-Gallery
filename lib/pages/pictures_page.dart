@@ -67,6 +67,21 @@ class _PicturesState extends State<PicturesWidget>
         if (appStatus.activeTab == 1) return;
         switch (validateEventType(event)) {
           case EventType.assetDeleted:
+            List<AssetEntity> deletedAssets = assets
+                .where((image) =>
+                    (event.details as List<String>).contains(image.id))
+                .toList();
+
+            for (AssetEntity asset in deletedAssets) {
+              DateTime dateTaken = asset.createDateTime;
+              DateTime date =
+                  DateTime(dateTaken.year, dateTaken.month, dateTaken.day);
+              dateMap[date]?.removeWhere((element) => element.id == asset.id);
+              if (dateMap[date]!.isEmpty) {
+                dateMap.remove(date);
+              }
+            }
+
             setState(() {
               assets.removeWhere((image) =>
                   (event.details as List<String>).contains(image.id));
