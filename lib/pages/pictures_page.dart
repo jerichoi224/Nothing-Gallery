@@ -63,33 +63,28 @@ class _PicturesState extends State<PicturesWidget>
       images = assets.where((asset) => asset.type == AssetType.image).toList();
       getImages();
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final albumInfoList =
-            Provider.of<AlbumInfoList>(context, listen: false);
-        eventSubscription =
-            eventController.stream.asBroadcastStream().listen((event) {
-          switch (validateEventType(event)) {
-            case EventType.assetDeleted:
-              setState(() {
-                assets.removeWhere((image) =>
-                    (event.details as List<String>).contains(image.id));
-                images.removeWhere((image) =>
-                    (event.details as List<String>).contains(image.id));
-              });
-              albumInfoList.updateAlbum(recent.pathEntity);
+      eventSubscription =
+          eventController.stream.asBroadcastStream().listen((event) {
+        switch (validateEventType(event)) {
+          case EventType.assetDeleted:
+            setState(() {
+              assets.removeWhere((image) =>
+                  (event.details as List<String>).contains(image.id));
+              images.removeWhere((image) =>
+                  (event.details as List<String>).contains(image.id));
+            });
 
-              totalCount -= 1;
-              break;
-            case EventType.videoOpen:
-              openVideoPlayerPage(context, event.details);
-              break;
-            case EventType.pictureOpen:
-              openImagePage(context, images.indexOf(event.details),
-                  images.length, images);
-              break;
-            default:
-          }
-        });
+            totalCount -= 1;
+            break;
+          case EventType.videoOpen:
+            openVideoPlayerPage(context, event.details);
+            break;
+          case EventType.pictureOpen:
+            openImagePage(
+                context, images.indexOf(event.details), images.length, images);
+            break;
+          default:
+        }
       });
     });
   }
@@ -194,7 +189,7 @@ class _PicturesState extends State<PicturesWidget>
           imageSelection,
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Padding(
-                padding: const EdgeInsets.fromLTRB(30, 20, 10, 0),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: Row(
                   children: [
                     Text(
@@ -208,14 +203,11 @@ class _PicturesState extends State<PicturesWidget>
             // Album Grid
             Expanded(
               child: CustomScrollView(primary: false, slivers: <Widget>[
-                SliverPadding(
-                    padding: const EdgeInsets.all(5),
-                    sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          _buildDateChunk(context, dateList[index]),
-                      childCount: dateList.length,
-                    ))),
+                SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                  (context, index) => _buildDateChunk(context, dateList[index]),
+                  childCount: dateList.length,
+                ))
               ]),
             )
           ]));

@@ -68,7 +68,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 20, 10, 0),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                     child: Row(
                       children: [
                         Text(
@@ -91,7 +91,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                   primary: false,
                   slivers: <Widget>[
                     SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
                         sliver: SliverGrid.count(
                             crossAxisSpacing: 15,
                             mainAxisSpacing: 15,
@@ -105,7 +105,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                               topButton("VIDEO", Icons.video_library_rounded),
                             ])),
                     SliverPadding(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(10),
                         sliver: SliverGrid.count(
                             crossAxisSpacing: 15,
                             mainAxisSpacing: 15,

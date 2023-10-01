@@ -40,17 +40,4 @@ class AlbumInfoList extends ChangeNotifier {
     _albums.removeWhere((album) => album.pathEntity.id == id);
     notifyListeners();
   }
-
-  Future<void> updateAlbum(AssetPathEntity album) async {
-    List<AlbumInfo> albumList = (await getCurrentAlbumStates([album.id]));
-    if (albumList.isEmpty) {
-      removeAlbum(album.id);
-    } else {
-      AlbumInfo updatedAlbum = albumList.first;
-      _albums.removeWhere(
-          (album) => album.pathEntity.id == updatedAlbum.pathEntity.id);
-      addAlbum([updatedAlbum]);
-      notifyListeners();
-    }
-  }
 }

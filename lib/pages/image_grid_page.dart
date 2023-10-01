@@ -39,32 +39,28 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     getPreferences();
     refreshGrid();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
-      eventSubscription =
-          eventController.stream.asBroadcastStream().listen((event) {
-        switch (validateEventType(event)) {
-          case EventType.assetDeleted:
-            setState(() {
-              assets.removeWhere((image) =>
-                  (event.details as List<String>).contains(image.id));
-              images.removeWhere((image) =>
-                  (event.details as List<String>).contains(image.id));
-            });
-            albumInfoList.updateAlbum(albumInfo.pathEntity);
+    eventSubscription =
+        eventController.stream.asBroadcastStream().listen((event) {
+      switch (validateEventType(event)) {
+        case EventType.assetDeleted:
+          setState(() {
+            assets.removeWhere(
+                (image) => (event.details as List<String>).contains(image.id));
+            images.removeWhere(
+                (image) => (event.details as List<String>).contains(image.id));
+          });
 
-            totalCount -= 1;
-            break;
-          case EventType.videoOpen:
-            openVideoPlayerPage(context, event.details);
-            break;
-          case EventType.pictureOpen:
-            openImagePage(
-                context, images.indexOf(event.details), images.length, images);
-            break;
-          default:
-        }
-      });
+          totalCount -= 1;
+          break;
+        case EventType.videoOpen:
+          openVideoPlayerPage(context, event.details);
+          break;
+        case EventType.pictureOpen:
+          openImagePage(
+              context, images.indexOf(event.details), images.length, images);
+          break;
+        default:
+      }
     });
   }
 
@@ -199,7 +195,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                 Padding(
                     padding: const EdgeInsets.all(20),
                     child: Text(
-                      albumInfo.pathEntity.name.toUpperCase(),
+                      "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
                       style: mainTextStyle(TextStyleType.pageTitle),
                     )),
                 const Spacer(),
