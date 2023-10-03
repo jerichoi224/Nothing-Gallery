@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/constants/settings_pref.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -64,7 +65,7 @@ class _PicturesState extends State<PicturesWidget>
 
       eventSubscription =
           eventController.stream.asBroadcastStream().listen((event) {
-        if (appStatus.activeTab == 1) return;
+        if (appStatus.activeTab == InitialScreen.albums.tabIndex) return;
         switch (validateEventType(event)) {
           case EventType.assetDeleted:
             List<AssetEntity> deletedAssets = assets

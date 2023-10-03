@@ -91,7 +91,7 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
 
     setState(() {});
 
-    while (assets.length < recent.assetCount) {
+    while (totalLoaded < recent.assetCount) {
       newAssets = await loadAssets(recent.pathEntity, ++currentPage, size: 80);
       if (newAssets.isEmpty) break;
       totalLoaded += newAssets.length;

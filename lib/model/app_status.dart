@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/constants/settings_pref.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class AppStatus extends ChangeNotifier {
-  int _activeTab = 1;
+  int _activeTab = InitialScreen.albums.tabIndex;
   List<String> _favoriteIds = [];
 
   int get activeTab => _activeTab;
   List<String> get favoriteIds => _favoriteIds;
 
   void initialize() {
-    _activeTab = (sharedPref.get(SharedPrefKeys.initialScreen) as InitialScreen)
-        .tabIndex;
+    _activeTab = sharedPref.get(SharedPrefKeys.initialScreen);
     _favoriteIds =
         List<String>.from(sharedPref.get(SharedPrefKeys.favoriteIds));
     notifyListeners();
