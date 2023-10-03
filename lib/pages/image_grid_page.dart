@@ -52,9 +52,9 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                 (image) => (event.details as List<String>).contains(image.id));
             images.removeWhere(
                 (image) => (event.details as List<String>).contains(image.id));
+            totalCount -= 1;
           });
 
-          totalCount -= 1;
           break;
         case EventType.videoOpen:
           openVideoPlayerPage(context, event.details);

@@ -9,7 +9,6 @@ import 'package:photo_view/photo_view_gallery.dart';
 
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
-import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/util/util.dart';
 
@@ -19,13 +18,15 @@ class ImagePageWidget extends StatefulWidget {
   int imageTotal;
   final PageController pageController;
   List<AssetEntity> images;
+  bool favoritesPage;
 
-  ImagePageWidget({
-    super.key,
-    required this.images,
-    required this.imageTotal,
-    required this.index,
-  }) : pageController = PageController(initialPage: index);
+  ImagePageWidget(
+      {super.key,
+      required this.images,
+      required this.imageTotal,
+      required this.index,
+      required this.favoritesPage})
+      : pageController = PageController(initialPage: index);
 
   @override
   State createState() => _ImagePageWidgetState();
@@ -42,6 +43,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
 
   late AnimationController animationController;
   late Animation fadeAnimation;
+  StreamSubscription? eventSubscription;
 
   @override
   void initState() {
@@ -54,7 +56,23 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
         vsync: this, duration: const Duration(milliseconds: 500));
     fadeAnimation = Tween(begin: 0, end: 1).animate(animationController);
 
+    if (widget.favoritesPage) {}
     getPreferences();
+
+    eventSubscription =
+        eventController.stream.asBroadcastStream().listen((event) {
+      switch (validateEventType(event)) {
+        case EventType.assetDeleted:
+        case EventType.favoriteRemoved:
+          if (images.length == index) {
+            index--;
+          }
+          imageTotal -= 1;
+          setState(() {});
+          break;
+        default:
+      }
+    });
   }
 
   void getPreferences() {
@@ -64,44 +82,24 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
         .toList();
   }
 
-  Future<void> onDelete() async {
-    List<String> deletedImages = await confirmDelete([
-      images[index],
-    ], useTrashBin);
-    if (deletedImages.isNotEmpty) {
-      for (String imageId in deletedImages) {
-        eventController.sink.add(Event(EventType.assetDeleted, imageId));
-      }
-
-      if (images.length == index + 1) {
-        index--;
-      }
-      imageTotal -= 1;
-
-      setState(() {});
-    }
-  }
+  void removeFromSlider() {}
 
   @override
   void dispose() {
     animationController.dispose();
+    eventSubscription?.cancel();
     super.dispose();
   }
 
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
     Size orientatedSize = images[index].orientatedSize;
-    // if (images[index].type == AssetType.video) {
-    // } else
-    {
-      return PhotoViewGalleryPageOptions(
-          minScale: min(
-              MediaQuery.of(context).size.width / orientatedSize.width,
-              MediaQuery.of(context).size.height / orientatedSize.height),
-          imageProvider: AssetEntityImage(
-            images[index],
-            isOriginal: true,
-          ).image);
-    }
+    return PhotoViewGalleryPageOptions(
+        minScale: min(MediaQuery.of(context).size.width / orientatedSize.width,
+            MediaQuery.of(context).size.height / orientatedSize.height),
+        imageProvider: AssetEntityImage(
+          images[index],
+          isOriginal: true,
+        ).image);
   }
 
   @override

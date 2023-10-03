@@ -43,6 +43,7 @@ class SingleItemBottomMenu extends StatelessWidget {
           IconButton(
               onPressed: () async {
                 confirmDelete([asset], useTrashbin).then((deletedList) {
+                  appStatus.removeFavorite(deletedList);
                   if (deletedList.isNotEmpty && popOnDelete) {
                     Navigator.pop(parentContext);
                   }

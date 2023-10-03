@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:nothing_gallery/model/image_selection.dart';
+import 'package:flutter/material.dart';
 
+import 'package:nothing_gallery/model/model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
@@ -10,12 +11,13 @@ import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/main.dart';
 
-Future<void> onDelete(List<AssetEntity> selectedAssets,
+Future<List<String>> onDelete(List<AssetEntity> selectedAssets,
     ImageSelection imageSelection, bool useTrashBin) async {
   List<String> deletedImages = await confirmDelete(selectedAssets, useTrashBin);
   if (deletedImages.isNotEmpty) {
     imageSelection.endSelection();
   }
+  return deletedImages;
 }
 
 Future<List<String>> confirmDelete(

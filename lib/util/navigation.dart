@@ -22,16 +22,17 @@ void openVideoPlayerPage(BuildContext context, AssetEntity video) async {
       ));
 }
 
-void openImagePage(BuildContext context, int index, int imageCount,
-    List<AssetEntity> images) async {
+void openImagePage(
+    BuildContext context, int index, int imageCount, List<AssetEntity> images,
+    {bool favoritesPage = false}) async {
   await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ImagePageWidget(
-          images: images,
-          imageTotal: imageCount,
-          index: index,
-        ),
+            images: images,
+            imageTotal: imageCount,
+            index: index,
+            favoritesPage: favoritesPage),
       ));
 }
 
@@ -50,5 +51,13 @@ void openVideoPage(BuildContext context) async {
       context,
       MaterialPageRoute(
         builder: (context) => const VideosPage(),
+      ));
+}
+
+void openFavoritePage(BuildContext context) async {
+  await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const FavoritePage(),
       ));
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/util/util.dart';
 import 'package:provider/provider.dart';
-import 'dart:math' as math;
 
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/classes/classes.dart';
@@ -29,7 +28,6 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(body: SafeArea(child:
             Consumer<AlbumInfoList>(builder: (context, albumInfoList, child) {
-          print(albumInfoList.albums.length);
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -45,6 +43,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                         GestureDetector(
                           onTap: () {
                             albumInfoList.refreshAlbums();
+
                             _controller.forward().then((value) {
                               _controller.reset();
                             });
@@ -75,10 +74,20 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                             crossAxisCount: 2,
                             childAspectRatio: 2.5,
                             children: [
-                              WideIconButton(
-                                  text: "FAVORITE",
-                                  iconData: Icons.favorite_border_rounded,
-                                  onTapHandler: () {}),
+                              Consumer<AppStatus>(
+                                  builder: (context, appStatus, child) {
+                                return WideIconButton(
+                                    text: "FAVORITE",
+                                    iconData: appStatus.favoriteIds.isEmpty
+                                        ? Icons.favorite_border_rounded
+                                        : Icons.favorite_rounded,
+                                    onTapHandler: () {
+                                      if (appStatus.favoriteIds.isEmpty) {
+                                      } else {
+                                        openFavoritePage(context);
+                                      }
+                                    });
+                              }),
                               WideIconButton(
                                 text: "VIDEOS",
                                 iconData: Icons.video_library_rounded,

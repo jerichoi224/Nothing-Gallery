@@ -10,6 +10,7 @@ EventType validateEventType(Event event) {
         return event.eventType;
       }
       break;
+    case EventType.favoriteRemoved:
     case EventType.assetDeleted:
       if (event.details != null && event.details.runtimeType == List<String>) {
         return event.eventType;

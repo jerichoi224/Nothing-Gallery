@@ -29,12 +29,18 @@ class SelectionMenuWidget extends StatelessWidget {
           },
           icon: const Icon(Icons.share),
         ),
-        IconButton(
-          onPressed: () {
-            onDelete(selectedAssets, imageSelection, useTrashBin);
-          },
-          icon: const Icon(Icons.delete),
-        ),
+        Consumer<AppStatus>(builder: (context, appStatus, child) {
+          return IconButton(
+            onPressed: () async {
+              List<String> deletedIds =
+                  await onDelete(selectedAssets, imageSelection, useTrashBin);
+              if (deletedIds.isNotEmpty) {
+                appStatus.removeFavorite(deletedIds);
+              }
+            },
+            icon: const Icon(Icons.delete),
+          );
+        }),
         showMore
             ? PopupMenuButton<SelectedImageMenu>(
                 tooltip: '',
