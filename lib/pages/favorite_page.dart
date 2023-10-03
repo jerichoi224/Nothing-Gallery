@@ -135,6 +135,12 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 // Header
                 Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Icon(Icons.arrow_back)),
                   Padding(
                       padding: const EdgeInsets.fromLTRB(12, 20, 20, 20),
                       child: Text(

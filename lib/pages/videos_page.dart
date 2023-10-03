@@ -198,9 +198,15 @@ class _VideosPageState extends State<VideosPage> {
           imageSelection,
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                padding: const EdgeInsets.fromLTRB(10, 20, 20, 0),
                 child: Row(
                   children: [
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Icon(Icons.arrow_back)),
+                    const SizedBox(width: 10),
                     Text(
                       'VIDEOS',
                       style: mainTextStyle(TextStyleType.pageTitle),

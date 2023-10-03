@@ -27,8 +27,10 @@ class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController =
-        TabController(initialIndex: 0, length: _tabs.length, vsync: this);
+    _tabController = TabController(
+        initialIndex: Provider.of<AppStatus>(context, listen: false).activeTab,
+        length: _tabs.length,
+        vsync: this);
     _tabController.addListener(_tabListener);
 
     SystemChrome.setPreferredOrientations([

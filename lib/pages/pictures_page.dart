@@ -206,7 +206,7 @@ class _PicturesState extends State<PicturesWidget>
                 child: Row(
                   children: [
                     Text(
-                      'PICTURES',
+                      'TIMELINE',
                       style: mainTextStyle(TextStyleType.pageTitle),
                     ),
                     const Spacer(),
