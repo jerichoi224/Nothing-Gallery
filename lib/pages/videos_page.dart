@@ -53,7 +53,7 @@ class _VideosPageState extends State<VideosPage> {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
 
       recent = albumInfoList.recent;
-      assets = recent.preloadImages;
+      assets = [...recent.preloadImages];
       totalLoaded = assets.length;
 
       assets.removeWhere((asset) => asset.type == AssetType.image);
