@@ -28,17 +28,12 @@ class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _tabController =
-        TabController(initialIndex: 1, length: _tabs.length, vsync: this);
+        TabController(initialIndex: 0, length: _tabs.length, vsync: this);
     _tabController.addListener(_tabListener);
 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
-      albumInfoList.refreshAlbums();
-    });
   }
 
   void _tabListener() {

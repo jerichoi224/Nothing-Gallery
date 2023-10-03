@@ -82,6 +82,7 @@ class _MainState extends State<MainApp> {
       setState(() {
         permissionChecked = permissionGranted = true;
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          Provider.of<AppStatus>(context, listen: false).initialize();
           Provider.of<AlbumInfoList>(context, listen: false)
               .refreshAlbums()
               .then((value) {

@@ -77,7 +77,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                             children: [
                               WideIconButton(
                                   text: "FAVORITE",
-                                  iconData: Icons.star_border_rounded,
+                                  iconData: Icons.favorite_border_rounded,
                                   onTapHandler: () {}),
                               WideIconButton(
                                 text: "VIDEOS",
