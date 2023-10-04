@@ -4,6 +4,7 @@ enum EventType {
   videoOpen,
   favoriteAdded,
   favoriteRemoved,
+  settingsChanged,
   ignore;
 
   const EventType({this.detail});

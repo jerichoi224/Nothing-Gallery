@@ -1,9 +1,7 @@
-import 'package:nothing_gallery/constants/settings_pref.dart';
-
 enum SharedPrefKeys {
   // Settings
-  initialScreen(
-      text: "initialScreen", type: InitialScreen, onNull: InitialScreen.albums),
+  initialScreen(text: "initialScreenIndex", type: int, onNull: 1),
+  pinShortcuts(text: "pinShortcuts", type: bool, onNull: false),
 
   // ImageGridPage
   imageGridPageNumCol(text: "imageGridPageNumCol", type: int, onNull: 4),

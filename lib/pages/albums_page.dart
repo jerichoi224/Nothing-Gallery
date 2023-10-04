@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/util/util.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +23,60 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
     with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 500));
+
+  bool pinShortcuts = false;
+  StreamSubscription? eventSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
+    });
+
+    eventSubscription =
+        eventController.stream.asBroadcastStream().listen((event) {
+      switch (validateEventType(event)) {
+        case EventType.settingsChanged:
+          setState(() {
+            pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
+          });
+          break;
+        default:
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    eventSubscription?.cancel();
+    super.dispose();
+  }
+
+  List<Widget> shortcuts() {
+    return [
+      Consumer<AppStatus>(builder: (context, appStatus, child) {
+        return WideIconButton(
+            text: "FAVORITES",
+            iconData: appStatus.favoriteIds.isEmpty
+                ? Icons.favorite_border_rounded
+                : Icons.favorite_rounded,
+            onTapHandler: () {
+              if (appStatus.favoriteIds.isEmpty) {
+              } else {
+                openFavoritePage(context);
+              }
+            });
+      }),
+      WideIconButton(
+        text: "VIDEOS",
+        iconData: Icons.video_library_rounded,
+        onTapHandler: () {
+          openVideoPage(context);
+        },
+      )
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,45 +115,35 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                         const SizedBox(
                           width: 10,
                         ),
-                        IconButton(
-                            onPressed: () {}, icon: const Icon(Icons.search))
                       ],
                     )),
-                // Album Grid
+                pinShortcuts
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+                        child: GridView.count(
+                          crossAxisCount: 2,
+                          childAspectRatio: 2.5,
+                          crossAxisSpacing: 15,
+                          mainAxisSpacing: 15,
+                          shrinkWrap: true,
+                          children: shortcuts(),
+                        ),
+                      )
+                    : Container(),
                 Expanded(
                     child: CustomScrollView(
                   primary: false,
                   slivers: <Widget>[
                     SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+                        padding: pinShortcuts
+                            ? const EdgeInsets.all(0)
+                            : const EdgeInsets.fromLTRB(10, 20, 10, 10),
                         sliver: SliverGrid.count(
                             crossAxisSpacing: 15,
                             mainAxisSpacing: 15,
                             crossAxisCount: 2,
                             childAspectRatio: 2.5,
-                            children: [
-                              Consumer<AppStatus>(
-                                  builder: (context, appStatus, child) {
-                                return WideIconButton(
-                                    text: "FAVORITE",
-                                    iconData: appStatus.favoriteIds.isEmpty
-                                        ? Icons.favorite_border_rounded
-                                        : Icons.favorite_rounded,
-                                    onTapHandler: () {
-                                      if (appStatus.favoriteIds.isEmpty) {
-                                      } else {
-                                        openFavoritePage(context);
-                                      }
-                                    });
-                              }),
-                              WideIconButton(
-                                text: "VIDEOS",
-                                iconData: Icons.video_library_rounded,
-                                onTapHandler: () {
-                                  openVideoPage(context);
-                                },
-                              )
-                            ])),
+                            children: pinShortcuts ? [] : shortcuts())),
                     SliverPadding(
                         padding: const EdgeInsets.all(10),
                         sliver: SliverGrid.count(
@@ -131,6 +179,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
   @override
   void onResumed() {
     Provider.of<AlbumInfoList>(context, listen: false).refreshAlbums();
+    pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/constants/settings_pref.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -43,7 +44,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
     eventSubscription =
         eventController.stream.asBroadcastStream().listen((event) {
-      if (appStatus.activeTab == 0) return;
+      if (appStatus.activeTab == InitialScreen.timeline.tabIndex) return;
 
       switch (validateEventType(event)) {
         case EventType.assetDeleted:
@@ -77,6 +78,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   void refreshGrid() {
     assets = albumInfo.preloadImages;
     images = assets.where((asset) => asset.type == AssetType.image).toList();
+    currentPage = 0;
     getImages();
   }
 

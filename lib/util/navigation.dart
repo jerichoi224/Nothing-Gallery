@@ -8,7 +8,7 @@ void openSettings(BuildContext context) async {
   await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SettingsPage(),
+        builder: (context) => const SettingsPage(),
       ));
 }
 
