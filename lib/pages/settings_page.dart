@@ -6,6 +6,7 @@ import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/constants/settings_pref.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -33,7 +34,7 @@ class _SettingsState extends State<SettingsPage> {
 
     PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
       setState(() {
-        version = "v ${packageInfo.version}";
+        version = "v${packageInfo.version}";
       });
     });
   }
@@ -100,25 +101,11 @@ class _SettingsState extends State<SettingsPage> {
   Widget license() {
     return InkWell(
         onTap: () async {
-          await showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return SimpleDialog(
-                  title: const Text('License'),
-                  children: <Widget>[
-                    Column(
-                      children: [
-                        SimpleDialogOption(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    )
-                  ],
-                );
-              });
+          final Uri url = Uri.parse('https://www.gnu.org/licenses/gpl-3.0.txt');
+
+          if (!await launchUrl(url)) {
+            throw Exception('Could not launch $url');
+          }
         },
         child: SizedBox(
             height: rowHeight,
@@ -146,18 +133,46 @@ class _SettingsState extends State<SettingsPage> {
               context: context,
               builder: (BuildContext context) {
                 return SimpleDialog(
-                  title: const Text('Credits'),
+                  title: Text('Credits',
+                      style: mainTextStyle(TextStyleType.creditsTitle)),
                   children: <Widget>[
-                    Column(
-                      children: [
-                        SimpleDialogOption(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    )
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Develop",
+                                style: mainTextStyle(
+                                    TextStyleType.creditsCateogry)),
+                            Text("Daniel Choi",
+                                style:
+                                    mainTextStyle(TextStyleType.creditsName)),
+                            const SizedBox(height: 10),
+                            Text("Design",
+                                style: mainTextStyle(
+                                    TextStyleType.creditsCateogry)),
+                            Text("Alkid Shuli, Daniel Choi",
+                                style:
+                                    mainTextStyle(TextStyleType.creditsName)),
+                            const SizedBox(height: 15),
+                            Center(
+                                child: InkWell(
+                              customBorder: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                child: Text('Close',
+                                    style: mainTextStyle(
+                                        TextStyleType.creditsClose)),
+                              ),
+                            ))
+                          ],
+                        ))
                   ],
                 );
               });

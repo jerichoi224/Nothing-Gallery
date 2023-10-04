@@ -49,6 +49,7 @@ dependencies:
   device_info_plus: ^9.0.3
   package_info_plus: ^4.1.0
   fluttertoast: ^8.2.2
+  url_launcher: ^6.1.14
 
 dev_dependencies:
   flutter_test:

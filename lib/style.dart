@@ -31,7 +31,11 @@ enum TextStyleType {
   settingTitle(fontSize: 24, color: Colors.white),
   settingCategory(fontSize: 16, color: Colors.grey),
   settingsMenu(fontSize: 18, color: Colors.white),
-  settingsFineText(fontSize: 14, color: Colors.grey);
+  settingsFineText(fontSize: 14, color: Colors.grey),
+  creditsTitle(fontSize: 24, color: Colors.white),
+  creditsClose(fontSize: 16, color: Colors.white),
+  creditsCateogry(fontSize: 18, color: Colors.white),
+  creditsName(fontSize: 16, color: Colors.grey);
 
   const TextStyleType({required this.fontSize, required this.color});
   final double fontSize;
