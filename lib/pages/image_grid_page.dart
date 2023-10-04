@@ -78,6 +78,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   void refreshGrid() {
     assets = albumInfo.preloadImages;
     images = assets.where((asset) => asset.type == AssetType.image).toList();
+    currentPage = 0;
     getImages();
   }
 

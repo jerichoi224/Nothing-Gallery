@@ -51,22 +51,33 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
 
     index = widget.index;
     imageTotal = widget.imageTotal;
-    images = widget.images;
+    images = [...widget.images];
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     fadeAnimation = Tween(begin: 0, end: 1).animate(animationController);
 
-    if (widget.favoritesPage) {}
     getPreferences();
 
     eventSubscription =
         eventController.stream.asBroadcastStream().listen((event) {
       switch (validateEventType(event)) {
-        case EventType.assetDeleted:
         case EventType.favoriteRemoved:
+          if (widget.favoritesPage) {
+            images.removeAt(index);
+            if (images.length == index) {
+              index--;
+            }
+            imageTotal -= 1;
+            setState(() {});
+          }
+          break;
+
+        case EventType.assetDeleted:
           if (images.length == index) {
             index--;
           }
+          images.removeAt(index);
+
           imageTotal -= 1;
           setState(() {});
           break;
@@ -81,8 +92,6 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
         .map((item) => item as String)
         .toList();
   }
-
-  void removeFromSlider() {}
 
   @override
   void dispose() {
