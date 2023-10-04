@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/classes/classes.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:nothing_gallery/constants/constants.dart';
@@ -14,7 +15,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsState extends State<SettingsPage> {
-  bool initialIsAlbum = false;
+  bool initialIsTimeline = false;
+  bool pinShortcuts = false;
   double rowHeight = 50;
   String version = "";
   @override
@@ -24,7 +26,9 @@ class _SettingsState extends State<SettingsPage> {
   }
 
   void getInfo() async {
-    initialIsAlbum = sharedPref.get(SharedPrefKeys.initialScreen) == 1;
+    initialIsTimeline = sharedPref.get(SharedPrefKeys.initialScreen) ==
+        InitialScreen.timeline.tabIndex;
+    pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
     setState(() {});
 
     PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
@@ -42,40 +46,53 @@ class _SettingsState extends State<SettingsPage> {
             child: Row(
               children: [
                 Text(
-                  "Inital Screen",
+                  "Show Timeline on Start",
                   style: mainTextStyle(TextStyleType.settingsMenu),
                 ),
                 const Spacer(),
-                Text(
-                  "Timeline",
-                  style: mainTextStyle(TextStyleType.settingsFineText),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
                 Switch(
                     activeColor: Colors.red,
                     activeTrackColor: Colors.white,
-                    inactiveThumbColor: Colors.white,
-                    inactiveTrackColor: Colors.red,
-                    value: initialIsAlbum,
+                    value: initialIsTimeline,
                     onChanged: (onChanged) {
                       sharedPref.set(
                           SharedPrefKeys.initialScreen,
                           onChanged
-                              ? InitialScreen.albums.tabIndex
-                              : InitialScreen.timeline.tabIndex);
+                              ? InitialScreen.timeline.tabIndex
+                              : InitialScreen.albums.tabIndex);
                       setState(() {
-                        initialIsAlbum = onChanged;
+                        initialIsTimeline = onChanged;
                       });
                     }),
-                const SizedBox(
-                  width: 10,
-                ),
+              ],
+            )));
+  }
+
+  Widget pinButtons() {
+    return SizedBox(
+        height: rowHeight,
+        child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 12, 0),
+            child: Row(
+              children: [
                 Text(
-                  "Albums",
-                  style: mainTextStyle(TextStyleType.settingsFineText),
+                  "Pin Favorites/Videos to Top",
+                  style: mainTextStyle(TextStyleType.settingsMenu),
                 ),
+                const Spacer(),
+                Switch(
+                    activeColor: Colors.red,
+                    activeTrackColor: Colors.white,
+                    value: pinShortcuts,
+                    onChanged: (onChanged) {
+                      sharedPref.set(SharedPrefKeys.pinShortcuts, onChanged);
+                      eventController.sink
+                          .add(Event(EventType.settingsChanged, null));
+
+                      setState(() {
+                        pinShortcuts = onChanged;
+                      });
+                    }),
               ],
             )));
   }
@@ -190,6 +207,8 @@ class _SettingsState extends State<SettingsPage> {
                     settingCategory("UI/UX"),
                     const SizedBox(height: 8),
                     uiInitialScreen(),
+                    const SizedBox(height: 8),
+                    pinButtons(),
                     const SizedBox(height: 8),
                     const Divider(),
                     const SizedBox(height: 8),

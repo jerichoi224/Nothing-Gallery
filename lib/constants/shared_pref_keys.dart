@@ -1,6 +1,7 @@
 enum SharedPrefKeys {
   // Settings
   initialScreen(text: "initialScreenIndex", type: int, onNull: 1),
+  pinShortcuts(text: "pinShortcuts", type: bool, onNull: false),
 
   // ImageGridPage
   imageGridPageNumCol(text: "imageGridPageNumCol", type: int, onNull: 4),

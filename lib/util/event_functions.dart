@@ -4,6 +4,8 @@ import 'package:nothing_gallery/constants/constants.dart';
 
 EventType validateEventType(Event event) {
   switch (event.eventType) {
+    case EventType.settingsChanged:
+      return event.eventType;
     case EventType.videoOpen:
     case EventType.pictureOpen:
       if (event.details != null && event.details.runtimeType == AssetEntity) {
