@@ -99,7 +99,27 @@ class _SettingsState extends State<SettingsPage> {
 
   Widget license() {
     return InkWell(
-        onTap: () {},
+        onTap: () async {
+          await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return SimpleDialog(
+                  title: const Text('License'),
+                  children: <Widget>[
+                    Column(
+                      children: [
+                        SimpleDialogOption(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    )
+                  ],
+                );
+              });
+        },
         child: SizedBox(
             height: rowHeight,
             child: Padding(
@@ -121,7 +141,27 @@ class _SettingsState extends State<SettingsPage> {
 
   Widget credits() {
     return InkWell(
-        onTap: () {},
+        onTap: () async {
+          await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return SimpleDialog(
+                  title: const Text('Credits'),
+                  children: <Widget>[
+                    Column(
+                      children: [
+                        SimpleDialogOption(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    )
+                  ],
+                );
+              });
+        },
         child: SizedBox(
             height: rowHeight,
             child: Padding(
