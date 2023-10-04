@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/util/util.dart';
@@ -63,6 +64,10 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                 : Icons.favorite_rounded,
             onTapHandler: () {
               if (appStatus.favoriteIds.isEmpty) {
+                Fluttertoast.showToast(
+                  msg: "No favorites were found.",
+                  toastLength: Toast.LENGTH_SHORT,
+                );
               } else {
                 openFavoritePage(context);
               }
