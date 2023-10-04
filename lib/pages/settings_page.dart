@@ -28,9 +28,10 @@ class _SettingsState extends State<SettingsPage> {
     setState(() {});
 
     PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-      version = "v ${packageInfo.version}";
+      setState(() {
+        version = "v ${packageInfo.version}";
+      });
     });
-    setState(() {});
   }
 
   Widget uiInitialScreen() {
@@ -55,6 +56,8 @@ class _SettingsState extends State<SettingsPage> {
                 Switch(
                     activeColor: Colors.red,
                     activeTrackColor: Colors.white,
+                    inactiveThumbColor: Colors.white,
+                    inactiveTrackColor: Colors.red,
                     value: initialIsAlbum,
                     onChanged: (onChanged) {
                       sharedPref.set(
