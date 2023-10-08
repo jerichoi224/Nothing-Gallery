@@ -65,7 +65,6 @@ class _PicturesState extends State<PicturesWidget>
 
       eventSubscription =
           eventController.stream.asBroadcastStream().listen((event) {
-        if (appStatus.activeTab == InitialScreen.albums.tabIndex) return;
         switch (validateEventType(event)) {
           case EventType.assetDeleted:
             List<AssetEntity> deletedAssets = assets
@@ -93,11 +92,15 @@ class _PicturesState extends State<PicturesWidget>
             totalCount -= 1;
             break;
           case EventType.videoOpen:
-            openVideoPlayerPage(context, event.details);
+            if (appStatus.activeTab == InitialScreen.timeline.tabIndex) {
+              openVideoPlayerPage(context, event.details);
+            }
             break;
           case EventType.pictureOpen:
-            openImagePage(
-                context, images.indexOf(event.details), images.length, images);
+            if (appStatus.activeTab == InitialScreen.timeline.tabIndex) {
+              openImagePage(context, images.indexOf(event.details),
+                  images.length, images);
+            }
             break;
           default:
         }
