@@ -19,6 +19,10 @@ enum TextStyleType {
   // GridPage
   gridPageTitle(fontSize: 20, color: Colors.white),
 
+  // SettingsPage
+  settingsPageTitle(fontSize: 20, color: Colors.white),
+  settingsPageDescription(fontSize: 16, color: Colors.white60),
+
   // Common
   pageTitle(fontSize: 22, color: Colors.white),
   popUpMenu(fontSize: 14, color: Colors.white),
