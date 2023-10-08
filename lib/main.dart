@@ -107,7 +107,7 @@ class _MainState extends State<MainApp> {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
-                builder: (context) => PermissionCheckWidget(),
+                builder: (context) => const PermissionCheckPage(),
               ),
               (Route<dynamic> route) => false);
         });
