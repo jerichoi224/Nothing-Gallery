@@ -1,17 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:photo_manager/photo_manager.dart';
+import 'package:provider/provider.dart';
+
 import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/components/components.dart';
-import 'package:nothing_gallery/components/left_widget_button.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/util/util.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_manager/photo_manager.dart';
-import 'package:provider/provider.dart';
 
 import 'package:nothing_gallery/model/model.dart';
 
@@ -103,8 +101,8 @@ class _SelectionMenuState extends State<SelectionMenuWidget>
       bool copyAdded = false;
       if (albumList.isNotEmpty) {
         AlbumInfo copyItem = albumList[0];
-        albumList.add(
-            AlbumInfo(copyItem.pathEntity, copyItem.thumbnailAsset, 0, []));
+        albumList.insert(
+            0, AlbumInfo(copyItem.pathEntity, copyItem.thumbnailAsset, 0, []));
         copyAdded = true;
       }
       return ListView.builder(

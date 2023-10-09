@@ -3,7 +3,6 @@ import 'package:nothing_gallery/classes/classes.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:nothing_gallery/constants/constants.dart';
-import 'package:nothing_gallery/constants/settings_pref.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:url_launcher/url_launcher.dart';

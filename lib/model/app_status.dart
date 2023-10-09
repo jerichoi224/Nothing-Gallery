@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/constants/constants.dart';
-import 'package:nothing_gallery/constants/settings_pref.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:photo_manager/photo_manager.dart';
 
