@@ -51,6 +51,7 @@ class _PermissionCheckState
                   height: 60,
                   width: 240,
                   child: WideIconButton(
+                      hideIcon: false,
                       text: "Open Settings",
                       iconData: Icons.settings,
                       onTapHandler: () {

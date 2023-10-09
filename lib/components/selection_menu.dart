@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/components/components.dart';
+import 'package:nothing_gallery/components/left_widget_button.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
@@ -15,29 +17,87 @@ class SelectionMenuWidget extends StatelessWidget {
   final List<AssetEntity> assets;
   final bool showMore;
 
-  void moveAssetsPanel(BuildContext context) {
+  Widget albumButtonListBuilder(ScrollController controller, bool copyFiles,
+      List<AssetEntity> selectedAssets) {
+    return Consumer<AlbumInfoList>(builder: (context, albumInfoList, child) {
+      List<AlbumInfo> albumList = albumInfoList.albums;
+      return ListView.builder(
+        controller: controller,
+        itemCount: albumList.length,
+        itemBuilder: (_, index) {
+          AlbumInfo albumInfo = albumList[index];
+          return LeftWidgetButton(
+              text:
+                  "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
+              widget: ThumbnailWidget(
+                asset: albumInfo.thumbnailAsset,
+                radius: 8.0,
+                isOriginal: false,
+              ),
+              onTapHandler: () {
+                moveCopyFiles(selectedAssets, copyFiles, albumInfo);
+                Navigator.pop(context);
+              });
+        },
+      );
+    });
+  }
+
+  void copyMoveAssetsPanel(
+      BuildContext context, bool copyFiles, List<AssetEntity> selectedAssets) {
     showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return SizedBox(
-          height: 600,
-          child: Center(
-              child: Padding(
-            padding: EdgeInsets.all(36),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Choose Album',
-                  style: mainTextStyle(TextStyleType.moveToTitle),
-                ),
-                ElevatedButton(
-                  child: const Text('Cancel'),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
+        return GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: Container(
+            color: Colors.transparent,
+            child: GestureDetector(
+              onTap: () {},
+              child: DraggableScrollableSheet(
+                initialChildSize: 0.5,
+                minChildSize: 0.2,
+                maxChildSize: 0.75,
+                builder: (_, controller) {
+                  return Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(24.0),
+                        topRight: Radius.circular(24.0),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 32),
+                        Text(
+                          'Choose Album',
+                          style: mainTextStyle(TextStyleType.moveToTitle),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: albumButtonListBuilder(
+                              controller, copyFiles, selectedAssets),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              surfaceTintColor: Colors.transparent,
+                              backgroundColor: Colors.transparent),
+                          child: Text('Cancel',
+                              style: mainTextStyle(TextStyleType.buttonText)),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          )),
+          ),
         );
       },
     );
@@ -76,8 +136,10 @@ class SelectionMenuWidget extends StatelessWidget {
                 offset: const Offset(0, 50),
                 onSelected: (SelectedImageMenu item) {
                   switch (item) {
+                    case SelectedImageMenu.copyTo:
                     case SelectedImageMenu.moveTo:
-                      moveAssetsPanel(context);
+                      copyMoveAssetsPanel(context,
+                          item == SelectedImageMenu.copyTo, selectedAssets);
                       break;
                     default:
                   }
@@ -87,12 +149,9 @@ class SelectionMenuWidget extends StatelessWidget {
                     for (final value in SelectedImageMenu.values)
                       PopupMenuItem(
                           value: value,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(
-                              value.text,
-                              style: mainTextStyle(TextStyleType.popUpMenu),
-                            ),
+                          child: Text(
+                            value.text,
+                            style: mainTextStyle(TextStyleType.popUpMenu),
                           ))
                   ];
                 })

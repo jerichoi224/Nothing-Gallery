@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/components/components.dart';
 import 'package:nothing_gallery/model/model.dart';
-import 'package:nothing_gallery/pages/pages.dart';
 import 'package:nothing_gallery/util/util.dart';
 
 class AlbumWidget extends StatelessWidget {

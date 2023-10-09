@@ -34,17 +34,23 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
     setState(() {
       pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
+      eventSubscription =
+          eventController.stream.asBroadcastStream().listen((event) {
+        switch (validateEventType(event)) {
+          case EventType.settingsChanged:
+            setState(() {
+              pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
+            });
+            break;
+          case EventType.assetDeleted:
+            albumInfoList.refreshAlbums();
+            break;
 
-    eventSubscription =
-        eventController.stream.asBroadcastStream().listen((event) {
-      switch (validateEventType(event)) {
-        case EventType.settingsChanged:
-          setState(() {
-            pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
-          });
-          break;
-        default:
-      }
+          default:
+        }
+      });
     });
   }
 
@@ -59,6 +65,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
       Consumer<AppStatus>(builder: (context, appStatus, child) {
         return WideIconButton(
             text: "FAVORITES",
+            hideIcon: false,
             iconData: appStatus.favoriteIds.isEmpty
                 ? Icons.favorite_border_rounded
                 : Icons.favorite_rounded,
@@ -75,6 +82,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
       }),
       WideIconButton(
         text: "VIDEOS",
+        hideIcon: false,
         iconData: Icons.video_library_rounded,
         onTapHandler: () {
           openVideoPage(context);

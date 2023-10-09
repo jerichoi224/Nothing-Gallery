@@ -5,10 +5,12 @@ class WideIconButton extends StatelessWidget {
   const WideIconButton(
       {super.key,
       required this.text,
+      required this.hideIcon,
       required this.iconData,
       required this.onTapHandler});
 
   final String text;
+  final bool hideIcon;
   final IconData iconData;
   final Function onTapHandler;
   @override
@@ -32,10 +34,12 @@ class WideIconButton extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(
-                        iconData,
-                        size: 28,
-                      ),
+                      hideIcon
+                          ? Container()
+                          : Icon(
+                              iconData,
+                              size: 28,
+                            ),
                       const SizedBox(
                         height: double.infinity,
                         width: 16,

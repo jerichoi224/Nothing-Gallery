@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:nothing_gallery/model/model.dart';
+import 'package:nothing_gallery/util/util.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -18,6 +20,46 @@ Future<List<String>> onDelete(List<AssetEntity> selectedAssets,
     imageSelection.endSelection();
   }
   return deletedImages;
+}
+
+Future<List<String>> moveCopyFiles(List<AssetEntity> moveEntityList,
+    bool copyFiles, AlbumInfo destinationAlbum) async {
+  List<String> movedFiles = [];
+
+  if (!(await requestPermission(Permission.manageExternalStorage))) {
+    return movedFiles;
+  }
+
+  File? destinationFile = await destinationAlbum.thumbnailAsset.file;
+  if (destinationFile == null) {
+    return movedFiles;
+  }
+
+  String destinationPath = destinationFile.path
+      .substring(0, destinationFile.path.lastIndexOf('/') + 1);
+
+  for (AssetEntity entity in moveEntityList) {
+    File? sourceFile = await entity.file;
+    if (sourceFile == null) {
+      continue;
+    }
+
+    String newPath = destinationPath +
+        sourceFile.path.substring(sourceFile.path.lastIndexOf('/') + 1);
+
+    if (copyFiles) {
+    } else {
+      await sourceFile.copy(newPath);
+      try {
+        await sourceFile.rename(newPath);
+      } on FileSystemException catch (_) {
+        await sourceFile.copy(newPath);
+        await sourceFile.delete();
+      }
+    }
+  }
+
+  return movedFiles;
 }
 
 Future<List<String>> confirmDelete(
