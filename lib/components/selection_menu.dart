@@ -1,54 +1,182 @@
-import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/components/components.dart';
 import 'package:nothing_gallery/components/left_widget_button.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/util/util.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'package:nothing_gallery/model/model.dart';
 
-class SelectionMenuWidget extends StatelessWidget {
+class SelectionMenuWidget extends StatefulWidget {
   const SelectionMenuWidget(
       {super.key, required this.assets, required this.showMore});
 
   final List<AssetEntity> assets;
   final bool showMore;
 
+  @override
+  State createState() => _SelectionMenuState();
+}
+
+class _SelectionMenuState extends State<SelectionMenuWidget>
+    with SingleTickerProviderStateMixin {
+  int index = 0;
+
+  Future<String> createNewFolder(BuildContext context) async {
+    final TextEditingController textController = TextEditingController();
+
+    String newFolderName = "";
+    double radius = 8;
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: Text('Create New Folder',
+                style: mainTextStyle(TextStyleType.moveToTitle)),
+            children: <Widget>[
+              Column(children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(28, 6, 28, 12),
+                  child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 16, 16, 16),
+                        borderRadius: BorderRadius.circular(radius),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                        child: TextField(
+                          controller: textController,
+                          decoration: InputDecoration(
+                            hintStyle:
+                                mainTextStyle(TextStyleType.newFolderHint),
+                            border: InputBorder.none,
+                            hintText: 'Enter folder name',
+                          ),
+                        ),
+                      )),
+                ),
+                Center(
+                    child: InkWell(
+                  customBorder: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  onTap: () {
+                    newFolderName = textController.text;
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Text('Create',
+                        style: mainTextStyle(TextStyleType.creditsClose)),
+                  ),
+                ))
+              ])
+            ],
+          );
+        });
+
+    if (newFolderName.isEmpty) return newFolderName;
+
+    String createFolderPath = "/storage/emulated/0/DCIM/$newFolderName/";
+    final dir = Directory(createFolderPath);
+
+    if ((await dir.exists())) {
+    } else {
+      await dir.create();
+    }
+    return createFolderPath;
+  }
+
   Widget albumButtonListBuilder(ScrollController controller, bool copyFiles,
       List<AssetEntity> selectedAssets) {
+    double radius = 8.0;
+
     return Consumer<AlbumInfoList>(builder: (context, albumInfoList, child) {
       List<AlbumInfo> albumList = albumInfoList.albums;
+      bool copyAdded = false;
+      if (albumList.isNotEmpty) {
+        AlbumInfo copyItem = albumList[0];
+        albumList.add(
+            AlbumInfo(copyItem.pathEntity, copyItem.thumbnailAsset, 0, []));
+        copyAdded = true;
+      }
       return ListView.builder(
         controller: controller,
         itemCount: albumList.length,
         itemBuilder: (_, index) {
           AlbumInfo albumInfo = albumList[index];
+          bool createFolder = index == 0 && copyAdded;
           return LeftWidgetButton(
-              text:
-                  "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
-              widget: ThumbnailWidget(
-                asset: albumInfo.thumbnailAsset,
-                radius: 8.0,
-                isOriginal: false,
-              ),
+              text: createFolder
+                  ? "Create New Folder"
+                  : "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
+              widget: createFolder
+                  ? AspectRatio(
+                      aspectRatio: 1,
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(radius),
+                          child: Container(
+                              color: const Color.fromARGB(255, 32, 32, 32),
+                              child: const Center(child: Icon(Icons.add)))))
+                  : ThumbnailWidget(
+                      asset: albumInfo.thumbnailAsset,
+                      radius: radius,
+                      isOriginal: false,
+                    ),
               onTapHandler: () async {
-                Navigator.pop(context);
                 final appStatus =
                     Provider.of<AppStatus>(context, listen: false);
-                appStatus.setLoading(true);
                 final imageSelection =
                     Provider.of<ImageSelection>(context, listen: false);
 
-                await moveCopyFiles(selectedAssets, copyFiles, albumInfo)
-                    .then((value) {
-                  if (value.isNotEmpty) {
-                    appStatus.setLoading(false);
-                    imageSelection.endSelection();
+                String destinationPath = "";
+
+                if (createFolder) {
+                  destinationPath =
+                      await createNewFolder(context).then((value) {
+                    if (value.isNotEmpty) Navigator.pop(context);
+
+                    return value;
+                  });
+                  if (destinationPath.isEmpty) {
+                    return;
+                  }
+                } else {
+                  File? destinationFile =
+                      await albumInfo.thumbnailAsset.file.then((value) {
+                    if (value != null) Navigator.pop(context);
+                    return value;
+                  });
+                  if (destinationFile == null) {
+                    return;
+                  }
+
+                  destinationPath = destinationFile.path
+                      .substring(0, destinationFile.path.lastIndexOf('/') + 1);
+                }
+                appStatus.setLoading(true);
+                await moveCopyFiles(selectedAssets, copyFiles, destinationPath)
+                    .then((files) {
+                  appStatus.setLoading(false);
+                  imageSelection.endSelection();
+
+                  if (files.isNotEmpty) {
+                    if (files.isNotEmpty) {
+                      if (copyFiles) {
+                        // eventController.sink.add(Event(EventType.assetCopied, movedFiles));
+                      } else {
+                        eventController.sink
+                            .add(Event(EventType.assetMoved, files));
+                      }
+                    }
+                    Navigator.pop(context, files);
                   }
                 });
               });
@@ -122,7 +250,7 @@ class SelectionMenuWidget extends StatelessWidget {
     bool useTrashBin = sharedPref.get(SharedPrefKeys.useTrashBin);
 
     return Consumer<ImageSelection>(builder: (context, imageSelection, child) {
-      List<AssetEntity> selectedAssets = assets
+      List<AssetEntity> selectedAssets = widget.assets
           .where((element) => imageSelection.selectedIds.contains(element.id))
           .toList();
       return Row(children: [
@@ -144,7 +272,7 @@ class SelectionMenuWidget extends StatelessWidget {
             icon: const Icon(Icons.delete),
           );
         }),
-        showMore
+        widget.showMore
             ? PopupMenuButton<SelectedImageMenu>(
                 tooltip: '',
                 offset: const Offset(0, 50),

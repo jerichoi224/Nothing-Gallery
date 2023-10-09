@@ -23,8 +23,11 @@ Future<List<String>> onDelete(List<AssetEntity> selectedAssets,
 }
 
 Future<List<String>> moveCopyFiles(List<AssetEntity> moveEntityList,
-    bool copyFiles, AlbumInfo destinationAlbum) async {
+    bool copyFiles, String destinationPath) async {
   List<String> movedFiles = [];
+
+  bool pathExists = await Directory(destinationPath).exists();
+  if (!pathExists) return movedFiles;
 
   if (!(await requestPermission(Permission.manageExternalStorage))) {
     Fluttertoast.showToast(
@@ -34,13 +37,6 @@ Future<List<String>> moveCopyFiles(List<AssetEntity> moveEntityList,
     return movedFiles;
   }
 
-  File? destinationFile = await destinationAlbum.thumbnailAsset.file;
-  if (destinationFile == null) {
-    return movedFiles;
-  }
-
-  String destinationPath = destinationFile.path
-      .substring(0, destinationFile.path.lastIndexOf('/') + 1);
   for (AssetEntity entity in moveEntityList) {
     File? sourceFile = await entity.file;
     if (sourceFile == null) {
@@ -63,11 +59,6 @@ Future<List<String>> moveCopyFiles(List<AssetEntity> moveEntityList,
     }
   }
 
-  if (copyFiles) {
-    // eventController.sink.add(Event(EventType.assetCopied, movedFiles));
-  } else {
-    eventController.sink.add(Event(EventType.assetMoved, movedFiles));
-  }
   return movedFiles;
 }
 

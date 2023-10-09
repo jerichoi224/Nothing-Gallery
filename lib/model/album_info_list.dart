@@ -26,7 +26,7 @@ class AlbumInfoList extends ChangeNotifier {
   }
 
   Future<void> refreshAlbums() async {
-    if (this._isRefreshing) return;
+    if (_isRefreshing) return;
 
     _isRefreshing = true;
     _albums.clear();
