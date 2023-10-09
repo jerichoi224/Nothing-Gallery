@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:nothing_gallery/model/model.dart';
 import 'package:nothing_gallery/util/util.dart';
@@ -27,6 +27,10 @@ Future<List<String>> moveCopyFiles(List<AssetEntity> moveEntityList,
   List<String> movedFiles = [];
 
   if (!(await requestPermission(Permission.manageExternalStorage))) {
+    Fluttertoast.showToast(
+      msg: "Permission needed to move/copy files.",
+      toastLength: Toast.LENGTH_LONG,
+    );
     return movedFiles;
   }
 
@@ -37,19 +41,19 @@ Future<List<String>> moveCopyFiles(List<AssetEntity> moveEntityList,
 
   String destinationPath = destinationFile.path
       .substring(0, destinationFile.path.lastIndexOf('/') + 1);
-
   for (AssetEntity entity in moveEntityList) {
     File? sourceFile = await entity.file;
     if (sourceFile == null) {
       continue;
     }
 
+    movedFiles.add(entity.id);
     String newPath = destinationPath +
         sourceFile.path.substring(sourceFile.path.lastIndexOf('/') + 1);
 
     if (copyFiles) {
+      sourceFile.copySync(newPath);
     } else {
-      await sourceFile.copy(newPath);
       try {
         await sourceFile.rename(newPath);
       } on FileSystemException catch (_) {
@@ -59,6 +63,11 @@ Future<List<String>> moveCopyFiles(List<AssetEntity> moveEntityList,
     }
   }
 
+  if (copyFiles) {
+    // eventController.sink.add(Event(EventType.assetCopied, movedFiles));
+  } else {
+    eventController.sink.add(Event(EventType.assetMoved, movedFiles));
+  }
   return movedFiles;
 }
 

@@ -48,12 +48,13 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
       switch (validateEventType(event)) {
         case EventType.assetDeleted:
+        case EventType.assetMoved:
           setState(() {
             assets.removeWhere(
                 (image) => (event.details as List<String>).contains(image.id));
             images.removeWhere(
                 (image) => (event.details as List<String>).contains(image.id));
-            totalCount -= 1;
+            totalCount -= (event.details as List<String>).length;
           });
 
           break;
@@ -148,7 +149,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                 Padding(
                     padding: const EdgeInsets.fromLTRB(12, 20, 20, 20),
                     child: Text(
-                      "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
+                      "${albumInfo.pathEntity.name.toUpperCase()} ($totalCount)",
                       style: mainTextStyle(TextStyleType.gridPageTitle),
                     )),
                 const Spacer(),

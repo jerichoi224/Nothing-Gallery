@@ -45,6 +45,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
             });
             break;
           case EventType.assetDeleted:
+          case EventType.assetMoved:
             albumInfoList.refreshAlbums();
             break;
 

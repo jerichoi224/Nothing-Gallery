@@ -20,26 +20,30 @@ class SelectionMenuWidget extends StatelessWidget {
   Widget albumButtonListBuilder(ScrollController controller, bool copyFiles,
       List<AssetEntity> selectedAssets) {
     return Consumer<AlbumInfoList>(builder: (context, albumInfoList, child) {
-      List<AlbumInfo> albumList = albumInfoList.albums;
-      return ListView.builder(
-        controller: controller,
-        itemCount: albumList.length,
-        itemBuilder: (_, index) {
-          AlbumInfo albumInfo = albumList[index];
-          return LeftWidgetButton(
-              text:
-                  "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
-              widget: ThumbnailWidget(
-                asset: albumInfo.thumbnailAsset,
-                radius: 8.0,
-                isOriginal: false,
-              ),
-              onTapHandler: () {
-                moveCopyFiles(selectedAssets, copyFiles, albumInfo);
-                Navigator.pop(context);
-              });
-        },
-      );
+      return Consumer<ImageSelection>(
+          builder: (context, imageSelection, child) {
+        List<AlbumInfo> albumList = albumInfoList.albums;
+        return ListView.builder(
+          controller: controller,
+          itemCount: albumList.length,
+          itemBuilder: (_, index) {
+            AlbumInfo albumInfo = albumList[index];
+            return LeftWidgetButton(
+                text:
+                    "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
+                widget: ThumbnailWidget(
+                  asset: albumInfo.thumbnailAsset,
+                  radius: 8.0,
+                  isOriginal: false,
+                ),
+                onTapHandler: () {
+                  moveCopyFiles(selectedAssets, copyFiles, albumInfo);
+                  Navigator.pop(context);
+                  imageSelection.endSelection();
+                });
+          },
+        );
+      });
     });
   }
 
@@ -136,10 +140,14 @@ class SelectionMenuWidget extends StatelessWidget {
                 offset: const Offset(0, 50),
                 onSelected: (SelectedImageMenu item) {
                   switch (item) {
-                    case SelectedImageMenu.copyTo:
+                    // Can't read files that are copied for some reason..
+                    // case SelectedImageMenu.copyTo:
                     case SelectedImageMenu.moveTo:
-                      copyMoveAssetsPanel(context,
-                          item == SelectedImageMenu.copyTo, selectedAssets);
+                      copyMoveAssetsPanel(
+                          context,
+                          // item == SelectedImageMenu.copyTo,
+                          false,
+                          selectedAssets);
                       break;
                     default:
                   }

@@ -14,6 +14,8 @@ EventType validateEventType(Event event) {
       break;
     case EventType.favoriteRemoved:
     case EventType.assetDeleted:
+    // case EventType.assetCopied:
+    case EventType.assetMoved:
       if (event.details != null && event.details.runtimeType == List<String>) {
         return event.eventType;
       }
