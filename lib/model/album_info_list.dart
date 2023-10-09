@@ -14,6 +14,7 @@ class AlbumInfo {
 
 class AlbumInfoList extends ChangeNotifier {
   List<AlbumInfo> _albums = [];
+  bool _isRefreshing = false;
 
   List<AlbumInfo> get albums =>
       _albums.where((album) => !album.pathEntity.isAll).toList();
@@ -25,8 +26,13 @@ class AlbumInfoList extends ChangeNotifier {
   }
 
   Future<void> refreshAlbums() async {
+    if (this._isRefreshing) return;
+
+    _isRefreshing = true;
     _albums.clear();
     addAlbum(await getCurrentAlbumStates([]));
+
+    _isRefreshing = false;
   }
 
   void addAlbum(List<AlbumInfo> albumInfoList) {

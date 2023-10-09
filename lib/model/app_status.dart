@@ -8,8 +8,10 @@ import 'package:photo_manager/photo_manager.dart';
 class AppStatus extends ChangeNotifier {
   int _activeTab = InitialScreen.albums.tabIndex;
   List<String> _favoriteIds = [];
+  bool _loading = false;
 
   int get activeTab => _activeTab;
+  bool get loading => _loading;
   List<String> get favoriteIds => _favoriteIds;
 
   void initialize() {
@@ -44,6 +46,11 @@ class AppStatus extends ChangeNotifier {
     notifyListeners();
     eventController.sink
         .add(Event(EventType.favoriteRemoved, ids)); // No use case
+  }
+
+  void setLoading(bool loading) {
+    _loading = loading;
+    notifyListeners();
   }
 
   bool isFavorite(String id) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/components/components.dart';
 import 'package:nothing_gallery/components/left_widget_button.dart';
@@ -20,30 +22,38 @@ class SelectionMenuWidget extends StatelessWidget {
   Widget albumButtonListBuilder(ScrollController controller, bool copyFiles,
       List<AssetEntity> selectedAssets) {
     return Consumer<AlbumInfoList>(builder: (context, albumInfoList, child) {
-      return Consumer<ImageSelection>(
-          builder: (context, imageSelection, child) {
-        List<AlbumInfo> albumList = albumInfoList.albums;
-        return ListView.builder(
-          controller: controller,
-          itemCount: albumList.length,
-          itemBuilder: (_, index) {
-            AlbumInfo albumInfo = albumList[index];
-            return LeftWidgetButton(
-                text:
-                    "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
-                widget: ThumbnailWidget(
-                  asset: albumInfo.thumbnailAsset,
-                  radius: 8.0,
-                  isOriginal: false,
-                ),
-                onTapHandler: () {
-                  moveCopyFiles(selectedAssets, copyFiles, albumInfo);
-                  Navigator.pop(context);
-                  imageSelection.endSelection();
+      List<AlbumInfo> albumList = albumInfoList.albums;
+      return ListView.builder(
+        controller: controller,
+        itemCount: albumList.length,
+        itemBuilder: (_, index) {
+          AlbumInfo albumInfo = albumList[index];
+          return LeftWidgetButton(
+              text:
+                  "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
+              widget: ThumbnailWidget(
+                asset: albumInfo.thumbnailAsset,
+                radius: 8.0,
+                isOriginal: false,
+              ),
+              onTapHandler: () async {
+                Navigator.pop(context);
+                final appStatus =
+                    Provider.of<AppStatus>(context, listen: false);
+                appStatus.setLoading(true);
+                final imageSelection =
+                    Provider.of<ImageSelection>(context, listen: false);
+
+                await moveCopyFiles(selectedAssets, copyFiles, albumInfo)
+                    .then((value) {
+                  if (value.isNotEmpty) {
+                    appStatus.setLoading(false);
+                    imageSelection.endSelection();
+                  }
                 });
-          },
-        );
-      });
+              });
+        },
+      );
     });
   }
 
