@@ -65,6 +65,7 @@ class GridItemWidget extends StatelessWidget {
             ? ImageWidgetStatus.selected
             : ImageWidgetStatus.unselected;
       }
+      AppStatus appStatus = Provider.of<AppStatus>(context, listen: false);
 
       return Hero(
           tag: asset.id,
@@ -81,10 +82,10 @@ class GridItemWidget extends StatelessWidget {
                         borderRadius:
                             BorderRadius.all(Radius.circular(radius))),
                     onTap: () {
-                      onTap(imageSelection);
+                      if (!appStatus.loading) onTap(imageSelection);
                     },
                     onLongPress: () {
-                      onLongPress(imageSelection);
+                      if (!appStatus.loading) onLongPress(imageSelection);
                     },
                   ),
                 ),

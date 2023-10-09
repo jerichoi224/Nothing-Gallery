@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 enum TextStyleType {
@@ -9,6 +8,8 @@ enum TextStyleType {
   // AlbumWidget
   albumTitle(fontSize: 12, color: Colors.white),
   buttonText(fontSize: 14, color: Colors.white),
+  moveToTitle(fontSize: 18, color: Colors.white),
+  newFolderHint(fontSize: 14, color: Colors.white54),
 
   // GridItemWidget
   videoDuration(fontSize: 12, color: Colors.white),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:nothing_gallery/constants/settings_pref.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -48,12 +49,13 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
       switch (validateEventType(event)) {
         case EventType.assetDeleted:
+        case EventType.assetMoved:
           setState(() {
             assets.removeWhere(
                 (image) => (event.details as List<String>).contains(image.id));
             images.removeWhere(
                 (image) => (event.details as List<String>).contains(image.id));
-            totalCount -= 1;
+            totalCount -= (event.details as List<String>).length;
           });
 
           break;
@@ -110,18 +112,23 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     setState(() {});
   }
 
-  Widget gridPageWrapper(ImageSelection imageSelection, Widget child) {
+  Widget gridPageWrapper(Widget child) {
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
             body: WillPopScope(
                 onWillPop: () async {
+                  final imageSelection =
+                      Provider.of<ImageSelection>(context, listen: false);
+                  final appStatus =
+                      Provider.of<AppStatus>(context, listen: false);
+
                   if (imageSelection.selectionMode) {
                     imageSelection.endSelection();
                     return false;
                   }
-                  Navigator.pop(context);
-                  return true;
+
+                  return !appStatus.loading;
                 },
                 child: SafeArea(child: child))));
   }
@@ -132,53 +139,72 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
       Future.microtask(() => Navigator.pop(context));
       return Container();
     } else {
-      return Consumer<ImageSelection>(
-          builder: (context, imageSelection, child) {
-        return gridPageWrapper(
-            imageSelection,
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Header
-              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                const SizedBox(width: 10),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Icon(Icons.arrow_back)),
-                Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 20, 20, 20),
-                    child: Text(
-                      "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
-                      style: mainTextStyle(TextStyleType.gridPageTitle),
-                    )),
-                const Spacer(),
-                imageSelection.selectionMode
-                    ? SelectionMenuWidget(
-                        assets: assets,
-                        showMore: true,
-                      )
-                    : Container()
-              ]),
+      return gridPageWrapper(Stack(
+        children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            // Header
+            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              const SizedBox(width: 10),
+              GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(Icons.arrow_back)),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 20, 20, 20),
+                  child: Text(
+                    "${albumInfo.pathEntity.name.toUpperCase()} ($totalCount)",
+                    style: mainTextStyle(TextStyleType.gridPageTitle),
+                  )),
+              const Spacer(),
+              Consumer<ImageSelection>(
+                  builder: (context, imageSelection, child) {
+                if (imageSelection.selectionMode) {
+                  return SelectionMenuWidget(
+                    assets: assets,
+                    showMore: true,
+                  );
+                }
+                return Container();
+              })
+            ]),
 
-              // Images Grid
-              Expanded(
-                  child: CustomScrollView(
-                primary: false,
-                slivers: <Widget>[
-                  SliverGrid.count(
-                      crossAxisSpacing: 2,
-                      mainAxisSpacing: 2,
-                      crossAxisCount: numCol,
-                      childAspectRatio: 1,
-                      children: assets
-                          .asMap()
-                          .entries
-                          .map((entry) => GridItemWidget(asset: entry.value))
-                          .toList()),
-                ],
-              ))
-            ]));
-      });
+            // Images Grid
+            Expanded(
+                child: CustomScrollView(
+              primary: false,
+              slivers: <Widget>[
+                SliverGrid.count(
+                    crossAxisSpacing: 2,
+                    mainAxisSpacing: 2,
+                    crossAxisCount: numCol,
+                    childAspectRatio: 1,
+                    children: assets
+                        .asMap()
+                        .entries
+                        .map((entry) => GridItemWidget(asset: entry.value))
+                        .toList()),
+              ],
+            ))
+          ]),
+          Consumer<AppStatus>(builder: (context, appStatus, child) {
+            if (appStatus.loading) {
+              return Center(
+                  child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(10)),
+                      height: 120,
+                      width: 120,
+                      child: const SpinKitSquareCircle(
+                        color: Colors.white,
+                        size: 42.0,
+                      )));
+            }
+            return Container();
+          }),
+        ],
+      ));
     }
   }
 

@@ -71,7 +71,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
             setState(() {});
           }
           break;
-
+        case EventType.assetMoved:
         case EventType.assetDeleted:
           if (images.length == index) {
             index--;

@@ -1,5 +1,7 @@
 enum EventType {
   assetDeleted,
+  // assetCopied,
+  assetMoved,
   pictureOpen,
   videoOpen,
   favoriteAdded,
