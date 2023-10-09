@@ -14,6 +14,35 @@ class SelectionMenuWidget extends StatelessWidget {
 
   final List<AssetEntity> assets;
   final bool showMore;
+
+  void moveAssetsPanel(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: 600,
+          child: Center(
+              child: Padding(
+            padding: EdgeInsets.all(36),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Choose Album',
+                  style: mainTextStyle(TextStyleType.moveToTitle),
+                ),
+                ElevatedButton(
+                  child: const Text('Cancel'),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          )),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     bool useTrashBin = sharedPref.get(SharedPrefKeys.useTrashBin);
@@ -45,14 +74,21 @@ class SelectionMenuWidget extends StatelessWidget {
             ? PopupMenuButton<SelectedImageMenu>(
                 tooltip: '',
                 offset: const Offset(0, 50),
-                onSelected: (SelectedImageMenu item) {},
+                onSelected: (SelectedImageMenu item) {
+                  switch (item) {
+                    case SelectedImageMenu.moveTo:
+                      moveAssetsPanel(context);
+                      break;
+                    default:
+                  }
+                },
                 itemBuilder: (BuildContext context) {
                   return [
                     for (final value in SelectedImageMenu.values)
                       PopupMenuItem(
                           value: value,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Text(
                               value.text,
                               style: mainTextStyle(TextStyleType.popUpMenu),

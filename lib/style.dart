@@ -9,6 +9,7 @@ enum TextStyleType {
   // AlbumWidget
   albumTitle(fontSize: 12, color: Colors.white),
   buttonText(fontSize: 14, color: Colors.white),
+  moveToTitle(fontSize: 16, color: Colors.white),
 
   // GridItemWidget
   videoDuration(fontSize: 12, color: Colors.white),

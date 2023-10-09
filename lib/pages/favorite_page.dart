@@ -151,7 +151,7 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
                   imageSelection.selectionMode
                       ? SelectionMenuWidget(
                           assets: assets,
-                          showMore: true,
+                          showMore: false,
                         )
                       : Container()
                 ]),
