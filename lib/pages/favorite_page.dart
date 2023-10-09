@@ -36,7 +36,7 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
       final appStatus = Provider.of<AppStatus>(context, listen: false);
 
-      recent = albumInfoList.recent;
+      recent = albumInfoList.recent!;
       assets = [...recent.preloadImages];
       totalLoaded = assets.length;
 

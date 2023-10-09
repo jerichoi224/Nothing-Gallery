@@ -52,7 +52,7 @@ class _VideosPageState extends State<VideosPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
 
-      recent = albumInfoList.recent;
+      recent = albumInfoList.recent!;
       assets = [...recent.preloadImages];
       totalLoaded = assets.length;
 
@@ -109,7 +109,7 @@ class _VideosPageState extends State<VideosPage> {
     assets = List.from(assets)..addAll(newAssets);
 
     if (newAssets.isNotEmpty) {
-      startingIndex = await buildImageChunks(startingIndex);
+      startingIndex = await insertAssetToDateMap(startingIndex);
       setState(() {});
     }
 
@@ -123,7 +123,7 @@ class _VideosPageState extends State<VideosPage> {
       if (newAssets.isNotEmpty) {
         assets = List.from(assets)..addAll(newAssets);
 
-        buildImageChunks(startingIndex).then((value) {
+        insertAssetToDateMap(startingIndex).then((value) {
           setState(() {
             startingIndex = value;
           });
@@ -132,7 +132,7 @@ class _VideosPageState extends State<VideosPage> {
     }
   }
 
-  Future<int> buildImageChunks(int startingIndex) async {
+  Future<int> insertAssetToDateMap(int startingIndex) async {
     for (AssetEntity asset in assets.sublist(startingIndex)) {
       DateTime dateTaken = asset.createDateTime;
       DateTime date = DateTime(dateTaken.year, dateTaken.month, dateTaken.day);

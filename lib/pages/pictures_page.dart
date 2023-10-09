@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/constants/settings_pref.dart';
+import 'package:nothing_gallery/classes/classes.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +19,7 @@ class PicturesWidget extends StatefulWidget {
   State createState() => _PicturesState();
 }
 
-class _PicturesState extends State<PicturesWidget>
+class _PicturesState extends LifecycleListenerState<PicturesWidget>
     with AutomaticKeepAliveClientMixin {
   late AlbumInfo recent;
   List<AssetEntity> assets = [];
@@ -57,8 +57,9 @@ class _PicturesState extends State<PicturesWidget>
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
       final appStatus = Provider.of<AppStatus>(context, listen: false);
 
-      recent = albumInfoList.recent;
+      recent = albumInfoList.recent!;
       totalCount = recent.assetCount;
+
       assets = recent.preloadImages;
       images = assets.where((asset) => asset.type == AssetType.image).toList();
       getImages();
@@ -73,13 +74,7 @@ class _PicturesState extends State<PicturesWidget>
                 .toList();
 
             for (AssetEntity asset in deletedAssets) {
-              DateTime dateTaken = asset.createDateTime;
-              DateTime date =
-                  DateTime(dateTaken.year, dateTaken.month, dateTaken.day);
-              dateMap[date]?.removeWhere((element) => element.id == asset.id);
-              if (dateMap[date]!.isEmpty) {
-                dateMap.remove(date);
-              }
+              removeAssetFromDateMap(asset);
             }
 
             setState(() {
@@ -114,16 +109,83 @@ class _PicturesState extends State<PicturesWidget>
     super.dispose();
   }
 
-  Future<void> getImages() async {
-    List<AssetEntity> newAssets =
-        await loadAssets(recent.pathEntity, ++currentPage, size: 80);
-    assets = List.from(assets)..addAll(newAssets);
-    images = List.from(images)
-      ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+  void removeAssetFromDateMap(AssetEntity asset) {
+    DateTime dateTaken = asset.createDateTime;
+    DateTime date = DateTime(dateTaken.year, dateTaken.month, dateTaken.day);
+    dateMap[date]?.removeWhere((element) => element.id == asset.id);
+    if (dateMap[date]!.isEmpty) {
+      dateMap.remove(date);
+    }
+  }
 
-    startingIndex = await buildImageChunks(startingIndex);
+  Future<void> checkNewImages() async {
+    int index = 0;
+    AssetEntity lastLoaded = assets[index];
+
+    List<AssetEntity> newAssets = recent.preloadImages;
+
+    int currPage = 0;
+
+    while (newAssets.where((asset) => asset.id == lastLoaded.id).isEmpty) {
+      assets = List.from(newAssets)..addAll(assets);
+      images =
+          List.from(newAssets.where((asset) => asset.type == AssetType.image))
+            ..addAll(images);
+
+      await insertAssetToDateMap(newAssets);
+      setState(() {});
+
+      newAssets = await loadAssets(recent.pathEntity, ++currPage, size: 80);
+    }
+
+    int prevLoc = newAssets.indexWhere((asset) => asset.id == lastLoaded.id);
+    newAssets = newAssets.sublist(0, prevLoc);
+
+    print("found $prevLoc images added");
+
+    if (newAssets.isEmpty) return;
+
+    assets = List.from(newAssets)..addAll(assets);
+    images =
+        List.from(newAssets.where((asset) => asset.type == AssetType.image))
+          ..addAll(images);
+
+    await insertAssetToDateMap(newAssets);
     setState(() {});
+    images.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
+  }
 
+  Future<void> checkRemovedImages() async {
+    int currPage = 0;
+    List<String> currentAssetIds =
+        recent.preloadImages.map((asset) => asset.id).toList();
+    List<AssetEntity> newAssets =
+        await loadAssets(recent.pathEntity, ++currPage, size: 80);
+    while (newAssets.isNotEmpty) {
+      currentAssetIds = List.from(currentAssetIds)
+        ..addAll(newAssets.map((asset) => asset.id).toList());
+      newAssets = await loadAssets(recent.pathEntity, ++currPage, size: 80);
+    }
+
+    List<String> removedIds = assets
+        .where((asset) {
+          bool remove = !currentAssetIds.contains(asset.id);
+          if (remove) removeAssetFromDateMap(asset);
+          return remove;
+        })
+        .map((asset) => asset.id)
+        .toList();
+    print("found ${removedIds.length} images removed");
+    setState(() {
+      assets.removeWhere((image) => removedIds.contains(image.id));
+      images.removeWhere((image) => removedIds.contains(image.id));
+    });
+  }
+
+  Future<void> getImages() async {
+    List<AssetEntity> newAssets = [];
+    await insertAssetToDateMap(assets);
+    setState(() {});
     while (assets.length < recent.assetCount) {
       newAssets = await loadAssets(recent.pathEntity, ++currentPage, size: 80);
       if (newAssets.isEmpty) break;
@@ -131,16 +193,14 @@ class _PicturesState extends State<PicturesWidget>
       assets = List.from(assets)..addAll(newAssets);
       images = List.from(images)
         ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
-      buildImageChunks(startingIndex).then((value) {
-        setState(() {
-          startingIndex = value;
-        });
-      });
+      await insertAssetToDateMap(newAssets);
+      setState(() {});
     }
+    images.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
   }
 
-  Future<int> buildImageChunks(int startingIndex) async {
-    for (AssetEntity asset in assets.sublist(startingIndex)) {
+  Future<int> insertAssetToDateMap(List<AssetEntity> newAssets) async {
+    for (AssetEntity asset in newAssets) {
       DateTime dateTaken = asset.createDateTime;
       DateTime date = DateTime(dateTaken.year, dateTaken.month, dateTaken.day);
 
@@ -240,4 +300,38 @@ class _PicturesState extends State<PicturesWidget>
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
+
+  @override
+  void onDetached() {
+    // TODO: implement onDetached
+  }
+
+  @override
+  void onHidden() {
+    // TODO: implement onHidden
+  }
+
+  @override
+  void onInactive() {
+    // TODO: implement onInactive
+  }
+
+  @override
+  void onPaused() {
+    // TODO: implement onPaused
+  }
+
+  @override
+  void onResumed() async {
+    final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
+    await albumInfoList.refreshRecent();
+    if (albumInfoList.recent == null) {
+      return;
+    }
+    recent = albumInfoList.recent!;
+    totalCount = recent.assetCount;
+
+    await checkRemovedImages();
+    await checkNewImages();
+  }
 }
