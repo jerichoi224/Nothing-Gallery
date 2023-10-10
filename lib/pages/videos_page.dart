@@ -299,8 +299,7 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
                             assets: assets,
                             showMore: false,
                           )
-                        : IconButton(
-                            onPressed: () {}, icon: const Icon(Icons.search))
+                        : Container()
                   ],
                 )),
             // Album Grid

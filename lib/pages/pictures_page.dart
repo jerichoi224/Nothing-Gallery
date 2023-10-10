@@ -298,8 +298,7 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
                             assets: assets,
                             showMore: false,
                           )
-                        : IconButton(
-                            onPressed: () {}, icon: const Icon(Icons.search))
+                        : Container()
                   ],
                 )),
             // Album Grid
