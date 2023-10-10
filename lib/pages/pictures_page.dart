@@ -265,7 +265,10 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
             shrinkWrap: true,
             crossAxisCount: 4,
             children: entry.value.map((entry) {
-              return GridItemWidget(asset: entry);
+              return GridItemWidget(
+                asset: entry,
+                favoritePage: false,
+              );
             }).toList())
       ],
     );
