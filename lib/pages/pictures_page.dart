@@ -213,7 +213,7 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
     }
   }
 
-  void updateTimeline() async {
+  Future<void> updateTimeline() async {
     final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
     await albumInfoList.refreshRecent();
     if (albumInfoList.recent == null) {
@@ -304,6 +304,12 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
                 )),
             // Album Grid
             Expanded(
+                child: RefreshIndicator(
+              color: Colors.red,
+              onRefresh: () async {
+                await updateTimeline();
+                return;
+              },
               child: CustomScrollView(primary: false, slivers: <Widget>[
                 SliverList(
                     delegate: SliverChildBuilderDelegate(
@@ -311,7 +317,7 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
                   childCount: dateList.length,
                 ))
               ]),
-            )
+            ))
           ]));
     });
   }

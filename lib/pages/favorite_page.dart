@@ -77,7 +77,7 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
     super.dispose();
   }
 
-  void updateFavorites() async {
+  Future<void> updateFavorites() async {
     final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
     await albumInfoList.refreshRecent();
     if (albumInfoList.recent == null) {
@@ -200,24 +200,30 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
 
                 // Images Grid
                 Expanded(
-                    child: CustomScrollView(
-                  primary: false,
-                  slivers: <Widget>[
-                    SliverGrid.count(
-                        crossAxisSpacing: 2,
-                        mainAxisSpacing: 2,
-                        crossAxisCount: numCol,
-                        childAspectRatio: 1,
-                        children: assets
-                            .asMap()
-                            .entries
-                            .map((entry) => GridItemWidget(
-                                  asset: entry.value,
-                                  favoritePage: true,
-                                ))
-                            .toList()),
-                  ],
-                ))
+                    child: RefreshIndicator(
+                        color: Colors.red,
+                        onRefresh: () async {
+                          await updateFavorites();
+                          return;
+                        },
+                        child: CustomScrollView(
+                          primary: false,
+                          slivers: <Widget>[
+                            SliverGrid.count(
+                                crossAxisSpacing: 2,
+                                mainAxisSpacing: 2,
+                                crossAxisCount: numCol,
+                                childAspectRatio: 1,
+                                children: assets
+                                    .asMap()
+                                    .entries
+                                    .map((entry) => GridItemWidget(
+                                          asset: entry.value,
+                                          favoritePage: true,
+                                        ))
+                                    .toList()),
+                          ],
+                        )))
               ]));
         });
       }

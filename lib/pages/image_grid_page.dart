@@ -77,11 +77,20 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
     super.dispose();
   }
 
-  void refreshGrid() {
+  Future<void> updateGrid() async {
+    List<AlbumInfo> updatedAlbum =
+        await getCurrentAlbumStates([albumInfo.pathEntity.id]);
+
+    if (updatedAlbum.isEmpty) return;
+    albumInfo = updatedAlbum[0];
+    await refreshGrid();
+  }
+
+  Future<void> refreshGrid() async {
     assets = albumInfo.preloadImages;
     images = assets.where((asset) => asset.type == AssetType.image).toList();
     currentPage = 0;
-    getImages();
+    await getImages();
   }
 
   void getPreferences() {
@@ -171,24 +180,30 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
             // Images Grid
             Expanded(
-                child: CustomScrollView(
-              primary: false,
-              slivers: <Widget>[
-                SliverGrid.count(
-                    crossAxisSpacing: 2,
-                    mainAxisSpacing: 2,
-                    crossAxisCount: numCol,
-                    childAspectRatio: 1,
-                    children: assets
-                        .asMap()
-                        .entries
-                        .map((entry) => GridItemWidget(
-                              asset: entry.value,
-                              favoritePage: false,
-                            ))
-                        .toList()),
-              ],
-            ))
+                child: RefreshIndicator(
+                    color: Colors.red,
+                    onRefresh: () async {
+                      await updateGrid();
+                      return;
+                    },
+                    child: CustomScrollView(
+                      primary: false,
+                      slivers: <Widget>[
+                        SliverGrid.count(
+                            crossAxisSpacing: 2,
+                            mainAxisSpacing: 2,
+                            crossAxisCount: numCol,
+                            childAspectRatio: 1,
+                            children: assets
+                                .asMap()
+                                .entries
+                                .map((entry) => GridItemWidget(
+                                      asset: entry.value,
+                                      favoritePage: false,
+                                    ))
+                                .toList()),
+                      ],
+                    )))
           ]),
           Consumer<AppStatus>(builder: (context, appStatus, child) {
             if (appStatus.loading) {
@@ -228,12 +243,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
   @override
   void onResumed() async {
-    List<AlbumInfo> updatedAlbum =
-        await getCurrentAlbumStates([albumInfo.pathEntity.id]);
-
-    if (updatedAlbum.isEmpty) return;
-    albumInfo = updatedAlbum[0];
-    refreshGrid();
+    updateGrid();
   }
 
   @override
