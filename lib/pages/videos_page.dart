@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/classes/classes.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -18,13 +19,12 @@ class VideosPage extends StatefulWidget {
   State createState() => _VideosPageState();
 }
 
-class _VideosPageState extends State<VideosPage> {
+class _VideosPageState extends LifecycleListenerState<VideosPage> {
   late AlbumInfo recent;
   List<AssetEntity> assets = [];
 
   Map<DateTime, List<AssetEntity>> dateMap = {};
   int currentPage = 0;
-  int startingIndex = 0;
   int totalLoaded = 0;
 
   StreamSubscription? eventSubscription;
@@ -56,7 +56,7 @@ class _VideosPageState extends State<VideosPage> {
       assets = [...recent.preloadImages];
       totalLoaded = assets.length;
 
-      assets.removeWhere((asset) => asset.type == AssetType.image);
+      assets.removeWhere((asset) => asset.type != AssetType.video);
 
       getVideos();
 
@@ -100,47 +100,126 @@ class _VideosPageState extends State<VideosPage> {
     super.dispose();
   }
 
-  Future<void> getVideos() async {
-    List<AssetEntity> newAssets =
-        await loadAssets(recent.pathEntity, ++currentPage, size: 80);
-
-    totalLoaded += newAssets.length;
-    newAssets.removeWhere((asset) => asset.type == AssetType.image);
-    assets = List.from(assets)..addAll(newAssets);
-
-    if (newAssets.isNotEmpty) {
-      startingIndex = await insertAssetToDateMap(startingIndex);
-      setState(() {});
+  void removeAssetFromDateMap(AssetEntity asset) {
+    DateTime dateTaken = asset.createDateTime;
+    DateTime date = DateTime(dateTaken.year, dateTaken.month, dateTaken.day);
+    dateMap[date]?.removeWhere((element) => element.id == asset.id);
+    if (dateMap[date]!.isEmpty) {
+      dateMap.remove(date);
     }
+  }
+
+  Future<void> checkNewVideos() async {
+    int index = 0;
+    AssetEntity lastLoaded = assets[index];
+
+    List<AssetEntity> newAssets = [...recent.preloadImages];
+    newAssets.removeWhere((asset) => asset.type != AssetType.video);
+
+    int currPage = 0;
+
+    while (newAssets.where((asset) => asset.id == lastLoaded.id).isEmpty) {
+      assets = List.from(newAssets)..addAll(assets);
+
+      await insertAssetToDateMap(newAssets);
+      setState(() {});
+
+      newAssets = await loadAssets(recent.pathEntity, ++currPage, size: 80);
+      newAssets.removeWhere((asset) => asset.type != AssetType.video);
+    }
+
+    int prevLoc = newAssets.indexWhere((asset) => asset.id == lastLoaded.id);
+    newAssets = newAssets.sublist(0, prevLoc);
+
+    print("found $prevLoc images added");
+
+    if (newAssets.isEmpty) return;
+
+    assets = List.from(newAssets)..addAll(assets);
+
+    await insertAssetToDateMap(newAssets);
+    setState(() {});
+  }
+
+  Future<void> checkRemovedVideos() async {
+    int currPage = 0;
+    List<String> currentAssetIds = recent.preloadImages
+        .where((asset) => asset.type == AssetType.video)
+        .map((asset) => asset.id)
+        .toList();
+
+    List<AssetEntity> newAssets =
+        await loadAssets(recent.pathEntity, ++currPage, size: 80);
+    newAssets.removeWhere((asset) => asset.type != AssetType.video);
+
+    while (newAssets.isNotEmpty) {
+      currentAssetIds = List.from(currentAssetIds)
+        ..addAll(newAssets.map((asset) => asset.id).toList());
+      newAssets = await loadAssets(recent.pathEntity, ++currPage, size: 80);
+      newAssets.removeWhere((asset) => asset.type != AssetType.video);
+    }
+
+    List<String> removedIds = assets
+        .where((asset) {
+          bool remove = !currentAssetIds.contains(asset.id);
+          if (remove) removeAssetFromDateMap(asset);
+          return remove;
+        })
+        .map((asset) => asset.id)
+        .toList();
+
+    print("found ${removedIds.length} images removed");
+
+    setState(() {
+      assets.removeWhere((video) => removedIds.contains(video.id));
+    });
+  }
+
+  void updateVideos() async {
+    final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
+    await albumInfoList.refreshRecent();
+    if (albumInfoList.recent == null) {
+      return;
+    }
+    recent = albumInfoList.recent!;
+
+    await checkRemovedVideos();
+    await checkNewVideos();
+  }
+
+  Future<void> getVideos() async {
+    List<AssetEntity> newAssets = [];
+
+    await insertAssetToDateMap(assets);
+    setState(() {});
 
     while (totalLoaded < recent.assetCount) {
       newAssets = await loadAssets(recent.pathEntity, ++currentPage, size: 80);
       if (newAssets.isEmpty) break;
 
       totalLoaded += newAssets.length;
-      newAssets.removeWhere((asset) => asset.type == AssetType.image);
+      newAssets.removeWhere((asset) => asset.type != AssetType.video);
 
       if (newAssets.isNotEmpty) {
         assets = List.from(assets)..addAll(newAssets);
-
-        insertAssetToDateMap(startingIndex).then((value) {
-          setState(() {
-            startingIndex = value;
-          });
-        });
+        await insertAssetToDateMap(newAssets);
+        setState(() {});
       }
     }
   }
 
-  Future<int> insertAssetToDateMap(int startingIndex) async {
-    for (AssetEntity asset in assets.sublist(startingIndex)) {
+  Future<void> insertAssetToDateMap(List<AssetEntity> newAssets) async {
+    for (AssetEntity asset in newAssets) {
       DateTime dateTaken = asset.createDateTime;
       DateTime date = DateTime(dateTaken.year, dateTaken.month, dateTaken.day);
 
       dateMap.putIfAbsent(date, () => []);
       dateMap[date]!.add(asset);
+      if (dateMap[date]!.isNotEmpty) {
+        dateMap[date]!
+            .sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
+      }
     }
-    return assets.length;
   }
 
   Widget videosPageWrapper(ImageSelection imageSelection, Widget child) {
@@ -233,5 +312,30 @@ class _VideosPageState extends State<VideosPage> {
             )
           ]));
     });
+  }
+
+  @override
+  void onDetached() {
+    // TODO: implement onDetached
+  }
+
+  @override
+  void onHidden() {
+    // TODO: implement onHidden
+  }
+
+  @override
+  void onInactive() {
+    // TODO: implement onInactive
+  }
+
+  @override
+  void onPaused() {
+    // TODO: implement onPaused
+  }
+
+  @override
+  void onResumed() async {
+    updateVideos();
   }
 }

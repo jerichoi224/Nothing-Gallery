@@ -118,7 +118,7 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
     }
   }
 
-  Future<void> checkNewImages() async {
+  Future<void> checkNewAssets() async {
     int index = 0;
     AssetEntity lastLoaded = assets[index];
 
@@ -155,7 +155,7 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
     images.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
   }
 
-  Future<void> checkRemovedImages() async {
+  Future<void> checkRemovedAssets() async {
     int currPage = 0;
     List<String> currentAssetIds =
         recent.preloadImages.map((asset) => asset.id).toList();
@@ -199,15 +199,31 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
     images.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
   }
 
-  Future<int> insertAssetToDateMap(List<AssetEntity> newAssets) async {
+  Future<void> insertAssetToDateMap(List<AssetEntity> newAssets) async {
     for (AssetEntity asset in newAssets) {
       DateTime dateTaken = asset.createDateTime;
       DateTime date = DateTime(dateTaken.year, dateTaken.month, dateTaken.day);
 
       dateMap.putIfAbsent(date, () => []);
       dateMap[date]!.add(asset);
+      if (dateMap[date]!.isNotEmpty) {
+        dateMap[date]!
+            .sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
+      }
     }
-    return assets.length;
+  }
+
+  void updateTimeline() async {
+    final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
+    await albumInfoList.refreshRecent();
+    if (albumInfoList.recent == null) {
+      return;
+    }
+    recent = albumInfoList.recent!;
+    totalCount = recent.assetCount;
+
+    await checkRemovedAssets();
+    await checkNewAssets();
   }
 
   Widget picturesPageWrapper(ImageSelection imageSelection, Widget child) {
@@ -323,15 +339,6 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
 
   @override
   void onResumed() async {
-    final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
-    await albumInfoList.refreshRecent();
-    if (albumInfoList.recent == null) {
-      return;
-    }
-    recent = albumInfoList.recent!;
-    totalCount = recent.assetCount;
-
-    await checkRemovedImages();
-    await checkNewImages();
+    updateTimeline();
   }
 }
