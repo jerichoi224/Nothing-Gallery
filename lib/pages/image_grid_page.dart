@@ -182,7 +182,10 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                     children: assets
                         .asMap()
                         .entries
-                        .map((entry) => GridItemWidget(asset: entry.value))
+                        .map((entry) => GridItemWidget(
+                              asset: entry.value,
+                              favoritePage: false,
+                            ))
                         .toList()),
               ],
             ))

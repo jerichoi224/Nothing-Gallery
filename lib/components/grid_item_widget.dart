@@ -13,9 +13,11 @@ class GridItemWidget extends StatelessWidget {
   const GridItemWidget({
     super.key,
     required this.asset,
+    required this.favoritePage,
   });
 
   final AssetEntity asset;
+  final bool favoritePage;
 
   final double radius = 0;
 
@@ -90,41 +92,63 @@ class GridItemWidget extends StatelessWidget {
                   ),
                 ),
               ),
-
-              //** video duration **//
-              asset.type == AssetType.video
-                  ? Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(2, 2, 0, 0),
-                          child: Icon(
-                            Icons.play_circle_rounded,
-                            size: 18,
-                          ),
-                        ),
-                        Text(" $duration",
-                            style: mainTextStyle(TextStyleType.videoDuration))
-                      ],
-                    )
-                  : Container(),
-
-              //** selection status **//
-              status == ImageWidgetStatus.normal
-                  ? Container()
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Icon(
-                          status == ImageWidgetStatus.selected
-                              ? Icons.check_circle
-                              : Icons.circle_outlined,
-                          size: 22,
-                          color: status == ImageWidgetStatus.selected
-                              ? Colors.grey.shade200
-                              : Colors.grey.shade500,
-                        ),
-                      ],
-                    )
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      //** video duration (Top Left) **//
+                      asset.type == AssetType.video
+                          ? Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.fromLTRB(2, 2, 0, 0),
+                                  child: Icon(
+                                    Icons.play_circle_rounded,
+                                    size: 18,
+                                  ),
+                                ),
+                                Text(" $duration",
+                                    style: mainTextStyle(
+                                        TextStyleType.videoDuration))
+                              ],
+                            )
+                          : Container(),
+                      const Spacer(),
+                      //** selection status (Top right) **//
+                      status == ImageWidgetStatus.normal
+                          ? Container()
+                          : Icon(
+                              status == ImageWidgetStatus.selected
+                                  ? Icons.check_circle
+                                  : Icons.circle_outlined,
+                              size: 22,
+                              color: status == ImageWidgetStatus.selected
+                                  ? Colors.grey.shade200
+                                  : Colors.grey.shade500,
+                            ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      //** favorite (Bottom left) **//
+                      !favoritePage && appStatus.favoriteIds.contains(asset.id)
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(2),
+                                  child: Icon(Icons.favorite_rounded,
+                                      size: 20, color: Colors.red.shade400),
+                                )
+                              ],
+                            )
+                          : Container(),
+                      const Spacer()
+                    ],
+                  )
+                ],
+              )
             ],
           ));
     });
