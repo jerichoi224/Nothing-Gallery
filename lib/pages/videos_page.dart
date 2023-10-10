@@ -175,7 +175,7 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
     });
   }
 
-  void updateVideos() async {
+  Future<void> updateVideos() async {
     final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
     await albumInfoList.refreshRecent();
     if (albumInfoList.recent == null) {
@@ -299,12 +299,17 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
                             assets: assets,
                             showMore: false,
                           )
-                        : IconButton(
-                            onPressed: () {}, icon: const Icon(Icons.search))
+                        : Container()
                   ],
                 )),
             // Album Grid
             Expanded(
+                child: RefreshIndicator(
+              color: Colors.red,
+              onRefresh: () async {
+                await updateVideos();
+                return;
+              },
               child: CustomScrollView(primary: false, slivers: <Widget>[
                 SliverList(
                     delegate: SliverChildBuilderDelegate(
@@ -312,7 +317,7 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
                   childCount: dateList.length,
                 ))
               ]),
-            )
+            )),
           ]));
     });
   }

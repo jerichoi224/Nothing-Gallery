@@ -21,10 +21,7 @@ class AlbumsWidget extends StatefulWidget {
 }
 
 class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
-    with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 500));
-
+    with AutomaticKeepAliveClientMixin {
   bool pinShortcuts = false;
   StreamSubscription? eventSubscription;
 
@@ -111,24 +108,6 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                           'ALBUMS',
                           style: mainTextStyle(TextStyleType.pageTitle),
                         ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            albumInfoList.refreshAlbums();
-
-                            _controller.forward().then((value) {
-                              _controller.reset();
-                            });
-                          },
-                          child: RotationTransition(
-                            turns: Tween(begin: 0.0, end: 1.0)
-                                .animate(_controller),
-                            child: const Icon(Icons.refresh_rounded),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
                       ],
                     )),
                 pinShortcuts
@@ -145,32 +124,38 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                       )
                     : Container(),
                 Expanded(
-                    child: CustomScrollView(
-                  primary: false,
-                  slivers: <Widget>[
-                    SliverPadding(
-                        padding: pinShortcuts
-                            ? const EdgeInsets.all(0)
-                            : const EdgeInsets.fromLTRB(10, 20, 10, 10),
-                        sliver: SliverGrid.count(
-                            crossAxisSpacing: 15,
-                            mainAxisSpacing: 15,
-                            crossAxisCount: 2,
-                            childAspectRatio: 2.5,
-                            children: pinShortcuts ? [] : shortcuts())),
-                    SliverPadding(
-                        padding: const EdgeInsets.all(10),
-                        sliver: SliverGrid.count(
-                            crossAxisSpacing: 15,
-                            mainAxisSpacing: 15,
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.85,
-                            children: albumInfoList.albums
-                                .map((albumeInfo) =>
-                                    AlbumWidget(albumInfo: albumeInfo))
-                                .toList())),
-                  ],
-                ))
+                    child: RefreshIndicator(
+                        color: Colors.red,
+                        onRefresh: () async {
+                          await albumInfoList.refreshAlbums();
+                          return;
+                        },
+                        child: CustomScrollView(
+                          primary: false,
+                          slivers: <Widget>[
+                            SliverPadding(
+                                padding: pinShortcuts
+                                    ? const EdgeInsets.all(0)
+                                    : const EdgeInsets.fromLTRB(10, 20, 10, 10),
+                                sliver: SliverGrid.count(
+                                    crossAxisSpacing: 15,
+                                    mainAxisSpacing: 15,
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 2.5,
+                                    children: pinShortcuts ? [] : shortcuts())),
+                            SliverPadding(
+                                padding: const EdgeInsets.all(10),
+                                sliver: SliverGrid.count(
+                                    crossAxisSpacing: 15,
+                                    mainAxisSpacing: 15,
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 0.85,
+                                    children: albumInfoList.albums
+                                        .map((albumeInfo) =>
+                                            AlbumWidget(albumInfo: albumeInfo))
+                                        .toList())),
+                          ],
+                        )))
               ]);
         }))));
   }
