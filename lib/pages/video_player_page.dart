@@ -50,7 +50,7 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
   Future<void> loadVideo() async {
     File? videoFile = await widget.video.file.then((value) {
       if (value == null) {
-        Navigator.pop(context);
+        if (Navigator.canPop(context)) Navigator.pop(context);
         return null;
       } else {
         return value;
@@ -92,7 +92,7 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
   Widget videoPlayerWrapper(Widget child) {
     return WillPopScope(
         onWillPop: () async {
-          Navigator.pop(context);
+          if (Navigator.canPop(context)) Navigator.pop(context);
           return true;
         },
         child: SafeArea(
@@ -135,7 +135,9 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                             children: [
                               IconButton(
                                   onPressed: () {
-                                    Navigator.pop(context);
+                                    if (Navigator.canPop(context)) {
+                                      Navigator.pop(context);
+                                    }
                                   },
                                   icon: const Icon(Icons.arrow_back)),
                               const Spacer(),
@@ -190,10 +192,10 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                             ),
                           ),
                           SingleItemBottomMenu(
-                            asset: widget.video,
-                            popOnDelete: true,
-                            parentContext: context,
-                          )
+                              asset: widget.video,
+                              popOnDelete: true,
+                              parentContext: context,
+                              favoritesPage: false)
                         ],
                       )))
             ])

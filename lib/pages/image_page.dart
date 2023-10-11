@@ -120,7 +120,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
       return Scaffold(
           body: WillPopScope(
               onWillPop: () async {
-                Navigator.pop(context);
+                if (Navigator.canPop(context)) Navigator.pop(context);
                 return true;
               },
               child: SafeArea(
@@ -171,7 +171,9 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                                     children: [
                                       IconButton(
                                           onPressed: () {
-                                            Navigator.pop(context);
+                                            if (Navigator.canPop(context)) {
+                                              Navigator.pop(context);
+                                            }
                                           },
                                           icon: const Icon(Icons.arrow_back)),
                                       Text(
@@ -200,6 +202,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                                       asset: images[index],
                                       popOnDelete: false,
                                       parentContext: context,
+                                      favoritesPage: widget.favoritesPage,
                                     ))
                               ],
                             ))

@@ -156,7 +156,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
               const SizedBox(width: 10),
               GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    if (Navigator.canPop(context)) Navigator.pop(context);
                   },
                   child: const Icon(Icons.arrow_back)),
               Padding(

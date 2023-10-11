@@ -67,7 +67,7 @@ class _SelectionMenuState extends State<SelectionMenuWidget>
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   onTap: () {
                     newFolderName = textController.text;
-                    Navigator.pop(context);
+                    if (Navigator.canPop(context)) Navigator.pop(context);
                   },
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
@@ -139,7 +139,9 @@ class _SelectionMenuState extends State<SelectionMenuWidget>
                 if (createFolder) {
                   destinationPath =
                       await createNewFolder(context).then((value) {
-                    if (value.isNotEmpty) Navigator.pop(context);
+                    if (value.isNotEmpty && Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
 
                     return value;
                   });
@@ -149,7 +151,9 @@ class _SelectionMenuState extends State<SelectionMenuWidget>
                 } else {
                   File? destinationFile =
                       await albumInfo.thumbnailAsset.file.then((value) {
-                    if (value != null) Navigator.pop(context);
+                    if (value != null && Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
                     return value;
                   });
                   if (destinationFile == null) {

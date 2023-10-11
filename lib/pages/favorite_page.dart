@@ -30,6 +30,13 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
   int numCol = 4;
 
   @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -157,7 +164,7 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
                     imageSelection.endSelection();
                     return false;
                   }
-                  Navigator.pop(context);
+                  if (Navigator.canPop(context)) Navigator.pop(context);
                   return true;
                 },
                 child: SafeArea(child: child))));
@@ -167,7 +174,9 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
   Widget build(BuildContext context) {
     return Consumer<AppStatus>(builder: (context, appStatus, child) {
       if (appStatus.favoriteIds.isEmpty) {
-        Future.microtask(() => Navigator.pop(context));
+        Future.microtask(() {
+          if (Navigator.canPop(context)) Navigator.pop(context);
+        });
         return Container();
       } else {
         return Consumer<ImageSelection>(
@@ -180,7 +189,7 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
                   const SizedBox(width: 10),
                   GestureDetector(
                       onTap: () {
-                        Navigator.pop(context);
+                        if (Navigator.canPop(context)) Navigator.pop(context);
                       },
                       child: const Icon(Icons.arrow_back)),
                   Padding(
