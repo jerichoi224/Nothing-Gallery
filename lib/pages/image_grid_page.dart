@@ -169,9 +169,10 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
               Consumer<ImageSelection>(
                   builder: (context, imageSelection, child) {
                 if (imageSelection.selectionMode) {
-                  return SelectionMenuWidget(
+                  return SelectionMenu(
                     assets: assets,
                     showMore: true,
+                    currentAlbum: albumInfo.pathEntity,
                   );
                 }
                 return Container();

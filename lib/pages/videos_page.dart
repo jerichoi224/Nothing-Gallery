@@ -295,9 +295,10 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
                     ),
                     const Spacer(),
                     imageSelection.selectionMode
-                        ? SelectionMenuWidget(
+                        ? SelectionMenu(
                             assets: assets,
                             showMore: false,
+                            currentAlbum: null,
                           )
                         : Container()
                   ],
