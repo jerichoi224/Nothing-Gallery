@@ -67,90 +67,95 @@ class GridItemWidget extends StatelessWidget {
             ? ImageWidgetStatus.selected
             : ImageWidgetStatus.unselected;
       }
-      AppStatus appStatus = Provider.of<AppStatus>(context, listen: false);
 
-      return Hero(
-          tag: asset.id,
-          child: Stack(
-            children: <Widget>[
-              ThumbnailWidget(asset: asset, radius: radius, isOriginal: false),
-              Positioned.fill(
-                child: Material(
-                  color: status == ImageWidgetStatus.selected
-                      ? Colors.black38
-                      : Colors.transparent,
-                  child: InkWell(
-                    customBorder: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.all(Radius.circular(radius))),
-                    onTap: () {
-                      if (!appStatus.loading) onTap(imageSelection);
-                    },
-                    onLongPress: () {
-                      if (!appStatus.loading) onLongPress(imageSelection);
-                    },
-                  ),
-                ),
-              ),
-              Column(
+      return Stack(
+        children: <Widget>[
+          Hero(
+              tag: asset.id,
+              child: ThumbnailWidget(
+                  asset: asset, radius: radius, isOriginal: false)),
+          Positioned.fill(
+            child: Material(
+              color: status == ImageWidgetStatus.selected
+                  ? Colors.black38
+                  : Colors.transparent,
+              child: Consumer<AppStatus>(builder: (context, appStatus, child) {
+                return InkWell(
+                  customBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(radius))),
+                  onTap: () {
+                    if (!appStatus.loading) onTap(imageSelection);
+                  },
+                  onLongPress: () {
+                    if (!appStatus.loading) onLongPress(imageSelection);
+                  },
+                );
+              }),
+            ),
+          ),
+          Column(
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      //** video duration (Top Left) **//
-                      asset.type == AssetType.video
-                          ? Row(
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.fromLTRB(2, 2, 0, 0),
-                                  child: Icon(
-                                    Icons.play_circle_rounded,
-                                    size: 18,
-                                  ),
-                                ),
-                                Text(" $duration",
-                                    style: mainTextStyle(
-                                        TextStyleType.videoDuration))
-                              ],
-                            )
-                          : Container(),
-                      const Spacer(),
-                      //** selection status (Top right) **//
-                      status == ImageWidgetStatus.normal
-                          ? Container()
-                          : Icon(
-                              status == ImageWidgetStatus.selected
-                                  ? Icons.check_circle
-                                  : Icons.circle_outlined,
-                              size: 22,
-                              color: status == ImageWidgetStatus.selected
-                                  ? Colors.grey.shade200
-                                  : Colors.grey.shade500,
+                  //** video duration (Top Left) **//
+                  asset.type == AssetType.video
+                      ? Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(2, 2, 0, 0),
+                              child: Icon(
+                                Icons.play_circle_rounded,
+                                size: 18,
+                              ),
                             ),
-                    ],
-                  ),
+                            Text(" $duration",
+                                style:
+                                    mainTextStyle(TextStyleType.videoDuration))
+                          ],
+                        )
+                      : Container(),
                   const Spacer(),
-                  Row(
-                    children: [
-                      //** favorite (Bottom left) **//
-                      !favoritePage && appStatus.favoriteIds.contains(asset.id)
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(2),
-                                  child: Icon(Icons.favorite_rounded,
-                                      size: 20, color: Colors.red.shade400),
-                                )
-                              ],
-                            )
-                          : Container(),
-                      const Spacer()
-                    ],
-                  )
+                  //** selection status (Top right) **//
+                  status == ImageWidgetStatus.normal
+                      ? Container()
+                      : Icon(
+                          status == ImageWidgetStatus.selected
+                              ? Icons.check_circle
+                              : Icons.circle_outlined,
+                          size: 22,
+                          color: status == ImageWidgetStatus.selected
+                              ? Colors.grey.shade200
+                              : Colors.grey.shade500,
+                        ),
+                ],
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  Consumer<AppStatus>(builder: (context, appStatus, child) {
+                    //** favorite (Bottom left) **//
+                    if (!favoritePage &&
+                        appStatus.favoriteIds.contains(asset.id)) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(2),
+                            child: Icon(Icons.favorite_rounded,
+                                size: 20, color: Colors.red.shade400),
+                          )
+                        ],
+                      );
+                    }
+                    return Container();
+                  }),
+                  const Spacer()
                 ],
               )
             ],
-          ));
+          )
+        ],
+      );
     });
   }
 }
