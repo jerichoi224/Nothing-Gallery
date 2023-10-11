@@ -294,9 +294,10 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
                     ),
                     const Spacer(),
                     imageSelection.selectionMode
-                        ? SelectionMenuWidget(
+                        ? SelectionMenu(
                             assets: assets,
                             showMore: false,
+                            currentAlbum: null,
                           )
                         : Container()
                   ],

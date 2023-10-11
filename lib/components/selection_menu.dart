@@ -13,18 +13,22 @@ import 'package:nothing_gallery/util/util.dart';
 
 import 'package:nothing_gallery/model/model.dart';
 
-class SelectionMenuWidget extends StatefulWidget {
-  const SelectionMenuWidget(
-      {super.key, required this.assets, required this.showMore});
+class SelectionMenu extends StatefulWidget {
+  const SelectionMenu(
+      {super.key,
+      required this.assets,
+      required this.showMore,
+      required this.currentAlbum});
 
   final List<AssetEntity> assets;
   final bool showMore;
+  final AssetPathEntity? currentAlbum;
 
   @override
   State createState() => _SelectionMenuState();
 }
 
-class _SelectionMenuState extends State<SelectionMenuWidget>
+class _SelectionMenuState extends State<SelectionMenu>
     with SingleTickerProviderStateMixin {
   int index = 0;
 
@@ -97,20 +101,21 @@ class _SelectionMenuState extends State<SelectionMenuWidget>
     double radius = 8.0;
 
     return Consumer<AlbumInfoList>(builder: (context, albumInfoList, child) {
-      List<AlbumInfo> albumList = albumInfoList.albums;
-      bool copyAdded = false;
-      if (albumList.isNotEmpty) {
-        AlbumInfo copyItem = albumList[0];
-        albumList.insert(
-            0, AlbumInfo(copyItem.pathEntity, copyItem.thumbnailAsset, 0, []));
-        copyAdded = true;
+      List<AlbumInfo> albumList = [...albumInfoList.albums];
+
+      if (albumList.isNotEmpty && widget.currentAlbum != null) {
+        AlbumInfo currentAlbum = albumList.firstWhere(
+            (album) => album.pathEntity.id == widget.currentAlbum!.id);
+
+        albumList.remove(currentAlbum);
+        albumList.insert(0, currentAlbum);
       }
       return ListView.builder(
         controller: controller,
         itemCount: albumList.length,
         itemBuilder: (_, index) {
           AlbumInfo albumInfo = albumList[index];
-          bool createFolder = index == 0 && copyAdded;
+          bool createFolder = index == 0;
           return LeftWidgetButton(
               text: createFolder
                   ? "Create New Folder"
