@@ -12,7 +12,8 @@ void openSettings(BuildContext context) async {
       ));
 }
 
-void openVideoPlayerPage(BuildContext context, AssetEntity video) async {
+Future<void> openVideoPlayerPage(
+    BuildContext context, AssetEntity video) async {
   await Navigator.push(
       context,
       MaterialPageRoute(
@@ -22,7 +23,7 @@ void openVideoPlayerPage(BuildContext context, AssetEntity video) async {
       ));
 }
 
-void openImagePage(
+Future<void> openImagePage(
     BuildContext context, int index, int imageCount, List<AssetEntity> images,
     {bool favoritesPage = false}) async {
   await Navigator.push(

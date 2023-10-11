@@ -285,7 +285,7 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
                   children: [
                     GestureDetector(
                         onTap: () {
-                          Navigator.pop(context);
+                          if (Navigator.canPop(context)) Navigator.pop(context);
                         },
                         child: const Icon(Icons.arrow_back)),
                     const SizedBox(width: 10),

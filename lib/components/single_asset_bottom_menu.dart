@@ -10,11 +10,13 @@ class SingleItemBottomMenu extends StatelessWidget {
       {super.key,
       required this.parentContext,
       required this.asset,
-      required this.popOnDelete});
+      required this.popOnDelete,
+      required this.favoritesPage});
 
   final BuildContext parentContext;
   final AssetEntity asset;
   final bool popOnDelete;
+  final bool favoritesPage;
 
   @override
   Widget build(BuildContext context) {

@@ -160,7 +160,9 @@ class _SettingsState extends State<SettingsPage> {
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10))),
                               onTap: () {
-                                Navigator.pop(context);
+                                if (Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                }
                               },
                               child: Padding(
                                 padding:
@@ -239,7 +241,7 @@ class _SettingsState extends State<SettingsPage> {
           const SizedBox(width: 10),
           GestureDetector(
               onTap: () {
-                Navigator.pop(context);
+                if (Navigator.canPop(context)) Navigator.pop(context);
               },
               child: const Icon(Icons.arrow_back)),
           Padding(
