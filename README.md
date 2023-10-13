@@ -1,4 +1,4 @@
-# Nothing Gallery
+# Nothing Gallery (Unofficial)
 
  <img src="https://raw.githubusercontent.com/jerichoi224/Nothing-Gallery/main/images/feature_art.png">
 
