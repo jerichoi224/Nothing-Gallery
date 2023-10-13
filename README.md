@@ -13,10 +13,10 @@ Gallery for Nothing Phone with effort to follow the Nothing Design Language
 
 ### Screenshots
 <p float="left">
-    <img src="https://raw.githubusercontent.com/jerichoi224/Nothing-Gallery/main/images/albums_page.png" width="250">
-    <img src="https://raw.githubusercontent.com/jerichoi224/Nothing-Gallery/main/images/timeline_page.png" width="250">
-    <img src="https://raw.githubusercontent.com/jerichoi224/Nothing-Gallery/main/images/grid_page.png" width="250">
-    <img src="https://raw.githubusercontent.com/jerichoi224/Nothing-Gallery/main/images/move_feature.png" width="250">
+    <img src="https://raw.githubusercontent.com/jerichoi224/Nothing-Gallery/main/images/albums_page.png" width="180">
+    <img src="https://raw.githubusercontent.com/jerichoi224/Nothing-Gallery/main/images/timeline_page.png" width="180">
+    <img src="https://raw.githubusercontent.com/jerichoi224/Nothing-Gallery/main/images/grid_page.png" width="180">
+    <img src="https://raw.githubusercontent.com/jerichoi224/Nothing-Gallery/main/images/move_feature.png" width="180">
 </p>
 
 ### Support the Project
