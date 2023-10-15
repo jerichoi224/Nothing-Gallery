@@ -6,7 +6,8 @@ enum TextStyleType {
   navBar(fontSize: 16, color: Colors.white),
 
   // AlbumWidget
-  albumTitle(fontSize: 12, color: Colors.white),
+  albumTitle2(fontSize: 12, color: Colors.white),
+  albumTitle3(fontSize: 10, color: Colors.white),
   buttonText(fontSize: 14, color: Colors.white),
   moveToTitle(fontSize: 18, color: Colors.white),
   newFolderHint(fontSize: 14, color: Colors.white54),
@@ -35,7 +36,7 @@ enum TextStyleType {
   // SettingsPage
   settingTitle(fontSize: 24, color: Colors.white),
   settingCategory(fontSize: 16, color: Colors.grey),
-  settingsMenu(fontSize: 18, color: Colors.white),
+  settingsMenu(fontSize: 17, color: Colors.white),
   settingsFineText(fontSize: 14, color: Colors.grey),
   creditsTitle(fontSize: 24, color: Colors.white),
   creditsClose(fontSize: 16, color: Colors.white),

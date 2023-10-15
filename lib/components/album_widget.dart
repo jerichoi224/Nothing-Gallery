@@ -6,10 +6,11 @@ import 'package:nothing_gallery/model/model.dart';
 import 'package:nothing_gallery/util/util.dart';
 
 class AlbumWidget extends StatelessWidget {
-  const AlbumWidget({super.key, required this.albumInfo});
+  const AlbumWidget({super.key, required this.albumInfo, required this.numCol});
 
   final AlbumInfo albumInfo;
   final double radius = 8.0;
+  final int numCol;
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +39,15 @@ class AlbumWidget extends StatelessWidget {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+          padding: numCol == 2
+              ? const EdgeInsets.fromLTRB(10, 5, 0, 0)
+              : const EdgeInsets.fromLTRB(5, 5, 0, 0),
           child: Text(
             "${albumInfo.pathEntity.name.toUpperCase()} (${albumInfo.assetCount})",
-            style: mainTextStyle(TextStyleType.albumTitle),
+            overflow: TextOverflow.ellipsis,
+            style: mainTextStyle(numCol == 2
+                ? TextStyleType.albumTitle2
+                : TextStyleType.albumTitle3),
           ),
         ),
       ],
