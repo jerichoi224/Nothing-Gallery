@@ -40,11 +40,12 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
 
   @override
   dispose() {
+    super.dispose();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
-    super.dispose();
     _controller.dispose();
+    toggleStatusBar(true);
   }
 
   Future<void> loadVideo() async {
@@ -89,18 +90,26 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
       });
   }
 
+  void toggleStatusBar(bool show) {
+    if (show) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    } else {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    }
+  }
+
   Widget videoPlayerWrapper(Widget child) {
     return WillPopScope(
         onWillPop: () async {
           if (Navigator.canPop(context)) Navigator.pop(context);
           return true;
         },
-        child: SafeArea(
-            child: GestureDetector(
-                onTap: () => setState(() {
-                      decorationVisible = !decorationVisible;
-                    }),
-                child: child)));
+        child: GestureDetector(
+            onTap: () => setState(() {
+                  decorationVisible = !decorationVisible;
+                  toggleStatusBar(decorationVisible);
+                }),
+            child: child));
   }
 
   @override
@@ -113,6 +122,8 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
         ),
       );
     }
+    var height = MediaQuery.of(context).viewPadding.top;
+    var bottom = MediaQuery.of(context).viewPadding.bottom;
 
     return Scaffold(
         body: videoPlayerWrapper(
@@ -131,6 +142,7 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                       color: const Color.fromARGB(150, 0, 0, 0),
                       child: Column(
                         children: [
+                          Container(height: height),
                           Row(
                             children: [
                               IconButton(
@@ -195,7 +207,8 @@ class _VideoPlayerPageWidgetState extends State<VideoPlayerPageWidget> {
                               asset: widget.video,
                               popOnDelete: true,
                               parentContext: context,
-                              favoritesPage: false)
+                              favoritesPage: false),
+                          SizedBox(height: bottom)
                         ],
                       )))
             ])
