@@ -8,7 +8,10 @@ enum SharedPrefKeys {
 
   // ImagePage
   useTrashBin(text: "useTrashBin", type: bool, onNull: true),
-  favoriteIds(text: "favoriteIds", type: List<String>, onNull: []);
+  favoriteIds(text: "favoriteIds", type: List<String>, onNull: []),
+
+  // AlbumsPage
+  sortOption(text: "sortOption", type: int, onNull: 0);
 
   const SharedPrefKeys(
       {required this.text, required this.type, required this.onNull});

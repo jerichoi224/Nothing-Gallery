@@ -1,16 +1,15 @@
 import 'dart:async';
-
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:nothing_gallery/constants/constants.dart';
-import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/util/util.dart';
-import 'package:provider/provider.dart';
 
+import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/components/components.dart';
 import 'package:nothing_gallery/model/model.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/util/util.dart';
 
 @immutable
 class AlbumsWidget extends StatefulWidget {
@@ -24,13 +23,17 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
     with AutomaticKeepAliveClientMixin {
   bool pinShortcuts = false;
   StreamSubscription? eventSubscription;
+  SortOption sortOption = SortOption.recent;
 
   @override
   void initState() {
     super.initState();
     setState(() {
+      sortOption = SortOption.values.firstWhere(
+          (option) => option.id == sharedPref.get(SharedPrefKeys.sortOption));
       pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
     });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
       eventSubscription =
@@ -89,6 +92,62 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
     ];
   }
 
+  Widget sortMenu() {
+    return PopupMenuButton<SortOption>(
+        tooltip: '',
+        offset: const Offset(0, 40),
+        color: Colors.black,
+        onSelected: (SortOption option) {
+          sharedPref.set(SharedPrefKeys.sortOption, option.id);
+          setState(() {
+            sortOption = option;
+          });
+        },
+        child: const InkWell(
+          child: Icon(
+            Icons.filter_list_rounded,
+            size: 26,
+          ),
+        ),
+        itemBuilder: (BuildContext context) {
+          return [
+            for (final value in SortOption.values)
+              PopupMenuItem(
+                  value: value,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      value.text,
+                      textAlign: TextAlign.center,
+                      style: mainTextStyle(TextStyleType.popUpMenu),
+                    ),
+                  ))
+          ];
+        });
+  }
+
+  List<AlbumInfo> sortAlbums(List<AlbumInfo> albums) {
+    switch (sortOption) {
+      case SortOption.nameDescend:
+        albums.sort((a, b) => b.pathEntity.name.compareTo(a.pathEntity.name));
+        break;
+      case SortOption.nameAscend:
+        albums.sort((b, a) => b.pathEntity.name.compareTo(a.pathEntity.name));
+        break;
+      case SortOption.old:
+        albums.sort((b, a) =>
+            b.preloadImages[0].createDateTime.millisecondsSinceEpoch.compareTo(
+                a.preloadImages[0].createDateTime.millisecondsSinceEpoch));
+        break;
+      case SortOption.recent:
+      default:
+        albums.sort((a, b) =>
+            b.preloadImages[0].createDateTime.millisecondsSinceEpoch.compareTo(
+                a.preloadImages[0].createDateTime.millisecondsSinceEpoch));
+    }
+    return albums;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -97,6 +156,8 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(body: SafeArea(child:
             Consumer<AlbumInfoList>(builder: (context, albumInfoList, child) {
+          List<AlbumInfo> albums = sortAlbums(albumInfoList.albums);
+
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -108,6 +169,8 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                           'ALBUMS',
                           style: mainTextStyle(TextStyleType.pageTitle),
                         ),
+                        const Spacer(),
+                        sortMenu()
                       ],
                     )),
                 pinShortcuts
@@ -150,7 +213,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                                     mainAxisSpacing: 15,
                                     crossAxisCount: 2,
                                     childAspectRatio: 0.85,
-                                    children: albumInfoList.albums
+                                    children: albums
                                         .map((albumeInfo) =>
                                             AlbumWidget(albumInfo: albumeInfo))
                                         .toList())),
