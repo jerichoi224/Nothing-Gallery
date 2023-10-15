@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -11,7 +12,6 @@ import 'package:nothing_gallery/style.dart';
 import 'package:nothing_gallery/components/components.dart';
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/util/util.dart';
-import 'package:provider/provider.dart';
 
 class ImagePageWidget extends StatefulWidget {
   final int index;
@@ -46,7 +46,8 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
   @override
   void initState() {
     super.initState();
-
+    SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     index = widget.index;
     imageTotal = widget.imageTotal;
     images = [...widget.images];
@@ -83,11 +84,20 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     });
   }
 
+  void toggleStatusBar(bool show) {
+    if (show) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    } else {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    }
+  }
+
   @override
   void dispose() {
+    super.dispose();
     animationController.dispose();
     eventSubscription?.cancel();
-    super.dispose();
+    toggleStatusBar(true);
   }
 
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
@@ -101,28 +111,31 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
         ).image);
   }
 
-  Widget ImagePageWrapper(Widget child) {
+  Widget imagePageWrapper(Widget child) {
     return Scaffold(
         body: WillPopScope(
             onWillPop: () async {
               if (Navigator.canPop(context)) Navigator.pop(context);
               return true;
             },
-            child: SafeArea(
-                child: GestureDetector(
-                    onTap: () => setState(() {
-                          decorationVisible = !decorationVisible;
-                        }),
-                    child: child))));
+            child: GestureDetector(
+                onTap: () => setState(() {
+                      decorationVisible = !decorationVisible;
+                      toggleStatusBar(decorationVisible);
+                    }),
+                child: child)));
   }
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).viewPadding.top;
+    var bottom = MediaQuery.of(context).viewPadding.bottom;
+
     if (images.isEmpty) {
       Future.microtask(() => Navigator.pop(context));
       return Container();
     } else {
-      return ImagePageWrapper(Stack(children: <Widget>[
+      return imagePageWrapper(Stack(children: <Widget>[
         Hero(
           tag: images[index].id,
           child: PhotoViewGallery.builder(
@@ -145,18 +158,23 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
         ),
         AnimatedOpacity(
             opacity: decorationVisible ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 500),
             child: Column(
               children: [
+                Container(
+                  height: height,
+                  color: const Color.fromARGB(150, 0, 0, 0),
+                ),
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      stops: [0.00, 1],
+                      stops: [0.00, 0.3, 1],
                       colors: [
                         Color.fromARGB(150, 0, 0, 0),
+                        Color.fromARGB(130, 0, 0, 0),
                         Colors.transparent,
                       ],
                     ),
@@ -179,24 +197,28 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                 ),
                 const Spacer(),
                 Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: [0.00, 1],
-                        colors: [
-                          Colors.transparent,
-                          Color.fromARGB(150, 0, 0, 0),
-                        ],
-                      ),
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [0.00, 1],
+                      colors: [
+                        Colors.transparent,
+                        Color.fromARGB(150, 0, 0, 0),
+                      ],
                     ),
-                    child: SingleItemBottomMenu(
-                      asset: images[index],
-                      popOnDelete: false,
-                      parentContext: context,
-                      favoritesPage: widget.favoritesPage,
-                    ))
+                  ),
+                  child: SingleItemBottomMenu(
+                    asset: images[index],
+                    popOnDelete: false,
+                    parentContext: context,
+                    favoritesPage: widget.favoritesPage,
+                  ),
+                ),
+                SizedBox(
+                  height: bottom,
+                )
               ],
             ))
       ]));

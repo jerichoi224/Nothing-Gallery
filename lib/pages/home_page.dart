@@ -27,6 +27,8 @@ class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+
     _tabController = TabController(
         initialIndex: Provider.of<AppStatus>(context, listen: false).activeTab,
         length: _tabs.length,
@@ -92,6 +94,8 @@ class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final mediaQueryData = MediaQuery.of(context);
+    var bottomHeight = MediaQuery.of(context).viewPadding.bottom;
+
     return MediaQuery(
         data: mediaQueryData.copyWith(textScaleFactor: 1.0),
         child: DefaultTabController(
@@ -99,39 +103,42 @@ class _HomeState extends State<HomeWidget> with SingleTickerProviderStateMixin {
           length: 2,
           child: Scaffold(
             bottomNavigationBar: SizedBox(
-                height: navBarHeight,
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: Consumer<ImageSelection>(
-                          builder: (context, imageSelection, child) {
-                        return TabBar(
-                          controller: _tabController,
-                          indicatorColor: Colors.transparent,
-                          overlayColor:
-                              MaterialStateProperty.resolveWith<Color?>(
-                            (Set<MaterialState> states) {
-                              if (states.contains(MaterialState.pressed)) {
-                                return Colors.white12;
-                              }
-                              return Colors.transparent;
-                            },
-                          ),
-                          labelStyle: mainTextStyle(TextStyleType.navBar),
-                          unselectedLabelStyle:
-                              mainTextStyle(TextStyleType.navBar),
-                          tabs: _tabs,
-                          labelColor: Colors.red,
-                        );
-                      }),
-                    ),
-                    Expanded(
-                        flex: 1,
-                        child: SizedBox(
-                            height: navBarHeight, child: homePopupMenu())),
-                  ],
-                )),
+                height: navBarHeight + bottomHeight,
+                child: Column(children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 4,
+                        child: Consumer<ImageSelection>(
+                            builder: (context, imageSelection, child) {
+                          return TabBar(
+                            controller: _tabController,
+                            indicatorColor: Colors.transparent,
+                            overlayColor:
+                                MaterialStateProperty.resolveWith<Color?>(
+                              (Set<MaterialState> states) {
+                                if (states.contains(MaterialState.pressed)) {
+                                  return Colors.white12;
+                                }
+                                return Colors.transparent;
+                              },
+                            ),
+                            labelStyle: mainTextStyle(TextStyleType.navBar),
+                            unselectedLabelStyle:
+                                mainTextStyle(TextStyleType.navBar),
+                            tabs: _tabs,
+                            labelColor: Colors.red,
+                          );
+                        }),
+                      ),
+                      Expanded(
+                          flex: 1,
+                          child: SizedBox(
+                              height: navBarHeight, child: homePopupMenu())),
+                    ],
+                  ),
+                  SizedBox(height: bottomHeight)
+                ])),
             body: TabBarView(controller: _tabController, children: tabPages()),
           ),
         ));

@@ -123,25 +123,22 @@ class _MainState extends State<MainApp> {
       }
     }
 
-    // TODO: App Logo screen or loading screen
     return Scaffold(
-        body: SafeArea(
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-                padding: const EdgeInsets.all(10),
-                child: Center(
-                    child: SizedBox(
-                        height: 150,
-                        width: 150,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(300.0),
-                          child:
-                              const Image(image: AssetImage('assets/icon.png')),
-                        ))))
-          ]),
-    ));
+        body: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+          Padding(
+              padding: const EdgeInsets.all(10),
+              child: Center(
+                  child: SizedBox(
+                      height: 150,
+                      width: 150,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(300.0),
+                        child:
+                            const Image(image: AssetImage('assets/icon.png')),
+                      ))))
+        ]));
   }
 }

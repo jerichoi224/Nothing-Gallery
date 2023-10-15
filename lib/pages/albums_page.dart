@@ -101,7 +101,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
                     child: Row(
                       children: [
                         Text(
@@ -112,7 +112,7 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                     )),
                 pinShortcuts
                     ? Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                         child: GridView.count(
                           crossAxisCount: 2,
                           childAspectRatio: 2.5,
