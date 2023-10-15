@@ -21,28 +21,22 @@ class AlbumsWidget extends StatefulWidget {
 
 class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
     with AutomaticKeepAliveClientMixin {
-  bool pinShortcuts = false;
   StreamSubscription? eventSubscription;
+  bool pinShortcuts = false;
   SortOption sortOption = SortOption.recent;
+  int albumsCol = 2;
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      sortOption = SortOption.values.firstWhere(
-          (option) => option.id == sharedPref.get(SharedPrefKeys.sortOption));
-      pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
-    });
-
+    getPref();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
       eventSubscription =
           eventController.stream.asBroadcastStream().listen((event) {
         switch (validateEventType(event)) {
           case EventType.settingsChanged:
-            setState(() {
-              pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
-            });
+            getPref();
             break;
           case EventType.assetDeleted:
           case EventType.assetMoved:
@@ -59,6 +53,15 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
   void dispose() {
     eventSubscription?.cancel();
     super.dispose();
+  }
+
+  void getPref() {
+    setState(() {
+      sortOption = SortOption.values.firstWhere(
+          (option) => option.id == sharedPref.get(SharedPrefKeys.sortOption));
+      pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
+      albumsCol = sharedPref.get(SharedPrefKeys.albumsColCount);
+    });
   }
 
   List<Widget> shortcuts() {
@@ -211,11 +214,13 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                                 sliver: SliverGrid.count(
                                     crossAxisSpacing: 15,
                                     mainAxisSpacing: 15,
-                                    crossAxisCount: 2,
+                                    crossAxisCount: albumsCol,
                                     childAspectRatio: 0.85,
                                     children: albums
-                                        .map((albumeInfo) =>
-                                            AlbumWidget(albumInfo: albumeInfo))
+                                        .map((albumeInfo) => AlbumWidget(
+                                              albumInfo: albumeInfo,
+                                              numCol: albumsCol,
+                                            ))
                                         .toList())),
                           ],
                         )))

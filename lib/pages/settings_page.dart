@@ -17,6 +17,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsState extends State<SettingsPage> {
   bool initialIsTimeline = false;
   bool pinShortcuts = false;
+  int numAlbumCol = 2;
   double rowHeight = 50;
   String version = "";
   @override
@@ -29,6 +30,7 @@ class _SettingsState extends State<SettingsPage> {
     initialIsTimeline = sharedPref.get(SharedPrefKeys.initialScreen) ==
         InitialScreen.timeline.tabIndex;
     pinShortcuts = sharedPref.get(SharedPrefKeys.pinShortcuts);
+    numAlbumCol = sharedPref.get(SharedPrefKeys.albumsColCount);
     setState(() {});
 
     PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
@@ -92,6 +94,35 @@ class _SettingsState extends State<SettingsPage> {
                       setState(() {
                         pinShortcuts = onChanged;
                       });
+                    }),
+              ],
+            )));
+  }
+
+  Widget albumColumnCount() {
+    return SizedBox(
+        height: rowHeight,
+        child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 12, 0),
+            child: Row(
+              children: [
+                Text(
+                  "Use 3 Columns For Albums",
+                  style: mainTextStyle(TextStyleType.settingsMenu),
+                ),
+                const Spacer(),
+                Switch(
+                    activeColor: Colors.red,
+                    activeTrackColor: Colors.white,
+                    value: numAlbumCol == 3,
+                    onChanged: (onChanged) {
+                      numAlbumCol = onChanged ? 3 : 2;
+                      sharedPref.set(
+                          SharedPrefKeys.albumsColCount, numAlbumCol);
+                      eventController.sink
+                          .add(Event(EventType.settingsChanged, null));
+
+                      setState(() {});
                     }),
               ],
             )));
@@ -261,15 +292,17 @@ class _SettingsState extends State<SettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     settingCategory("UI/UX"),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     uiInitialScreen(),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 3),
                     pinButtons(),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 3),
+                    albumColumnCount(),
+                    const SizedBox(height: 6),
                     const Divider(),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     settingCategory("ABOUT"),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 3),
                     versionInfo(),
                     credits(),
                     license(),
