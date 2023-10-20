@@ -87,8 +87,6 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   Future<void> refreshGrid() async {
-    assets = albumInfo.preloadImages;
-    images = assets.where((asset) => asset.type == AssetType.image).toList();
     currentPage = 0;
     await getImages();
   }
@@ -101,24 +99,17 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   Future<void> getImages() async {
     if (assets.length >= albumInfo.assetCount) return;
 
-    List<AssetEntity> newAssets =
-        await loadAssets(albumInfo.pathEntity, ++currentPage, size: 80);
-    setState(() {
-      assets = List.from(assets)..addAll(newAssets);
-      images = List.from(images)
-        ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
-    });
-
+    List<AssetEntity> newAssets = [];
     while (assets.length < albumInfo.assetCount) {
       newAssets =
-          await loadAssets(albumInfo.pathEntity, ++currentPage, size: 80);
+          await loadAssets(albumInfo.pathEntity, currentPage++, size: 80);
       if (newAssets.isEmpty) break;
 
       assets = List.from(assets)..addAll(newAssets);
       images = List.from(images)
         ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+      setState(() {});
     }
-    setState(() {});
   }
 
   Widget gridPageWrapper(Widget child) {
