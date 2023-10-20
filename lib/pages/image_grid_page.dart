@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:nothing_gallery/constants/settings_pref.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -106,10 +105,14 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
       if (newAssets.isEmpty) break;
 
       assets = List.from(assets)..addAll(newAssets);
+      assets.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
+
       images = List.from(images)
         ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+
       setState(() {});
     }
+    images.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
   }
 
   Widget gridPageWrapper(Widget child) {

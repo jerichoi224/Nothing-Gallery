@@ -7,16 +7,21 @@ import 'package:photo_manager/photo_manager.dart';
 class AppStatus extends ChangeNotifier {
   int _activeTab = InitialScreen.albums.tabIndex;
   List<String> _favoriteIds = [];
+  List<String> _hiddenAblums = [];
+
   bool _loading = false;
 
   int get activeTab => _activeTab;
   bool get loading => _loading;
   List<String> get favoriteIds => _favoriteIds;
+  List<String> get hiddenAblums => _hiddenAblums;
 
   void initialize() {
     _activeTab = sharedPref.get(SharedPrefKeys.initialScreen);
     _favoriteIds =
         List<String>.from(sharedPref.get(SharedPrefKeys.favoriteIds));
+    _hiddenAblums =
+        List<String>.from(sharedPref.get(SharedPrefKeys.hiddenAlbums));
     notifyListeners();
     validateFavorites();
   }
@@ -43,8 +48,22 @@ class AppStatus extends ChangeNotifier {
     _favoriteIds = _favoriteIds.toSet().difference(ids.toSet()).toList();
     sharedPref.set(SharedPrefKeys.favoriteIds, _favoriteIds);
     notifyListeners();
+    eventController.sink.add(Event(EventType.favoriteRemoved, ids));
+  }
+
+  void addHiddenAblum(List<String> ids) {
+    _hiddenAblums = List.from(_hiddenAblums)..addAll(ids);
+    sharedPref.set(SharedPrefKeys.hiddenAlbums, _hiddenAblums);
+    notifyListeners();
+    eventController.sink.add(Event(EventType.hiddenAblumChanged, ids));
+  }
+
+  void removeHiddenAlbum(List<String> ids) {
+    _hiddenAblums = _hiddenAblums.toSet().difference(ids.toSet()).toList();
+    sharedPref.set(SharedPrefKeys.hiddenAlbums, _hiddenAblums);
+    notifyListeners();
     eventController.sink
-        .add(Event(EventType.favoriteRemoved, ids)); // No use case
+        .add(Event(EventType.hiddenAblumChanged, ids)); // No use case
   }
 
   void setLoading(bool loading) {

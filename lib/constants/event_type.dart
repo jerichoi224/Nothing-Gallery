@@ -6,6 +6,7 @@ enum EventType {
   videoOpen,
   favoriteAdded,
   favoriteRemoved,
+  hiddenAblumChanged,
   settingsChanged,
   ignore;
 

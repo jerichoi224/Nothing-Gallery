@@ -28,8 +28,7 @@ Future<AlbumInfo> getInitialAlbumInfo(AssetPathEntity album) async {
 
   List<AssetEntity> images = await album.getAssetListRange(start: 0, end: 8);
 
-  images.sort((a, b) => b.createDateTime.millisecondsSinceEpoch
-      .compareTo(a.createDateTime.millisecondsSinceEpoch));
+  images.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
 
   return AlbumInfo(album, images[0], assetCount, images);
 }

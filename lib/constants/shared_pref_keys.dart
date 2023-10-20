@@ -12,6 +12,7 @@ enum SharedPrefKeys {
   favoriteIds(text: "favoriteIds", type: List<String>, onNull: []),
 
   // AlbumsPage
+  hiddenAlbums(text: "hiddenAlbums", type: List<String>, onNull: []),
   sortOption(text: "sortOption", type: int, onNull: 0);
 
   const SharedPrefKeys(
