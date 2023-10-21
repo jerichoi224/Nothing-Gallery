@@ -75,6 +75,12 @@ class _CustomSortPageState extends State<CustomSortPage> {
                             style: mainTextStyle(
                                 TextStyleType.sortHelpDialogDescription)),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text("New albums will be appended to the end.",
+                            style: mainTextStyle(
+                                TextStyleType.sortHelpDialogDescription)),
+                      ),
                       const SizedBox(height: 12),
                       Center(
                           child: DialogBottomButton(
