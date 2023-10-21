@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/components/dialog_bottom_button.dart';
+import 'package:nothing_gallery/model/album_info_list.dart';
+import 'package:nothing_gallery/model/app_status.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/main.dart';
 import 'package:nothing_gallery/style.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -128,6 +132,102 @@ class _SettingsState extends State<SettingsPage> {
             )));
   }
 
+  Widget showHiddenAlbums() {
+    return InkWell(
+        onTap: () async {
+          await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                    scrollable: true,
+                    contentPadding: const EdgeInsets.all(20),
+                    title: Text('Hidden Albums',
+                        style: mainTextStyle(TextStyleType.alertTitle)),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                    content: SizedBox(
+                        width: double.maxFinite,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                                child: Consumer<AppStatus>(
+                                    builder: (context, appStatus, child) {
+                                  List<String> hiddenAlbums =
+                                      appStatus.hiddenAblums;
+
+                                  if (hiddenAlbums.isEmpty) {
+                                    return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10),
+                                        child: Text(
+                                          "You have no hidden albums.",
+                                          style: mainTextStyle(TextStyleType
+                                              .settingsPageDescription),
+                                        ));
+                                  }
+
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: Provider.of<AlbumInfoList>(
+                                            context,
+                                            listen: false)
+                                        .albums
+                                        .where((album) => hiddenAlbums
+                                            .contains(album.pathEntity.id))
+                                        .map((album) => Row(
+                                              children: [
+                                                Text(
+                                                  album.pathEntity.name
+                                                      .toUpperCase(),
+                                                  style: mainTextStyle(TextStyleType
+                                                      .settingsPageDescription),
+                                                ),
+                                                const Spacer(),
+                                                IconButton(
+                                                    onPressed: () {
+                                                      appStatus
+                                                          .removeHiddenAlbum([
+                                                        album.pathEntity.id
+                                                      ]);
+                                                    },
+                                                    icon:
+                                                        const Icon(Icons.close))
+                                              ],
+                                            ))
+                                        .toList(),
+                                  );
+                                })),
+                            const SizedBox(
+                              height: 10,
+                            )
+                          ],
+                        )));
+              });
+        },
+        child: SizedBox(
+            height: rowHeight,
+            child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 12, 4),
+                child: Row(
+                  children: [
+                    Text(
+                      "Show Hidden Albums",
+                      style: mainTextStyle(TextStyleType.settingsMenu),
+                    ),
+                    const Spacer(),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 18,
+                    )
+                  ],
+                ))));
+  }
+
   Widget license() {
     return InkWell(
         onTap: () async {
@@ -164,7 +264,7 @@ class _SettingsState extends State<SettingsPage> {
               builder: (BuildContext context) {
                 return SimpleDialog(
                   title: Text('Credits',
-                      style: mainTextStyle(TextStyleType.creditsTitle)),
+                      style: mainTextStyle(TextStyleType.alertTitle)),
                   children: <Widget>[
                     Padding(
                         padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
@@ -186,23 +286,14 @@ class _SettingsState extends State<SettingsPage> {
                                     mainTextStyle(TextStyleType.creditsName)),
                             const SizedBox(height: 15),
                             Center(
-                                child: InkWell(
-                              customBorder: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10))),
-                              onTap: () {
-                                if (Navigator.canPop(context)) {
-                                  Navigator.pop(context);
-                                }
-                              },
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                                child: Text('Close',
+                                child: DialogBottomButton(
+                                    text: 'Close',
+                                    onTap: () => {
+                                          if (Navigator.canPop(context))
+                                            {Navigator.pop(context)}
+                                        },
                                     style: mainTextStyle(
-                                        TextStyleType.creditsClose)),
-                              ),
-                            ))
+                                        TextStyleType.creditsClose)))
                           ],
                         ))
                   ],
@@ -298,6 +389,8 @@ class _SettingsState extends State<SettingsPage> {
                     pinButtons(),
                     const SizedBox(height: 3),
                     albumColumnCount(),
+                    const SizedBox(height: 3),
+                    showHiddenAlbums(),
                     const SizedBox(height: 6),
                     const Divider(),
                     const SizedBox(height: 12),

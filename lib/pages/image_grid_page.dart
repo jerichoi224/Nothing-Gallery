@@ -110,7 +110,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
       images = List.from(images)
         ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
 
-      setState(() {});
+      if (mounted) setState(() {});
     }
     images.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
   }

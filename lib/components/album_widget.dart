@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/components/dialog_bottom_button.dart';
 import 'package:nothing_gallery/constants/album_widget_menu.dart';
 
 import 'package:nothing_gallery/style.dart';
@@ -13,6 +14,35 @@ class AlbumWidget extends StatelessWidget {
   final AlbumInfo albumInfo;
   final double radius = 8.0;
   final int numCol;
+
+  void tapHideAlbum(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Hide Album?',
+                style: mainTextStyle(TextStyleType.alertTitle)),
+            content: const Text(
+                'This will hide the album from the Albums view, but the images will still be visible in timeline. You can show the album again from the settings menu.'),
+            actions: [
+              DialogBottomButton(
+                  text: 'Cancel',
+                  onTap: () => {
+                        if (Navigator.canPop(context)) {Navigator.pop(context)}
+                      },
+                  style: mainTextStyle(TextStyleType.creditsClose)),
+              DialogBottomButton(
+                  text: 'Hide',
+                  onTap: () => {
+                        Provider.of<AppStatus>(context, listen: false)
+                            .addHiddenAblum([albumInfo.pathEntity.id]),
+                        if (Navigator.canPop(context)) {Navigator.pop(context)}
+                      },
+                  style: mainTextStyle(TextStyleType.creditsClose))
+            ],
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,10 +83,7 @@ class AlbumWidget extends StatelessWidget {
                                     value: item,
                                     onTap: () {
                                       if (item == AlbumWidgetMenu.hideAlbum) {
-                                        Provider.of<AppStatus>(context,
-                                                listen: false)
-                                            .addHiddenAblum(
-                                                [albumInfo.pathEntity.id]);
+                                        tapHideAlbum(context);
                                       }
                                     },
                                     child: Text(

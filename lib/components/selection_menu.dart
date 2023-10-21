@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:nothing_gallery/components/dialog_bottom_button.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -66,19 +67,14 @@ class _SelectionMenuState extends State<SelectionMenu>
                       )),
                 ),
                 Center(
-                    child: InkWell(
-                  customBorder: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  onTap: () {
-                    newFolderName = textController.text;
-                    if (Navigator.canPop(context)) Navigator.pop(context);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                    child: Text('Create',
-                        style: mainTextStyle(TextStyleType.creditsClose)),
-                  ),
-                ))
+                    child: DialogBottomButton(
+                        text: 'Create',
+                        onTap: () => {
+                              newFolderName = textController.text,
+                              if (Navigator.canPop(context))
+                                {Navigator.pop(context)}
+                            },
+                        style: mainTextStyle(TextStyleType.creditsClose)))
               ])
             ],
           );
