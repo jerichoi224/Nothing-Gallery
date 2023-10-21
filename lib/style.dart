@@ -22,10 +22,6 @@ enum TextStyleType {
   // GridPage
   gridPageTitle(fontSize: 20, color: Colors.white),
 
-  // SettingsPage
-  settingsPageTitle(fontSize: 20, color: Colors.white),
-  settingsPageDescription(fontSize: 16, color: Colors.white60),
-
   // Common
   pageTitle(fontSize: 22, color: Colors.white),
   popUpMenu(fontSize: 14, color: Colors.white),
@@ -35,6 +31,8 @@ enum TextStyleType {
   imageIndex(fontSize: 20, color: Colors.white),
 
   // SettingsPage
+  settingsPageTitle(fontSize: 20, color: Colors.white),
+  settingsPageDescription(fontSize: 16, color: Colors.white60),
   settingTitle(fontSize: 24, color: Colors.white),
   settingCategory(fontSize: 16, color: Colors.grey),
   settingsMenu(fontSize: 17, color: Colors.white),
@@ -42,6 +40,7 @@ enum TextStyleType {
   alertTitle(fontSize: 24, color: Colors.white),
   creditsClose(fontSize: 16, color: Colors.white),
   creditsCateogry(fontSize: 18, color: Colors.white),
+  sortHelpDialogDescription(fontSize: 16, color: Colors.white54),
   creditsName(fontSize: 16, color: Colors.grey);
 
   const TextStyleType({required this.fontSize, required this.color});

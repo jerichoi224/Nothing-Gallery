@@ -68,6 +68,14 @@ Future<void> openAlbum(BuildContext context, AlbumInfo albumInfo) async {
       ));
 }
 
+Future<void> openSortingPage(BuildContext context) async {
+  await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CustomSortPage(),
+      ));
+}
+
 Future<void> openVideoPage(BuildContext context) async {
   await Navigator.push(
       context,

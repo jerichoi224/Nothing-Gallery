@@ -3,6 +3,7 @@ import 'package:nothing_gallery/classes/classes.dart';
 import 'package:nothing_gallery/components/dialog_bottom_button.dart';
 import 'package:nothing_gallery/model/album_info_list.dart';
 import 'package:nothing_gallery/model/app_status.dart';
+import 'package:nothing_gallery/util/util.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:nothing_gallery/constants/constants.dart';
@@ -198,6 +199,12 @@ class _SettingsState extends State<SettingsPage> {
     });
   }
 
+  Widget setCustomSort() {
+    return inkwellRow("Set Custom Album Order", () async {
+      openSortingPage(context);
+    });
+  }
+
   Widget removeCustomThumbnails() {
     return inkwellRow("Remove Custom Thumbnails", () async {
       showDialog(
@@ -206,7 +213,7 @@ class _SettingsState extends State<SettingsPage> {
             return AlertDialog(
                 scrollable: true,
                 contentPadding: const EdgeInsets.all(20),
-                title: Text('Albums',
+                title: Text('Thumbnails',
                     style: mainTextStyle(TextStyleType.alertTitle)),
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20.0))),
@@ -391,17 +398,23 @@ class _SettingsState extends State<SettingsPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    settingCategory("UI/UX"),
+                    settingCategory("APPEARANCE"),
                     const SizedBox(height: 6),
                     uiInitialScreen(),
                     const SizedBox(height: 3),
                     pinButtons(),
                     const SizedBox(height: 3),
                     albumColumnCount(),
+                    const SizedBox(height: 6),
+                    const Divider(),
+                    const SizedBox(height: 12),
+                    settingCategory("CUSTOMIZATION"),
                     const SizedBox(height: 3),
                     showHiddenAlbums(),
                     const SizedBox(height: 3),
                     removeCustomThumbnails(),
+                    const SizedBox(height: 3),
+                    setCustomSort(),
                     const SizedBox(height: 6),
                     const Divider(),
                     const SizedBox(height: 12),
