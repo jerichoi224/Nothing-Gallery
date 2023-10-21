@@ -44,11 +44,6 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
       final appStatus = Provider.of<AppStatus>(context, listen: false);
 
       recent = albumInfoList.recent!;
-      assets = [...recent.preloadImages];
-      totalLoaded = assets.length;
-
-      assets.removeWhere((asset) => !appStatus.favoriteIds.contains(asset.id));
-      images = assets.where((asset) => asset.type == AssetType.image).toList();
 
       getFavorites(appStatus);
 
@@ -99,22 +94,16 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
     final appStatus = Provider.of<AppStatus>(context, listen: false);
 
     int currPage = 0;
-    List<String> currentAssetIds = recent.preloadImages
-        .where((asset) => appStatus.favoriteIds.contains(asset.id))
-        .map((asset) => asset.id)
-        .toList();
+    List<String> currentAssetIds = [];
+    List<AssetEntity> newAssets = [];
 
-    List<AssetEntity> newAssets =
-        await loadAssets(recent.pathEntity, ++currPage, size: 80);
-    newAssets.removeWhere((asset) => !appStatus.favoriteIds.contains(asset.id));
-
-    while (newAssets.isNotEmpty) {
-      currentAssetIds = List.from(currentAssetIds)
-        ..addAll(newAssets.map((asset) => asset.id).toList());
-      newAssets = await loadAssets(recent.pathEntity, ++currPage, size: 80);
+    do {
+      newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
       newAssets
           .removeWhere((asset) => !appStatus.favoriteIds.contains(asset.id));
-    }
+      currentAssetIds = List.from(currentAssetIds)
+        ..addAll(newAssets.map((asset) => asset.id).toList());
+    } while (newAssets.isNotEmpty);
 
     List<String> removedIds = assets
         .where((asset) {
@@ -128,8 +117,6 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
 
     appStatus.removeFavorite(removedIds);
 
-    print("found ${removedIds.length} images removed");
-
     setState(() {
       assets.removeWhere((favorites) => removedIds.contains(favorites.id));
       images.removeWhere((favorites) => removedIds.contains(favorites.id));
@@ -140,7 +127,7 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
     List<AssetEntity> newAssets = [];
 
     while (totalLoaded < recent.assetCount) {
-      newAssets = await loadAssets(recent.pathEntity, ++currentPage, size: 80);
+      newAssets = await loadAssets(recent.pathEntity, currentPage++, size: 80);
       if (newAssets.isEmpty) break;
       totalLoaded += newAssets.length;
 
@@ -228,8 +215,10 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
                                     .asMap()
                                     .entries
                                     .map((entry) => GridItemWidget(
+                                          context: context,
                                           asset: entry.value,
                                           favoritePage: true,
+                                          thumbnailSelection: false,
                                         ))
                                     .toList()),
                           ],

@@ -12,7 +12,12 @@ enum SharedPrefKeys {
   favoriteIds(text: "favoriteIds", type: List<String>, onNull: []),
 
   // AlbumsPage
-  sortOption(text: "sortOption", type: int, onNull: 0);
+  hiddenAlbums(text: "hiddenAlbums", type: List<String>, onNull: []),
+  sortOption(text: "sortOption", type: int, onNull: 0),
+  customThumbnails(
+      text: "customThumbnails",
+      type: Map<String, dynamic>,
+      onNull: <String, dynamic>{});
 
   const SharedPrefKeys(
       {required this.text, required this.type, required this.onNull});

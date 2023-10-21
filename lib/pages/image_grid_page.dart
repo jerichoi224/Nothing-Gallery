@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:nothing_gallery/constants/settings_pref.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -15,8 +14,10 @@ import 'package:nothing_gallery/util/util.dart';
 
 class ImageGridWidget extends StatefulWidget {
   final AlbumInfo album;
+  final bool selectImage;
 
-  const ImageGridWidget({super.key, required this.album});
+  const ImageGridWidget(
+      {super.key, required this.album, required this.selectImage});
 
   @override
   State createState() => _ImageGridState();
@@ -87,8 +88,6 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   }
 
   Future<void> refreshGrid() async {
-    assets = albumInfo.preloadImages;
-    images = assets.where((asset) => asset.type == AssetType.image).toList();
     currentPage = 0;
     await getImages();
   }
@@ -101,24 +100,21 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
   Future<void> getImages() async {
     if (assets.length >= albumInfo.assetCount) return;
 
-    List<AssetEntity> newAssets =
-        await loadAssets(albumInfo.pathEntity, ++currentPage, size: 80);
-    setState(() {
-      assets = List.from(assets)..addAll(newAssets);
-      images = List.from(images)
-        ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
-    });
-
+    List<AssetEntity> newAssets = [];
     while (assets.length < albumInfo.assetCount) {
       newAssets =
-          await loadAssets(albumInfo.pathEntity, ++currentPage, size: 80);
+          await loadAssets(albumInfo.pathEntity, currentPage++, size: 80);
       if (newAssets.isEmpty) break;
 
       assets = List.from(assets)..addAll(newAssets);
+      assets.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
+
       images = List.from(images)
         ..addAll(newAssets.where((asset) => asset.type == AssetType.image));
+
+      if (mounted) setState(() {});
     }
-    setState(() {});
+    images.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
   }
 
   Widget gridPageWrapper(Widget child) {
@@ -162,7 +158,9 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
               Padding(
                   padding: const EdgeInsets.fromLTRB(12, 20, 20, 20),
                   child: Text(
-                    "${albumInfo.pathEntity.name.toUpperCase()} ($totalCount)",
+                    widget.selectImage
+                        ? 'CHOOSE THUMBNAIL'
+                        : "${albumInfo.pathEntity.name.toUpperCase()} ($totalCount)",
                     style: mainTextStyle(TextStyleType.gridPageTitle),
                   )),
               const Spacer(),
@@ -199,8 +197,10 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                                 .asMap()
                                 .entries
                                 .map((entry) => GridItemWidget(
+                                      context: context,
                                       asset: entry.value,
                                       favoritePage: false,
+                                      thumbnailSelection: widget.selectImage,
                                     ))
                                 .toList()),
                       ],

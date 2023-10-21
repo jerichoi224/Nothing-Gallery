@@ -161,6 +161,11 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
             Consumer<AlbumInfoList>(builder: (context, albumInfoList, child) {
           List<AlbumInfo> albums = sortAlbums(albumInfoList.albums);
 
+          albums.removeWhere((album) =>
+              Provider.of<AppStatus>(context, listen: true)
+                  .hiddenAblums
+                  .contains(album.pathEntity.id));
+
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

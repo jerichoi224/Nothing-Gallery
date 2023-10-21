@@ -60,8 +60,6 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
       recent = albumInfoList.recent!;
       totalCount = recent.assetCount;
 
-      assets = recent.preloadImages;
-      images = assets.where((asset) => asset.type == AssetType.image).toList();
       getImages();
 
       eventSubscription =
@@ -119,11 +117,8 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
   }
 
   Future<void> checkNewAssets() async {
-    int index = 0;
-    AssetEntity lastLoaded = assets[index];
-
-    List<AssetEntity> newAssets = recent.preloadImages;
-
+    AssetEntity lastLoaded = assets[0];
+    List<AssetEntity> newAssets = [];
     int currPage = 0;
 
     while (newAssets.where((asset) => asset.id == lastLoaded.id).isEmpty) {
@@ -135,7 +130,7 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
       await insertAssetToDateMap(newAssets);
       setState(() {});
 
-      newAssets = await loadAssets(recent.pathEntity, ++currPage, size: 80);
+      newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
     }
 
     int prevLoc = newAssets.indexWhere((asset) => asset.id == lastLoaded.id);
@@ -157,15 +152,14 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
 
   Future<void> checkRemovedAssets() async {
     int currPage = 0;
-    List<String> currentAssetIds =
-        recent.preloadImages.map((asset) => asset.id).toList();
-    List<AssetEntity> newAssets =
-        await loadAssets(recent.pathEntity, ++currPage, size: 80);
-    while (newAssets.isNotEmpty) {
+    List<String> currentAssetIds = [];
+    List<AssetEntity> newAssets = [];
+
+    do {
+      newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
       currentAssetIds = List.from(currentAssetIds)
         ..addAll(newAssets.map((asset) => asset.id).toList());
-      newAssets = await loadAssets(recent.pathEntity, ++currPage, size: 80);
-    }
+    } while (newAssets.isNotEmpty);
 
     List<String> removedIds = assets
         .where((asset) {
@@ -175,6 +169,7 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
         })
         .map((asset) => asset.id)
         .toList();
+
     print("found ${removedIds.length} images removed");
     setState(() {
       assets.removeWhere((image) => removedIds.contains(image.id));
@@ -184,10 +179,9 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
 
   Future<void> getImages() async {
     List<AssetEntity> newAssets = [];
-    await insertAssetToDateMap(assets);
-    setState(() {});
+
     while (assets.length < recent.assetCount) {
-      newAssets = await loadAssets(recent.pathEntity, ++currentPage, size: 80);
+      newAssets = await loadAssets(recent.pathEntity, currentPage++, size: 80);
       if (newAssets.isEmpty) break;
 
       assets = List.from(assets)..addAll(newAssets);
@@ -266,8 +260,10 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
             crossAxisCount: 4,
             children: entry.value.map((entry) {
               return GridItemWidget(
+                context: context,
                 asset: entry,
                 favoritePage: false,
+                thumbnailSelection: false,
               );
             }).toList())
       ],

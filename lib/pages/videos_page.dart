@@ -53,10 +53,8 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
       final albumInfoList = Provider.of<AlbumInfoList>(context, listen: false);
 
       recent = albumInfoList.recent!;
-      assets = [...recent.preloadImages];
-      totalLoaded = assets.length;
-
-      assets.removeWhere((asset) => asset.type != AssetType.video);
+      assets = [];
+      totalLoaded = 0;
 
       getVideos();
 
@@ -110,22 +108,18 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
   }
 
   Future<void> checkNewVideos() async {
-    int index = 0;
-    AssetEntity lastLoaded = assets[index];
-
-    List<AssetEntity> newAssets = [...recent.preloadImages];
-    newAssets.removeWhere((asset) => asset.type != AssetType.video);
+    AssetEntity lastLoaded = assets[0];
+    List<AssetEntity> newAssets = [];
 
     int currPage = 0;
 
     while (newAssets.where((asset) => asset.id == lastLoaded.id).isEmpty) {
-      assets = List.from(newAssets)..addAll(assets);
+      newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
+      newAssets.removeWhere((asset) => asset.type != AssetType.video);
 
+      assets = List.from(newAssets)..addAll(assets);
       await insertAssetToDateMap(newAssets);
       setState(() {});
-
-      newAssets = await loadAssets(recent.pathEntity, ++currPage, size: 80);
-      newAssets.removeWhere((asset) => asset.type != AssetType.video);
     }
 
     int prevLoc = newAssets.indexWhere((asset) => asset.id == lastLoaded.id);
@@ -143,21 +137,16 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
 
   Future<void> checkRemovedVideos() async {
     int currPage = 0;
-    List<String> currentAssetIds = recent.preloadImages
-        .where((asset) => asset.type == AssetType.video)
-        .map((asset) => asset.id)
-        .toList();
+    List<String> currentAssetIds = [];
+    List<AssetEntity> newAssets = [];
 
-    List<AssetEntity> newAssets =
-        await loadAssets(recent.pathEntity, ++currPage, size: 80);
-    newAssets.removeWhere((asset) => asset.type != AssetType.video);
+    do {
+      newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
+      newAssets.removeWhere((asset) => asset.type != AssetType.video);
 
-    while (newAssets.isNotEmpty) {
       currentAssetIds = List.from(currentAssetIds)
         ..addAll(newAssets.map((asset) => asset.id).toList());
-      newAssets = await loadAssets(recent.pathEntity, ++currPage, size: 80);
-      newAssets.removeWhere((asset) => asset.type != AssetType.video);
-    }
+    } while (newAssets.isNotEmpty);
 
     List<String> removedIds = assets
         .where((asset) {
@@ -190,11 +179,8 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
   Future<void> getVideos() async {
     List<AssetEntity> newAssets = [];
 
-    await insertAssetToDateMap(assets);
-    setState(() {});
-
     while (totalLoaded < recent.assetCount) {
-      newAssets = await loadAssets(recent.pathEntity, ++currentPage, size: 80);
+      newAssets = await loadAssets(recent.pathEntity, currentPage++, size: 80);
       if (newAssets.isEmpty) break;
 
       totalLoaded += newAssets.length;
@@ -262,8 +248,10 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
             crossAxisCount: 4,
             children: entry.value.map((entry) {
               return GridItemWidget(
+                context: context,
                 asset: entry,
                 favoritePage: false,
+                thumbnailSelection: false,
               );
             }).toList())
       ],

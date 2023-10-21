@@ -11,6 +11,7 @@ enum TextStyleType {
   buttonText(fontSize: 14, color: Colors.white),
   moveToTitle(fontSize: 18, color: Colors.white),
   newFolderHint(fontSize: 14, color: Colors.white54),
+  widgetMenuText(fontSize: 14, color: Colors.white),
 
   // GridItemWidget
   videoDuration(fontSize: 12, color: Colors.white),
@@ -38,7 +39,7 @@ enum TextStyleType {
   settingCategory(fontSize: 16, color: Colors.grey),
   settingsMenu(fontSize: 17, color: Colors.white),
   settingsFineText(fontSize: 14, color: Colors.grey),
-  creditsTitle(fontSize: 24, color: Colors.white),
+  alertTitle(fontSize: 24, color: Colors.white),
   creditsClose(fontSize: 16, color: Colors.white),
   creditsCateogry(fontSize: 18, color: Colors.white),
   creditsName(fontSize: 16, color: Colors.grey);
