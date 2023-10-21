@@ -8,6 +8,7 @@ class AppStatus extends ChangeNotifier {
   int _activeTab = InitialScreen.albums.tabIndex;
   List<String> _favoriteIds = [];
   List<String> _hiddenAblums = [];
+  List<String> _customSorting = [];
   Map<String, dynamic> _customThumbnails = {};
   bool _loading = false;
 
@@ -15,6 +16,7 @@ class AppStatus extends ChangeNotifier {
   bool get loading => _loading;
   List<String> get favoriteIds => _favoriteIds;
   List<String> get hiddenAblums => _hiddenAblums;
+  List<String> get customSorting => _customSorting;
   Map<String, dynamic> get customThumbnails => _customThumbnails;
 
   void initialize() {
@@ -38,6 +40,12 @@ class AppStatus extends ChangeNotifier {
       }
     }
     removeFavorite(toRemove);
+  }
+
+  void setCustomSorting(List<String> order) {
+    _customSorting = order;
+    sharedPref.set(SharedPrefKeys.customSorting, _customSorting);
+    notifyListeners();
   }
 
   void addFavorite(List<String> ids) {

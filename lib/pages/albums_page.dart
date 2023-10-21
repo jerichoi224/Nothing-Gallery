@@ -102,6 +102,12 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
         color: Colors.black,
         onSelected: (SortOption option) {
           sharedPref.set(SharedPrefKeys.sortOption, option.id);
+          if (option == SortOption.custom) {
+            Fluttertoast.showToast(
+              msg: "You can set the order from settings",
+              toastLength: Toast.LENGTH_SHORT,
+            );
+          }
           setState(() {
             sortOption = option;
           });
@@ -141,6 +147,20 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
         albums.sort((b, a) =>
             b.preloadImages[0].createDateTime.millisecondsSinceEpoch.compareTo(
                 a.preloadImages[0].createDateTime.millisecondsSinceEpoch));
+        break;
+      case SortOption.custom:
+        List<AlbumInfo> prevList = List<AlbumInfo>.from(albums);
+        albums.clear();
+        List<String> customOrder =
+            Provider.of<AppStatus>(context, listen: true).customSorting;
+
+        for (String id in customOrder) {
+          int idx = prevList.indexWhere((album) => album.pathEntity.id == id);
+          if (idx == -1) continue;
+          AlbumInfo album = prevList.removeAt(idx);
+          albums.add(album);
+        }
+        albums = List.from(albums)..addAll(prevList);
         break;
       case SortOption.recent:
       default:

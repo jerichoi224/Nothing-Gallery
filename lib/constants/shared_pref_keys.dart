@@ -14,6 +14,7 @@ enum SharedPrefKeys {
   // AlbumsPage
   hiddenAlbums(text: "hiddenAlbums", type: List<String>, onNull: []),
   sortOption(text: "sortOption", type: int, onNull: 0),
+  customSorting(text: "customSorting", type: List<String>, onNull: []),
   customThumbnails(
       text: "customThumbnails",
       type: Map<String, dynamic>,
