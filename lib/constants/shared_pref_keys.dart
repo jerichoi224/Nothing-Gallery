@@ -13,7 +13,11 @@ enum SharedPrefKeys {
 
   // AlbumsPage
   hiddenAlbums(text: "hiddenAlbums", type: List<String>, onNull: []),
-  sortOption(text: "sortOption", type: int, onNull: 0);
+  sortOption(text: "sortOption", type: int, onNull: 0),
+  customThumbnails(
+      text: "customThumbnails",
+      type: Map<String, dynamic>,
+      onNull: <String, dynamic>{});
 
   const SharedPrefKeys(
       {required this.text, required this.type, required this.onNull});

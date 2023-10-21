@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nothing_gallery/constants/constants.dart';
+import 'dart:convert';
 
 class SharedPref {
   late final SharedPreferences prefs;
@@ -17,16 +18,19 @@ class SharedPref {
 
   void set(SharedPrefKeys spKey, dynamic value) {
     String key = spKey.text;
-    if (value.runtimeType == String) {
+    if (value is String) {
       prefs.setString(key, value);
-    } else if (value.runtimeType == double) {
+    } else if (value is double) {
       prefs.setDouble(key, value);
-    } else if (value.runtimeType == bool) {
+    } else if (value is bool) {
       prefs.setBool(key, value);
-    } else if (value.runtimeType == int) {
+    } else if (value is int) {
       prefs.setInt(key, value);
-    } else if (value.runtimeType == List<String>) {
+    } else if (value is List<String>) {
       prefs.setStringList(key, value);
+    } else if (value is Map<String, dynamic>) {
+      String encodedMap = json.encode(value);
+      prefs.setString(key, encodedMap);
     }
     prefMap[key] = value;
   }
@@ -35,6 +39,10 @@ class SharedPref {
     String key = spKey.text;
     if (!prefMap.keys.contains(key)) {
       return spKey.onNull;
+    }
+
+    if (spKey.type == Map<String, dynamic>) {
+      return json.decode(prefMap[key]);
     }
     return prefMap[key];
   }
