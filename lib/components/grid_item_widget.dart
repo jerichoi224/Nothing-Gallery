@@ -10,14 +10,17 @@ import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/model/model.dart';
 
 class GridItemWidget extends StatelessWidget {
-  const GridItemWidget({
-    super.key,
-    required this.asset,
-    required this.favoritePage,
-  });
+  const GridItemWidget(
+      {super.key,
+      required this.context,
+      required this.asset,
+      required this.favoritePage,
+      required this.thumbnailSelection});
 
+  final BuildContext context;
   final AssetEntity asset;
   final bool favoritePage;
+  final bool thumbnailSelection;
 
   final double radius = 0;
 
@@ -30,7 +33,10 @@ class GridItemWidget extends StatelessWidget {
   }
 
   void onTap(ImageSelection imageSelection) async {
-    if (imageSelection.selectionMode) {
+    if (thumbnailSelection) {
+      Navigator.pop(context, asset.id);
+      return;
+    } else if (imageSelection.selectionMode) {
       toggleSelection(imageSelection);
     } else {
       if (asset.type == AssetType.image) {
@@ -42,6 +48,8 @@ class GridItemWidget extends StatelessWidget {
   }
 
   void onLongPress(ImageSelection imageSelection) {
+    if (thumbnailSelection) return;
+
     toggleSelection(imageSelection);
     if (!imageSelection.selectionMode) {
       imageSelection.startSelection();

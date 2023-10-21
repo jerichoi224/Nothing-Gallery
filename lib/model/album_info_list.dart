@@ -49,6 +49,17 @@ class AlbumInfoList extends ChangeNotifier {
     _isRefreshing = false;
   }
 
+  Future<void> changeAlbumThumbnail(AlbumInfo album, String? id) async {
+    if (id == null) {
+      album.thumbnailAsset = album.preloadImages[0];
+    } else {
+      AssetEntity? newThumbnail = await AssetEntity.fromId(id);
+      if (newThumbnail == null) return;
+      album.thumbnailAsset = newThumbnail;
+    }
+    notifyListeners();
+  }
+
   void addAlbum(List<AlbumInfo> albumInfoList) {
     _albums = List.from(_albums)..addAll(albumInfoList);
     _albums.sort((a, b) => b.thumbnailAsset.createDateTime

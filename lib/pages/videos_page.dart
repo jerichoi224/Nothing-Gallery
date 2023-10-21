@@ -248,8 +248,10 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
             crossAxisCount: 4,
             children: entry.value.map((entry) {
               return GridItemWidget(
+                context: context,
                 asset: entry,
                 favoritePage: false,
+                thumbnailSelection: false,
               );
             }).toList())
       ],

@@ -215,8 +215,10 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
                                     .asMap()
                                     .entries
                                     .map((entry) => GridItemWidget(
+                                          context: context,
                                           asset: entry.value,
                                           favoritePage: true,
+                                          thumbnailSelection: false,
                                         ))
                                     .toList()),
                           ],

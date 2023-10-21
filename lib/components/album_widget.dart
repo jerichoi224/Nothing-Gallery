@@ -44,6 +44,10 @@ class AlbumWidget extends StatelessWidget {
         });
   }
 
+  void tapChangeThumbnail(BuildContext context) async {
+    await openImageSelection(context, albumInfo);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -82,8 +86,14 @@ class AlbumWidget extends StatelessWidget {
                               .map((item) => PopupMenuItem<AlbumWidgetMenu>(
                                     value: item,
                                     onTap: () {
-                                      if (item == AlbumWidgetMenu.hideAlbum) {
-                                        tapHideAlbum(context);
+                                      switch (item) {
+                                        case (AlbumWidgetMenu.hideAlbum):
+                                          tapHideAlbum(context);
+                                          break;
+                                        case (AlbumWidgetMenu.changeThumbnail):
+                                          tapChangeThumbnail(context);
+                                          break;
+                                        default:
                                       }
                                     },
                                     child: Text(

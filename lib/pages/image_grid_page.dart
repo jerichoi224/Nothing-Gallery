@@ -14,8 +14,10 @@ import 'package:nothing_gallery/util/util.dart';
 
 class ImageGridWidget extends StatefulWidget {
   final AlbumInfo album;
+  final bool selectImage;
 
-  const ImageGridWidget({super.key, required this.album});
+  const ImageGridWidget(
+      {super.key, required this.album, required this.selectImage});
 
   @override
   State createState() => _ImageGridState();
@@ -156,7 +158,9 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
               Padding(
                   padding: const EdgeInsets.fromLTRB(12, 20, 20, 20),
                   child: Text(
-                    "${albumInfo.pathEntity.name.toUpperCase()} ($totalCount)",
+                    widget.selectImage
+                        ? 'CHOOSE THUMBNAIL'
+                        : "${albumInfo.pathEntity.name.toUpperCase()} ($totalCount)",
                     style: mainTextStyle(TextStyleType.gridPageTitle),
                   )),
               const Spacer(),
@@ -193,8 +197,10 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
                                 .asMap()
                                 .entries
                                 .map((entry) => GridItemWidget(
+                                      context: context,
                                       asset: entry.value,
                                       favoritePage: false,
+                                      thumbnailSelection: widget.selectImage,
                                     ))
                                 .toList()),
                       ],

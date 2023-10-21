@@ -198,6 +198,83 @@ class _SettingsState extends State<SettingsPage> {
     });
   }
 
+  Widget removeCustomThumbnails() {
+    return inkwellRow("Remove Custom Thumbnails", () async {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+                scrollable: true,
+                contentPadding: const EdgeInsets.all(20),
+                title: Text('Albums',
+                    style: mainTextStyle(TextStyleType.alertTitle)),
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                content: SizedBox(
+                    width: double.maxFinite,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                            child: Consumer<AppStatus>(
+                                builder: (context, appStatus, child) {
+                              List<String> customThumbnails =
+                                  appStatus.customThumbnails.keys.toList();
+                              if (customThumbnails.isEmpty) {
+                                return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    child: Text(
+                                      "You have no albums with custom thumbnails.",
+                                      style: mainTextStyle(TextStyleType
+                                          .settingsPageDescription),
+                                    ));
+                              }
+
+                              return Consumer<AlbumInfoList>(
+                                  builder: (context, albumInfoList, child) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: albumInfoList.albums
+                                      .where((album) => customThumbnails
+                                          .contains(album.pathEntity.id))
+                                      .map((album) => Row(
+                                            children: [
+                                              Text(
+                                                album.pathEntity.name
+                                                    .toUpperCase(),
+                                                style: mainTextStyle(TextStyleType
+                                                    .settingsPageDescription),
+                                              ),
+                                              const Spacer(),
+                                              IconButton(
+                                                  onPressed: () {
+                                                    appStatus
+                                                        .removeCustomThumbnail(
+                                                            album
+                                                                .pathEntity.id);
+                                                    albumInfoList
+                                                        .changeAlbumThumbnail(
+                                                            album, null);
+                                                  },
+                                                  icon: const Icon(Icons.close))
+                                            ],
+                                          ))
+                                      .toList(),
+                                );
+                              });
+                            })),
+                        const SizedBox(
+                          height: 10,
+                        )
+                      ],
+                    )));
+          });
+    });
+  }
+
   Widget license() {
     return inkwellRow("License", () async {
       final Uri url = Uri.parse('https://www.gnu.org/licenses/gpl-3.0.txt');
@@ -323,6 +400,8 @@ class _SettingsState extends State<SettingsPage> {
                     albumColumnCount(),
                     const SizedBox(height: 3),
                     showHiddenAlbums(),
+                    const SizedBox(height: 3),
+                    removeCustomThumbnails(),
                     const SizedBox(height: 6),
                     const Divider(),
                     const SizedBox(height: 12),

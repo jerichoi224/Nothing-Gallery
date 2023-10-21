@@ -260,8 +260,10 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
             crossAxisCount: 4,
             children: entry.value.map((entry) {
               return GridItemWidget(
+                context: context,
                 asset: entry,
                 favoritePage: false,
+                thumbnailSelection: false,
               );
             }).toList())
       ],

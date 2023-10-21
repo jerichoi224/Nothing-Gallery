@@ -3,6 +3,7 @@ import 'package:nothing_gallery/model/model.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import 'package:nothing_gallery/pages/pages.dart';
+import 'package:provider/provider.dart';
 
 void openSettings(BuildContext context) async {
   await Navigator.push(
@@ -37,17 +38,37 @@ Future<void> openImagePage(
       ));
 }
 
-void openAlbum(BuildContext context, AlbumInfo albumInfo) async {
+Future<void> openImageSelection(
+    BuildContext context, AlbumInfo albumInfo) async {
   await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ImageGridWidget(
           album: albumInfo,
+          selectImage: true,
+        ),
+      )).then((value) {
+    if (value != null) {
+      Provider.of<AlbumInfoList>(context, listen: false)
+          .changeAlbumThumbnail(albumInfo, value);
+      Provider.of<AppStatus>(context, listen: false)
+          .setCustomThumbnail(albumInfo.pathEntity.id, value);
+    }
+  });
+}
+
+Future<void> openAlbum(BuildContext context, AlbumInfo albumInfo) async {
+  await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImageGridWidget(
+          album: albumInfo,
+          selectImage: false,
         ),
       ));
 }
 
-void openVideoPage(BuildContext context) async {
+Future<void> openVideoPage(BuildContext context) async {
   await Navigator.push(
       context,
       MaterialPageRoute(
@@ -55,7 +76,7 @@ void openVideoPage(BuildContext context) async {
       ));
 }
 
-void openFavoritePage(BuildContext context) async {
+Future<void> openFavoritePage(BuildContext context) async {
   await Navigator.push(
       context,
       MaterialPageRoute(
