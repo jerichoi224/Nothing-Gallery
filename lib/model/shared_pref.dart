@@ -40,8 +40,8 @@ class SharedPref {
     if (!prefMap.keys.contains(key)) {
       return spKey.onNull;
     }
-
     if (spKey.type == Map<String, dynamic>) {
+      if (prefMap[key] is Map<String, dynamic>) return prefMap[key];
       return json.decode(prefMap[key]);
     }
     return prefMap[key];

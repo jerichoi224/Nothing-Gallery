@@ -104,19 +104,15 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
           sharedPref.set(SharedPrefKeys.sortOption, option.id);
           if (option == SortOption.custom) {
             Fluttertoast.showToast(
-              msg: "You can set the order from settings",
-              toastLength: Toast.LENGTH_SHORT,
-            );
+                msg: "You can set the order from settings",
+                toastLength: Toast.LENGTH_SHORT);
           }
           setState(() {
             sortOption = option;
           });
         },
         child: const InkWell(
-          child: Icon(
-            Icons.filter_list_rounded,
-            size: 26,
-          ),
+          child: Icon(Icons.filter_list_rounded, size: 26),
         ),
         itemBuilder: (BuildContext context) {
           return [
@@ -124,13 +120,17 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
               PopupMenuItem(
                   value: value,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      value.text,
-                      textAlign: TextAlign.center,
-                      style: mainTextStyle(TextStyleType.popUpMenu),
-                    ),
-                  ))
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Row(children: [
+                        Text(value.text,
+                            textAlign: TextAlign.center,
+                            style: mainTextStyle(TextStyleType.popUpMenu)),
+                        const Spacer(),
+                        sortOption == value
+                            ? const Icon(Icons.check,
+                                color: Colors.white60, size: 20)
+                            : Container()
+                      ])))
           ];
         });
   }

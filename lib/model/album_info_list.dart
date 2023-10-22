@@ -49,7 +49,6 @@ class AlbumInfoList extends ChangeNotifier {
     notifyListeners();
 
     _recent = _albums.firstWhere((album) => album.pathEntity.isAll);
-
     _isRefreshing = false;
   }
 

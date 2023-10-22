@@ -146,9 +146,7 @@ class _SelectionMenuState extends State<SelectionMenu>
 
                     return value;
                   });
-                  if (destinationPath.isEmpty) {
-                    return;
-                  }
+                  if (destinationPath.isEmpty) return;
                 } else {
                   File? destinationFile =
                       await albumInfo.thumbnailAsset.file.then((value) {
@@ -210,31 +208,26 @@ class _SelectionMenuState extends State<SelectionMenu>
                     decoration: const BoxDecoration(
                       color: Colors.black,
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(24.0),
-                        topRight: Radius.circular(24.0),
-                      ),
+                          topLeft: Radius.circular(24.0),
+                          topRight: Radius.circular(24.0)),
                     ),
                     child: Column(
                       children: [
                         const SizedBox(height: 32),
-                        Text(
-                          'Choose Album',
-                          style: mainTextStyle(TextStyleType.moveToTitle),
-                        ),
+                        Text('Choose Album',
+                            style: mainTextStyle(TextStyleType.moveToTitle)),
                         const SizedBox(height: 20),
                         Expanded(
-                          child: albumButtonListBuilder(
-                              controller, copyFiles, selectedAssets),
-                        ),
+                            child: albumButtonListBuilder(
+                                controller, copyFiles, selectedAssets)),
                         const SizedBox(height: 12),
                         ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              surfaceTintColor: Colors.transparent,
-                              backgroundColor: Colors.transparent),
-                          child: Text('Cancel',
-                              style: mainTextStyle(TextStyleType.buttonText)),
-                          onPressed: () => Navigator.pop(context),
-                        ),
+                            style: ElevatedButton.styleFrom(
+                                surfaceTintColor: Colors.transparent,
+                                backgroundColor: Colors.transparent),
+                            child: Text('Cancel',
+                                style: mainTextStyle(TextStyleType.buttonText)),
+                            onPressed: () => Navigator.pop(context)),
                         const SizedBox(height: 12),
                       ],
                     ),
@@ -284,11 +277,7 @@ class _SelectionMenuState extends State<SelectionMenu>
                     // Can't read files that are copied for some reason..
                     // case SelectedImageMenu.copyTo:
                     case SelectedImageMenu.moveTo:
-                      copyMoveAssetsPanel(
-                          context,
-                          // item == SelectedImageMenu.copyTo,
-                          false,
-                          selectedAssets);
+                      copyMoveAssetsPanel(context, false, selectedAssets);
                       break;
                     default:
                   }

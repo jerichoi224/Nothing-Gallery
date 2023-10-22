@@ -136,6 +136,8 @@ class _CustomSortPageState extends State<CustomSortPage> {
                           childAspectRatio: 0.85,
                           children: albums
                               .map((albumInfo) => Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       key: ValueKey(albumInfo.pathEntity.id),
                                       children: [
                                         ThumbnailWidget(
