@@ -104,19 +104,15 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
           sharedPref.set(SharedPrefKeys.sortOption, option.id);
           if (option == SortOption.custom) {
             Fluttertoast.showToast(
-              msg: "You can set the order from settings",
-              toastLength: Toast.LENGTH_SHORT,
-            );
+                msg: "You can set the order from settings",
+                toastLength: Toast.LENGTH_SHORT);
           }
           setState(() {
             sortOption = option;
           });
         },
         child: const InkWell(
-          child: Icon(
-            Icons.filter_list_rounded,
-            size: 26,
-          ),
+          child: Icon(Icons.filter_list_rounded, size: 26),
         ),
         itemBuilder: (BuildContext context) {
           return [

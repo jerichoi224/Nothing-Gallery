@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/components/dialog_bottom_button.dart';
 import 'package:nothing_gallery/constants/album_widget_menu.dart';
 
 import 'package:nothing_gallery/style.dart';
@@ -48,6 +47,35 @@ class AlbumWidget extends StatelessWidget {
     await openImageSelection(context, albumInfo);
   }
 
+  Future<void> showPopupMenu(BuildContext context, Offset offset) async {
+    showMenu(
+        context: context,
+        position: RelativeRect.fromLTRB(
+          offset.dx,
+          offset.dy,
+          MediaQuery.of(context).size.width - offset.dx,
+          MediaQuery.of(context).size.height - offset.dy,
+        ),
+        items: AlbumWidgetMenu.values
+            .map((item) => PopupMenuItem<AlbumWidgetMenu>(
+                  value: item,
+                  onTap: () async {
+                    switch (item) {
+                      case (AlbumWidgetMenu.hideAlbum):
+                        tapHideAlbum(context);
+                        break;
+                      case (AlbumWidgetMenu.changeThumbnail):
+                        tapChangeThumbnail(context);
+                        break;
+                      default:
+                    }
+                  },
+                  child: Text(item.text,
+                      style: mainTextStyle(TextStyleType.widgetMenuText)),
+                ))
+            .toList());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -74,35 +102,7 @@ class AlbumWidget extends StatelessWidget {
                     ),
                     onLongPressStart: (details) async {
                       final offset = details.globalPosition;
-                      showMenu(
-                          context: context,
-                          position: RelativeRect.fromLTRB(
-                            offset.dx,
-                            offset.dy,
-                            MediaQuery.of(context).size.width - offset.dx,
-                            MediaQuery.of(context).size.height - offset.dy,
-                          ),
-                          items: AlbumWidgetMenu.values
-                              .map((item) => PopupMenuItem<AlbumWidgetMenu>(
-                                    value: item,
-                                    onTap: () {
-                                      switch (item) {
-                                        case (AlbumWidgetMenu.hideAlbum):
-                                          tapHideAlbum(context);
-                                          break;
-                                        case (AlbumWidgetMenu.changeThumbnail):
-                                          tapChangeThumbnail(context);
-                                          break;
-                                        default:
-                                      }
-                                    },
-                                    child: Text(
-                                      item.text,
-                                      style: mainTextStyle(
-                                          TextStyleType.widgetMenuText),
-                                    ),
-                                  ))
-                              .toList());
+                      showPopupMenu(context, offset);
                     },
                   )),
             ),
