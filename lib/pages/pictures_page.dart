@@ -122,14 +122,15 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
     int currPage = 0;
 
     while (newAssets.where((asset) => asset.id == lastLoaded.id).isEmpty) {
-      assets = List.from(newAssets)..addAll(assets);
-      images =
-          List.from(newAssets.where((asset) => asset.type == AssetType.image))
-            ..addAll(images);
+      if (newAssets.isNotEmpty) {
+        assets = List.from(newAssets)..addAll(assets);
+        images =
+            List.from(newAssets.where((asset) => asset.type == AssetType.image))
+              ..addAll(images);
 
-      await insertAssetToDateMap(newAssets);
-      setState(() {});
-
+        await insertAssetToDateMap(newAssets);
+        setState(() {});
+      }
       newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
     }
 

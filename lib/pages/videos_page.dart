@@ -114,14 +114,15 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
     int currPage = 0;
 
     while (newAssets.where((asset) => asset.id == lastLoaded.id).isEmpty) {
+      if (newAssets.isNotEmpty) {
+        assets = List.from(newAssets)..addAll(assets);
+        await insertAssetToDateMap(newAssets);
+        setState(() {});
+      }
       newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
       newAssets.removeWhere((asset) => asset.type != AssetType.video);
-
-      assets = List.from(newAssets)..addAll(assets);
-      await insertAssetToDateMap(newAssets);
-      setState(() {});
     }
-
+    newAssets.removeWhere((asset) => asset.type != AssetType.video);
     int prevLoc = newAssets.indexWhere((asset) => asset.id == lastLoaded.id);
     newAssets = newAssets.sublist(0, prevLoc);
 
@@ -141,11 +142,11 @@ class _VideosPageState extends LifecycleListenerState<VideosPage> {
     List<AssetEntity> newAssets = [];
 
     do {
-      newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
       newAssets.removeWhere((asset) => asset.type != AssetType.video);
 
       currentAssetIds = List.from(currentAssetIds)
         ..addAll(newAssets.map((asset) => asset.id).toList());
+      newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
     } while (newAssets.isNotEmpty);
 
     List<String> removedIds = assets
