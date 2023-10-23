@@ -98,11 +98,11 @@ class _FavoriteState extends LifecycleListenerState<FavoritePage> {
     List<AssetEntity> newAssets = [];
 
     do {
-      newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
       newAssets
           .removeWhere((asset) => !appStatus.favoriteIds.contains(asset.id));
       currentAssetIds = List.from(currentAssetIds)
         ..addAll(newAssets.map((asset) => asset.id).toList());
+      newAssets = await loadAssets(recent.pathEntity, currPage++, size: 80);
     } while (newAssets.isNotEmpty);
 
     List<String> removedIds = assets
