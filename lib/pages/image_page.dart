@@ -107,10 +107,11 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     return PhotoViewGalleryPageOptions(
         minScale: min(MediaQuery.of(context).size.width / orientatedSize.width,
             MediaQuery.of(context).size.height / orientatedSize.height),
-        imageProvider: AssetEntityImage(
-          images[index],
-          isOriginal: true,
-        ).image);
+        imageProvider: AssetEntityImage(images[index], isOriginal: true,
+            loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return AssetEntityImage(images[index], isOriginal: false);
+        }).image);
   }
 
   Widget imagePageWrapper(Widget child) {

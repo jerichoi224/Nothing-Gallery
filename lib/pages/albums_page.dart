@@ -237,8 +237,8 @@ class _AlbumsState extends LifecycleListenerState<AlbumsWidget>
                             SliverPadding(
                                 padding: const EdgeInsets.all(10),
                                 sliver: SliverGrid.count(
-                                    crossAxisSpacing: 15,
-                                    mainAxisSpacing: 15,
+                                    crossAxisSpacing: albumsCol == 2 ? 15 : 10,
+                                    mainAxisSpacing: albumsCol == 2 ? 15 : 10,
                                     crossAxisCount: albumsCol,
                                     childAspectRatio: 0.85,
                                     children: albums
