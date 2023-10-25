@@ -282,7 +282,7 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
           imageSelection,
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
                 child: Row(
                   children: [
                     Text(

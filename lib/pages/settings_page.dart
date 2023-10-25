@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:nothing_gallery/classes/classes.dart';
-import 'package:nothing_gallery/components/dialog_bottom_button.dart';
-import 'package:nothing_gallery/model/album_info_list.dart';
-import 'package:nothing_gallery/model/app_status.dart';
-import 'package:nothing_gallery/util/util.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-
-import 'package:nothing_gallery/constants/constants.dart';
-import 'package:nothing_gallery/main.dart';
-import 'package:nothing_gallery/style.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'package:nothing_gallery/style.dart';
+import 'package:nothing_gallery/main.dart';
+import 'package:nothing_gallery/components/components.dart';
+import 'package:nothing_gallery/constants/constants.dart';
+import 'package:nothing_gallery/classes/classes.dart';
+import 'package:nothing_gallery/util/util.dart';
+import 'package:nothing_gallery/model/model.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
