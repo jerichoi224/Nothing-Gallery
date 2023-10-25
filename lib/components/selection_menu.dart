@@ -177,7 +177,6 @@ class _SelectionMenuState extends State<SelectionMenu>
                             .add(Event(EventType.assetMoved, files));
                       }
                     }
-                    Navigator.pop(context, files);
                   }
                 });
               });

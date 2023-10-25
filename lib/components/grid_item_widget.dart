@@ -22,7 +22,7 @@ class GridItemWidget extends StatelessWidget {
   final bool favoritePage;
   final bool thumbnailSelection;
 
-  final double radius = 0;
+  final double radius = 2;
 
   void toggleSelection(ImageSelection imageSelection) {
     if (imageSelection.selectedIds.contains(asset.id)) {
