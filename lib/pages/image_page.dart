@@ -40,7 +40,6 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
   List<AssetEntity> images = [];
   bool decorationVisible = true;
 
-  late PhotoViewController photoViewController;
   late AnimationController animationController;
   late Animation fadeAnimation;
   StreamSubscription? eventSubscription;
@@ -56,7 +55,6 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
 
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
-    photoViewController = PhotoViewController();
     fadeAnimation = Tween(begin: 0, end: 1).animate(animationController);
 
     eventSubscription =
@@ -80,12 +78,6 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
           images.removeAt(index);
 
           imageTotal -= 1;
-          Size orientatedSize = images[index].orientatedSize;
-
-          double newScale = min(
-              MediaQuery.of(context).size.width / orientatedSize.width,
-              MediaQuery.of(context).size.height / orientatedSize.height);
-          photoViewController.updateMultiple(scale: newScale);
 
           setState(() {});
           break;
@@ -106,7 +98,6 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
   void dispose() {
     super.dispose();
     animationController.dispose();
-    photoViewController.dispose();
     eventSubscription?.cancel();
     toggleStatusBar(true);
   }
@@ -114,7 +105,6 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
     Size orientatedSize = images[index].orientatedSize;
     return PhotoViewGalleryPageOptions(
-        controller: photoViewController,
         minScale: min(MediaQuery.of(context).size.width / orientatedSize.width,
             MediaQuery.of(context).size.height / orientatedSize.height),
         imageProvider: AssetEntityImage(

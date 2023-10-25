@@ -255,8 +255,8 @@ class _PicturesState extends LifecycleListenerState<PicturesWidget>
         GridView.count(
             padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
             primary: false,
-            crossAxisSpacing: 3,
-            mainAxisSpacing: 3,
+            crossAxisSpacing: 2,
+            mainAxisSpacing: 2,
             shrinkWrap: true,
             crossAxisCount: 4,
             children: entry.value.map((entry) {
