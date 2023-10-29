@@ -99,6 +99,7 @@ class _ImageGridState extends LifecycleListenerState<ImageGridWidget> {
 
   Future<void> getImages() async {
     assets.clear();
+    images.clear();
 
     List<AssetEntity> newAssets = [];
     while (assets.length < albumInfo.assetCount) {
