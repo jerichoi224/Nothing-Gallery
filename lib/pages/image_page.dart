@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -15,7 +16,7 @@ import 'package:nothing_gallery/constants/constants.dart';
 import 'package:nothing_gallery/util/util.dart';
 
 class ImagePageWidget extends StatefulWidget {
-  final int index;
+  final int currentIndex;
   final int imageTotal;
   final PageController pageController;
   final List<AssetEntity> images;
@@ -25,9 +26,9 @@ class ImagePageWidget extends StatefulWidget {
       {super.key,
       required this.images,
       required this.imageTotal,
-      required this.index,
+      required this.currentIndex,
       required this.favoritesPage})
-      : pageController = PageController(initialPage: index);
+      : pageController = PageController(initialPage: currentIndex);
 
   @override
   State createState() => _ImagePageWidgetState();
@@ -35,7 +36,7 @@ class ImagePageWidget extends StatefulWidget {
 
 class _ImagePageWidgetState extends State<ImagePageWidget>
     with SingleTickerProviderStateMixin {
-  int index = 0;
+  int currentIndex = 0;
   int imageTotal = 0;
   List<AssetEntity> images = [];
   bool decorationVisible = true;
@@ -49,7 +50,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
-    index = widget.index;
+    currentIndex = widget.currentIndex;
     imageTotal = widget.imageTotal;
     images = [...widget.images];
 
@@ -62,9 +63,9 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
       switch (validateEventType(event)) {
         case EventType.favoriteRemoved:
           if (widget.favoritesPage) {
-            images.removeAt(index);
-            if (images.length == index) {
-              index--;
+            images.removeAt(currentIndex);
+            if (images.length == currentIndex) {
+              currentIndex--;
             }
             imageTotal -= 1;
             setState(() {});
@@ -72,10 +73,10 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
           break;
         case EventType.assetMoved:
         case EventType.assetDeleted:
-          if (images.length == index) {
-            index--;
+          if (images.length == currentIndex) {
+            currentIndex--;
           }
-          images.removeAt(index);
+          images.removeAt(currentIndex);
 
           imageTotal -= 1;
 
@@ -107,11 +108,10 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
     return PhotoViewGalleryPageOptions(
         minScale: min(MediaQuery.of(context).size.width / orientatedSize.width,
             MediaQuery.of(context).size.height / orientatedSize.height),
-        imageProvider: AssetEntityImage(images[index], isOriginal: true,
-            loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return AssetEntityImage(images[index], isOriginal: false);
-        }).image);
+        imageProvider: AssetEntityImage(
+          images[index],
+          isOriginal: true,
+        ).image);
   }
 
   Widget imagePageWrapper(Widget child) {
@@ -122,6 +122,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
               return true;
             },
             child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: () => setState(() {
                       decorationVisible = !decorationVisible;
                       toggleStatusBar(decorationVisible);
@@ -139,25 +140,70 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
       return Container();
     } else {
       return imagePageWrapper(Stack(children: <Widget>[
-        Hero(
-          tag: images[index].id,
-          child: PhotoViewGallery.builder(
-            pageController: widget.pageController,
-            loadingBuilder: (context, event) {
-              return Image(
-                  fit: BoxFit.contain,
-                  image: AssetEntityImageProvider(
-                    images[index],
-                    isOriginal: false,
-                  ));
-            },
-            allowImplicitScrolling: true,
-            itemCount: imageTotal,
-            builder: _buildItem,
-            onPageChanged: (index) => setState(() {
-              this.index = index;
-            }),
+        ExtendedImageGesturePageView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            var file = widget.images[index].file;
+            Widget image = ExtendedImage(
+              image: AssetEntityImage(
+                images[index],
+                isOriginal: true,
+              ).image,
+              fit: BoxFit.contain,
+              mode: ExtendedImageMode.gesture,
+              initGestureConfigHandler: (ExtendedImageState state) {
+                return GestureConfig(
+                  //you must set inPageView true if you want to use ExtendedImageGesturePageView
+                  inPageView: true,
+                  initialScale: 1.0,
+                  maxScale: 5.0,
+                  animationMaxScale: 6.0,
+                  initialAlignment: InitialAlignment.center,
+                );
+              },
+            );
+
+            image = Container(
+              child: image,
+              padding: EdgeInsets.all(5.0),
+            );
+            if (index == currentIndex) {
+              return Hero(
+                tag: images[currentIndex].id,
+                child: image,
+              );
+            } else {
+              return image;
+            }
+          },
+          itemCount: imageTotal,
+          onPageChanged: (int index) {
+            setState(() {
+              currentIndex = index;
+            });
+          },
+          controller: ExtendedPageController(
+            initialPage: currentIndex,
           ),
+          scrollDirection: Axis.horizontal,
+
+          // PhotoViewGallery.builder(
+          //   pageController: widget.pageController,
+          //   loadingBuilder: (context, event) {
+          //     return Container(color: Colors.black);
+          //     // Image(
+          //     //     fit: BoxFit.contain,
+          //     //     image: AssetEntityImageProvider(
+          //     //       images[index],
+          //     //       isOriginal: false,
+          //     //     ));
+          //   },
+          //   allowImplicitScrolling: true,
+          //   itemCount: imageTotal,
+          //   builder: _buildItem,
+          //   onPageChanged: (index) => setState(() {
+          //     this.index = index;
+          //   }),
+          // ),
         ),
         AnimatedOpacity(
             opacity: decorationVisible ? 1.0 : 0.0,
@@ -192,7 +238,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                           },
                           icon: const Icon(Icons.arrow_back)),
                       Text(
-                        "${index + 1}/$imageTotal",
+                        "${currentIndex + 1}/$imageTotal",
                         style: mainTextStyle(TextStyleType.imageIndex),
                       ),
                     ],
@@ -213,7 +259,7 @@ class _ImagePageWidgetState extends State<ImagePageWidget>
                     ),
                   ),
                   child: SingleItemBottomMenu(
-                    asset: images[index],
+                    asset: images[currentIndex],
                     popOnDelete: false,
                     parentContext: context,
                     favoritesPage: widget.favoritesPage,

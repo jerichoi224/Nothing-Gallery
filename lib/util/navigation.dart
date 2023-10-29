@@ -33,7 +33,7 @@ Future<void> openImagePage(
         builder: (context) => ImagePageWidget(
             images: images,
             imageTotal: imageCount,
-            index: index,
+            currentIndex: index,
             favoritesPage: favoritesPage),
       ));
 }
