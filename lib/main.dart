@@ -68,27 +68,26 @@ class _MainState extends State<MainApp> {
   Future<void> checkPermission() async {
     bool permitted = false;
     var androidInfo = await DeviceInfoPlugin().androidInfo;
+    final PermissionState ps = await PhotoManager.requestPermissionExtend();
 
     if (androidInfo.version.sdkInt <= 32) {
-      permitted = await Permission.storage.request().isGranted;
+      permitted = await Permission.storage.isGranted;
     } else {
       permitted = await Permission.mediaLibrary.request().isGranted &&
           await Permission.photos.request().isGranted &&
           await Permission.videos.request().isGranted;
     }
-    final PermissionState ps = await PhotoManager.requestPermissionExtend();
 
     if (permitted || ps.isAuth) {
       setState(() {
         permissionChecked = permissionGranted = true;
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
           Provider.of<AppStatus>(context, listen: false).initialize();
-          Provider.of<AlbumInfoList>(context, listen: false)
-              .refreshAlbums()
-              .then((value) {
-            setState(() {
-              initialized = true;
-            });
+          await Provider.of<AlbumInfoList>(context, listen: false)
+              .refreshAlbums();
+
+          setState(() {
+            initialized = true;
           });
         });
       });
