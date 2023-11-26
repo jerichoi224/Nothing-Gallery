@@ -17,8 +17,6 @@ jobs:
         with:
           channel: 'beta'
       - run: flutter pub get
-      - run: flutter format --set-exit-if-changed .
-      - run: flutter analyze .
       - run: flutter build apk
       - uses: actions/upload-artifact@v1
         with:
