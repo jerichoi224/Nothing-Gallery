@@ -3,6 +3,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -65,7 +66,12 @@ class _MainState extends State<MainApp> {
     checkPermission();
   }
 
+  Future<void> initialize() async {
+    await FlutterDisplayMode.setHighRefreshRate();
+  }
+
   Future<void> checkPermission() async {
+    await initialize();
     bool permitted = false;
     var androidInfo = await DeviceInfoPlugin().androidInfo;
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
