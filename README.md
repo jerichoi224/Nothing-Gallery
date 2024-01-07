@@ -1,4 +1,6 @@
 # Nothing Gallery (Unofficial)
+![Downloads](https://img.shields.io/github/downloads/jerichoi224/Nothing-Gallery/total?color=%23247EE0&label=Downloads)
+![License](https://img.shields.io/github/license/jerichoi224/Nothing-Gallery?color=%23247EE0)
 
  <img src="https://raw.githubusercontent.com/jerichoi224/Nothing-Gallery/main/images/feature_art.png">
 
