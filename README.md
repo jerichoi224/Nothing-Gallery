@@ -12,6 +12,9 @@ Gallery for Nothing Phone with effort to follow the Nothing Design Language
 - View by Favorites
 - View Videos only
 - Share/Delete/Move multiple files
+- Edit Album Thumbnails
+- Hide Albums
+- Sort Album Order
 
 ### Screenshots
 <p float="left">
